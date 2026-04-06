@@ -1,3 +1,8 @@
+# internal notes
+todo.md
+local_files/
+local_files/**
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
