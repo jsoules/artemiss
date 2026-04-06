@@ -30,7 +30,7 @@ const PlotGrid: FunctionComponent<PlotGridProps> = (props: PlotGridProps) => {
         .map(c => c.map(f => f.map(triplet => [...triplet, 1.0]).flat()))
 
     const canvasRows = resolvedCoarseVals.map((coarseValue, coarseIdx) => (
-            <Grid container item key={`${coarseValue}`}>
+            <Grid container key={`${coarseValue}`}>
                 { resolvedFineVals.map((fineValue, fineIdx) => {
                     const mouseHandler = mouseHandlers.mouseHandlerFactory({
                         coarseValue,
@@ -40,7 +40,7 @@ const PlotGrid: FunctionComponent<PlotGridProps> = (props: PlotGridProps) => {
                         ids: ids[coarseIdx][fineIdx]
                     })
                     return (
-                        <Grid item xs={0} key={`${fineValue}`}>
+                        <Grid size={{ xs:0 }} key={`${fineValue}`}>
                             <CanvasPlotWrapper
                                 key={`${coarseValue}-${fineValue}`}
                                 data={data[coarseIdx][fineIdx]}
