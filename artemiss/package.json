@@ -17,8 +17,8 @@
     "test-watch": "vitest"
   },
   "dependencies": {
-    "@emotion/react": "^11.0.0",
-    "@emotion/styled": "^11.0.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.7",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.0.0",
