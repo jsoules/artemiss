@@ -2,38 +2,38 @@ import { SupportedColorMap } from "@snComponents/display/Colormaps"
 import InstructionButton from "@snComponents/general/InstructionButton"
 import { ModelInstructionDrawer } from "@snComponents/general/InstructionDrawer"
 import { HrBar, Spinner } from "@snGeneralComponents/index"
-import { useModel, useRecord } from "@snQuerying/index"
-import { defaultEmptyRecord } from "@snTypes/Defaults"
-import { getStringId } from "@snUtil/makeResourcePath"
+import { useDevice, useDevice3dModel } from "@snQuerying/index"
+import { defaultEmptyDevice } from "@snTypes/Defaults"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
-import { DownloadLinks, IotaProfilePlot, PoincarePlot, RecordManifest, SimulationView, SurfaceControls } from "@snVisualizer/index"
+import { DownloadLinks, RecordManifest, SimulationView, SurfaceControls } from "@snVisualizer/index"
 import { FunctionComponent, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router"
 import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
 
 const Model: FunctionComponent = () => {
     const params = useParams()
-    const id = params.modelId
-    if (id === undefined) {
-        throw Error(`Can't happen: modelId parameter not set in ${JSON.stringify(params)}`)
+    const modelUrlChunk = params.modelUrlChunk
+    if (modelUrlChunk === undefined) {
+        throw Error(`Can't happen: modelUrlChunk parameter not set in ${JSON.stringify(params)}`)
     }
-    const stringId = getStringId(id)
     const canvasRef = useRef(null)
-    const rec = useRecord(id)
-    const { baseCoils, baseSurfs, fullCoils, fullSurfs, surfaceCount } = useModel(stringId.id, rec.nfp)
+    const device = useDevice(modelUrlChunk)
+    // const { baseCoils, baseSurfs, fullCoils, fullSurfs, surfaceCount } = useDevice3dModel(stringId.id, device.nfp)
+    const deviceModel = useDevice3dModel(device)
     
     const [instructionsOpen, setInstructionsOpen] = useState(false)
     const [colorMap, setColorMap] = useState<SupportedColorMap>(SupportedColorMap.PLASMA)
     const [showFullRing, setShowFullRing] = useState<boolean>(false)
     const [showCurrents, setShowCurrents] = useState<boolean>(true)
     const [autorotate, setAutorotate] = useState<boolean>(false)
-    const [surfaceChecks, setSurfaceChecks] = useState<boolean[]>(Array(rec.nSurfaces).fill(true))
+    const [surfaceChecks, setSurfaceChecks] = useState<boolean[]>(Array(device.nSurfaces).fill(true))
     useEffect(() => {
-        setSurfaceChecks(Array<boolean>(rec.nSurfaces).fill(true))
-    }, [rec.nSurfaces])
+        setSurfaceChecks(Array<boolean>(device.nSurfaces).fill(true))
+    }, [device.nSurfaces])
 
-    const downloadLinks = <DownloadLinks id={stringId.id} />
-    const poincarePlot = <PoincarePlot id={stringId.id}/>
+    const FIXME_STRINGID = { 'id': 'foo' }
+    const downloadLinks = <DownloadLinks id={FIXME_STRINGID.id} />
+    // const poincarePlot = <PoincarePlot id={stringId.id}/>
 
     // const { width, height } = useWindowDimensions()
     const { width } = useWindowDimensions()
@@ -65,12 +65,14 @@ const Model: FunctionComponent = () => {
                     width={lw}
                     height={0.8 * lw}
                     canvasRef={canvasRef}
-                    coils={showFullRing ? fullCoils : baseCoils}
-                    surfs={showFullRing ? fullSurfs : baseSurfs}
+                    // coils={showFullRing ? fullCoils : baseCoils}
+                    device={deviceModel}
+                    showFullRing={showFullRing}
+                    // surfs={showFullRing ? fullSurfs : baseSurfs}
                     surfaceChecks={surfaceChecks}
                     colorScheme={colorMap}
-                    displayedPeriods={showFullRing ? 2 * rec.nfp : 1}
-                    showCurrents={showCurrents}
+                    displayedPeriods={showFullRing ? 2 * device.nfp : 1}
+                    // showCurrents={showCurrents}
                     autorotate={autorotate}
                 />
             </>
@@ -81,10 +83,10 @@ const Model: FunctionComponent = () => {
                 <Spinner />
             </div>
         )
-        return (baseCoils.length === 0 || baseSurfs === undefined || baseSurfs.incomplete) ? spinner : ifAvail
-    }, [lw, showFullRing, fullCoils, baseCoils, fullSurfs, baseSurfs, surfaceChecks, colorMap, rec.nfp, showCurrents, autorotate])
+        return (deviceModel.baseSurfaces === undefined) ? spinner : ifAvail
+    }, [lw, showFullRing, surfaceChecks, colorMap, device.nfp, showCurrents, autorotate])
 
-    return rec === defaultEmptyRecord
+    return device === defaultEmptyDevice
         ? <div></div>
         : (<div className="simulationViewParent ForceLightMode">
             <ModelInstructionDrawer open={instructionsOpen} changeOpenState={setInstructionsOpen} />
@@ -95,7 +97,7 @@ const Model: FunctionComponent = () => {
             <div className="flexWrapper simulationViewParent">
                 <div style={{width: Math.floor(lw + 40)}} className="simulationViewWrapper">
                     <SurfaceControls
-                        checksNeeded={surfaceCount > 0}
+                        checksNeeded={device.nSurfaces > 0}
                         surfaceChecks={surfaceChecks}
                         setSurfaceChecks={setSurfaceChecks}
                         showCurrents={showCurrents}
@@ -116,14 +118,15 @@ const Model: FunctionComponent = () => {
                     {viewer}
                 </div>
                 <div style={{width: Math.floor(rw) }}>
-                    <IotaProfilePlot iotaProfile={rec.iotaProfile} tfProfile={rec.tfProfile} meanIota={rec.meanIota} width={rw} height={rw} />
+                    {/* TODO: RE-ADD PLOTS */}
+                    {/* <IotaProfilePlot iotaProfile={device.iotaProfile} tfProfile={device.tfProfile} meanIota={device.meanIota} width={rw} height={rw} /> */}
                     <HrBar />
-                    <RecordManifest rec={rec} colWidth={Math.floor(rw)} />
+                    <RecordManifest device={device} colWidth={Math.floor(rw)} />
                 </div>
             </div>
             <HrBar />
-            {poincarePlot}
-            <HrBar />
+            {/* {poincarePlot}
+            <HrBar /> */}
             {downloadLinks}
         </div>
     )

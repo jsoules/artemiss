@@ -1,119 +1,108 @@
 import { CategoricalIndexedFields, Fields, KnownFields } from "@snTypes/DataDictionary"
-import { CategoricalIndexSet, NavigatorDatabase, NumericIndex, RecordDict, StellaratorRecord } from "@snTypes/Types"
+import { ArtemissRecord, CategoricalIndexSet, NavigatorDatabase, NumericIndex, RecordDict } from "@snTypes/Types"
+import { makeUrl } from "@snUtil/makeResourcePath"
+
+// NOTE: TODO: purge comments/outdated stuff
 
 export type fieldType = number | string | string[] | number[]
 
 export type RawData = {
-    columns: string[],
-    index: number[],
-    data: fieldType[][]
+    database_from: string[],
+    group_name: string[],
+    uuid: string[],
+    database_from_ID: string[],
+    nfp: number[],
+    phiedge: number[],
+    minor_radius: number[],
+    aspect_ratio: number[],
+    volume: number[],
+    volavgB: number[],
+    min_L_grad_B: number[],
+    vacuum_well: number[],
+    loss_fraction_s_0_25: number[],
 }
 
-export enum RawFields {
-    ID                       = 'ID',
-    COIL_LENGTH_PER_HP       = 'coil_length_per_hp',
-    TOTAL_COIL_LENGTH        = 'total_coil_length',
-    TOTAL_COIL_LENGTH_THRESH = 'total_coil_length_threshold',
-    MEAN_IOTA                = 'mean_iota',
-    NC_PER_HP                = 'nc_per_hp',
-    NFP                      = 'nfp',
-    N_FOURIER_COIL           = 'Nfourier_coil',
-    NSURFACES                = 'Nsurfaces',
-    MAX_KAPPA                = 'max_kappa',
-    MAX_MEAN_SQUARED_CURVE   = 'max_msc',
-    MIN_INTERCOIL_DIST       = 'min_coil2coil_dist',
-    QS_ERROR                 = 'qs_error',
-    // GRADIENT                 = 'gradient',   // removed in 2024.01 export
-    ASPECT_RATIO             = 'aspect_ratio',
-    MINOR_RADIUS             = 'minor_radius',
-    VOLUME                   = 'volume',
-    MIN_COIL_TO_SURFACE_DIST = 'min_coil2surface_dist',
-    MEAN_ELONGATION          = 'mean_elongation',
-    MAX_ELONGATION           = 'max_elongation',
-    MESSAGE                  = 'message',       // one of "Naive, fine scan", "Naive, global scan", "TuRBO, fine scan", "TuRBO, global scan"
-    IOTA_PROFILE             = 'iota_profile',  // array of nSurfaces+1 numbers
-    TF_PROFILE               = 'tf_profile',    // array of nSurfaces+1 numbers. No longer used as of 2024.01 export.
-    SURFACE_TYPES            = 'surface_types', // array of nSurfaces + 1 length, each element's values one of "exact", "ls"
-    HELICITY                 = 'helicity',      // 1 or 0: 1 for quasi-helically symmetry, 0 for quasi-axisymmetric (the original)
-}
 
-export type rawObject = {[key in RawFields]: fieldType}
-
-type jigRow = { raw: RawFields, order: number, objectField: KnownFields }
-
-// It's easier, and probably not even any brittler, to just ignore the column names listed in the json file
-// and use the known values for the column names directly. But, when we pull individual records,
-// it's more reliable to match up the field names. The recordJig creates a mapping between the two sets.
-
+type jigRow = { rawField: keyof RawData, objectField: KnownFields }
 const recordJig: jigRow[] = [
-    { raw: RawFields.QS_ERROR,                 order:  0, objectField: KnownFields.QS_ERROR                    },
-    { raw: RawFields.COIL_LENGTH_PER_HP,       order:  1, objectField: KnownFields.COIL_LENGTH_PER_HP          },
-    { raw: RawFields.TOTAL_COIL_LENGTH,        order:  2, objectField: KnownFields.TOTAL_COIL_LENGTH           },
-    { raw: RawFields.TOTAL_COIL_LENGTH_THRESH, order:  3, objectField: KnownFields.TOTAL_COIL_LENGTH_THRESHOLD },
-    { raw: RawFields.MEAN_IOTA,                order:  4, objectField: KnownFields.MEAN_IOTA                   },
-    { raw: RawFields.MAX_KAPPA,                order:  5, objectField: KnownFields.MAX_KAPPA                   },
-    { raw: RawFields.MAX_MEAN_SQUARED_CURVE,   order:  6, objectField: KnownFields.MAX_MEAN_SQUARED_CURVE      },
-    { raw: RawFields.MIN_INTERCOIL_DIST,       order:  7, objectField: KnownFields.MIN_INTERCOIL_DIST          },
-    { raw: RawFields.NC_PER_HP,                order:  8, objectField: KnownFields.NC_PER_HP                   },
-    { raw: RawFields.NFP,                      order:  9, objectField: KnownFields.NFP                         },
-    // { raw: RawFields.GRADIENT,                 order:  9, objectField: KnownFields.GRADIENT                    }, // REMOVED in 2024.01 export
-    { raw: RawFields.ASPECT_RATIO,             order: 10, objectField: KnownFields.ASPECT_RATIO                },
-    { raw: RawFields.ID,                       order: 11, objectField: KnownFields.ID                          },
-    { raw: RawFields.MINOR_RADIUS,             order: 12, objectField: KnownFields.MINOR_RADIUS                },
-    { raw: RawFields.N_FOURIER_COIL,           order: 13, objectField: KnownFields.N_FOURIER_COIL              },
-    { raw: RawFields.NSURFACES,                order: 14, objectField: KnownFields.NSURFACES                   },
-    { raw: RawFields.VOLUME,                   order: 15, objectField: KnownFields.VOLUME                      },
-    { raw: RawFields.MIN_COIL_TO_SURFACE_DIST, order: 16, objectField: KnownFields.MIN_COIL_TO_SURFACE_DIST    },
-    { raw: RawFields.MEAN_ELONGATION,          order: 17, objectField: KnownFields.MEAN_ELONGATION             },
-    { raw: RawFields.MAX_ELONGATION,           order: 18, objectField: KnownFields.MAX_ELONGATION              },
-    { raw: RawFields.MESSAGE,                  order: 19, objectField: KnownFields.MESSAGE                     },
-    { raw: RawFields.IOTA_PROFILE,             order: 20, objectField: KnownFields.IOTA_PROFILE                },
-    { raw: RawFields.TF_PROFILE,               order: 21, objectField: KnownFields.TF_PROFILE                  },
-    { raw: RawFields.SURFACE_TYPES,            order: 22, objectField: KnownFields.SURFACE_TYPES               },
-    { raw: RawFields.HELICITY,                 order: 23, objectField: KnownFields.HELICITY                    },
+    { rawField: "database_from",        objectField: KnownFields.DATABASE_FROM    },
+    { rawField: "group_name",           objectField: KnownFields.GROUP_NAME       },
+    { rawField: "uuid",                 objectField: KnownFields.ID               },
+    { rawField: "database_from_ID",     objectField: KnownFields.DATABASE_FROM_ID },
+    { rawField: "nfp",                  objectField: KnownFields.NFP              },
+    { rawField: "phiedge",              objectField: KnownFields.PHIEDGE          },
+    { rawField: "minor_radius",         objectField: KnownFields.MINOR_RADIUS     },
+    { rawField: "aspect_ratio",         objectField: KnownFields.ASPECT_RATIO     },
+    { rawField: "volume",               objectField: KnownFields.VOLUME           },
+    { rawField: "volavgB",              objectField: KnownFields.VOL_AVG_B        },
+    { rawField: "min_L_grad_B",         objectField: KnownFields.MIN_L_GRAD_B     },
+    { rawField: "vacuum_well",          objectField: KnownFields.VACUUM_WELL      },
+    { rawField: "loss_fraction_s_0_25", objectField: KnownFields.LOSS_FRAC_S_0_25 },
 ]
 
-export const makeRecordFromObject = (rawRecord: rawObject): StellaratorRecord => {
-    const record = {} as {[field in KnownFields]: fieldType}
-    recordJig.forEach(field => { record[field.objectField] = rawRecord[field.raw] })
-    return record as StellaratorRecord
+
+// const rec = {
+//     uuid: data.uuid[i],
+//     databaseFrom: data.database_from[i],
+//     groupName: data.group_name[i],
+//     databaseFromId: data.database_from_ID[i],
+//     nfp: data.nfp[i],
+//     phiEdge: data.phiedge[i],
+//     minorRadius: data.minor_radius[i],
+//     aspectRatio: data.aspect_ratio[i],
+//     volume: data.volume[i],
+//     volAvgB: data.volavgB[i],
+//     minLgradB: data.min_L_grad_B[i],
+//     vacuumWell: data.vacuum_well[i],
+//     lossFractionS025: data.loss_fraction_s_0_25[i],
+// } as {[field in KnownFields]: fieldType }
+const makeRecordFromRowIndex = (data: RawData, i: number): ArtemissRecord => {
+    const rec = {} as {[field in KnownFields]: fieldType }
+    recordJig.forEach(field => { rec[field.objectField] = data[field.rawField][i] } )
+    rec['canonicalPath'] = makeUrl(rec as ArtemissRecord)
+    
+    return rec as ArtemissRecord
 }
 
-const makeRecordFromRow = (row: fieldType[]): StellaratorRecord => {
-    const record = {} as {[field in KnownFields]: fieldType}
-    recordJig.forEach(field => record[field.objectField] = row[field.order])
-    return record as StellaratorRecord
-}
+
+// export const makeRecordFromObject = (rawRecord: rawObject): ArtemissRecord => {
+//     const record = {} as {[field in KnownFields]: fieldType}
+//     recordJig.forEach(field => { record[field.objectField] = rawRecord[field.raw] })
+//     return record as ArtemissRecord
+// }
+
+// const makeRecordFromRow = (row: fieldType[]): ArtemissRecord => {
+//     const record = {} as {[field in KnownFields]: fieldType}
+//     recordJig.forEach(field => record[field.objectField] = row[field.order])
+//     return record as ArtemissRecord
+// }
+
+
 
 export const makeDatabase = (rawData: RawData) => {
-    const data = rawData.data
-    const dataList = data.map((row) => makeRecordFromRow(row))
-
     const dataDict: RecordDict = {}
-
-    dataList.forEach(entry => {
-        dataDict[entry.id] = entry
-    })
-
     const categoricalFieldIndexes: CategoricalIndexSet = {
-        'meanIota': {},
-        'ncPerHp': {},
         'nfp': {},
-        'nFourierCoil': {},
-        'nSurfaces': {},
-        'helicity': {}
+        'databaseFrom': {}
+        // 'nSurfaces': {},
     }
-
     const categoricalFields = Object.keys(categoricalFieldIndexes) as CategoricalIndexedFields[]
+    const dataList: ArtemissRecord[] = rawData.aspect_ratio.map((_, i) => makeRecordFromRowIndex(rawData, i))
+
+    // for (let i in rawData.aspect_ratio) {
+    //     dataList.push(makeRecordFromRowIndex(rawData, i))
+    // }
+    dataList.forEach(entry => { dataDict[entry.uuid] = entry })
+
     categoricalFields.forEach(k => {
         const vals = Fields[k].values
         if (vals === undefined) {
             throw Error(`Bad value in indexes-keys: ${k}`)
         }
-        const key = k as keyof StellaratorRecord
+        const key = k as keyof ArtemissRecord
         const idx: NumericIndex = {}
         vals.forEach(v => {
-            idx[v] = new Set(dataList.filter(row => row[key] === v).map(row => row.id))
+            idx[v] = new Set(dataList.filter(row => row[key] === v).map(row => row.uuid))
         })
         categoricalFieldIndexes[k] = idx
     })
@@ -122,7 +111,7 @@ export const makeDatabase = (rawData: RawData) => {
     const database: NavigatorDatabase = {
         list: dataList,
         byId: dataDict,
-        allIdSet: new Set(dataList.map(r => r.id)),
+        allIdSet: new Set(dataList.map(r => r.uuid)),
         //---Indexes
         categoricalIndexes: categoricalFieldIndexes
     }

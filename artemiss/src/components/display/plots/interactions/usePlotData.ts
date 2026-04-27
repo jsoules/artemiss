@@ -1,6 +1,6 @@
 import projectToPlotReadyData, { ProjectionCriteria, makeValsFromFieldname } from "@snState/projection"
 import { ToggleableVariables, fieldIsCategorical } from "@snTypes/DataDictionary"
-import { FilterSettings, StellaratorRecord } from "@snTypes/Types"
+import { ArtemissRecord, FilterSettings, PKType } from "@snTypes/Types"
 import { useMemo } from "react"
 import { PlotColorProps } from "./plotColors"
 
@@ -8,7 +8,8 @@ import { PlotColorProps } from "./plotColors"
 export type PlotDataSummary = {
     data: number[][][]
     radius: number[][][]
-    ids: number[][][]
+    ids: PKType[][][]
+    urls: string[][][]
     colorValues: number[][][]
     colorFieldRange: number[]
     fineSplitVals: number[]
@@ -18,7 +19,7 @@ export type PlotDataSummary = {
 }
 
 type plotHookParams = PlotColorProps & {
-    records: StellaratorRecord[],
+    records: ArtemissRecord[],
     filterSettings: FilterSettings
 }
 
@@ -42,11 +43,11 @@ export const usePlotData: plotHookType = ({records, filterSettings, colorSplit})
             fineSplitVals,
             coarseSplitVals
         }
-        const { data, radius, colorValues, ids } = projectToPlotReadyData(projectionCriteria)
+        const { data, radius, colorValues, ids, urls } = projectToPlotReadyData(projectionCriteria)
         const colorFieldRange: number[] = fieldIsCategorical(colorSplit)
             ? []
             : filterSettings[colorSplit] as number[]
-        return { data, radius, ids, colorValues, fineSplitVals, coarseSplitVals, coarseSplitField: coarseSplit, fineSplitField: fineSplit, colorFieldRange }
+        return { data, radius, ids, urls, colorValues, fineSplitVals, coarseSplitVals, coarseSplitField: coarseSplit, fineSplitField: fineSplit, colorFieldRange }
     }, [coarseSplit, colorSplit, filterSettings, fineSplit, records])
 
     return res

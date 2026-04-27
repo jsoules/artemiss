@@ -1,144 +1,111 @@
 /* eslint-disable @typescript-eslint/prefer-literal-enum-member */
+import { Device } from "@snTypes/Types"
 
 export const getEnumVals = (x: object): string[] => {
     return (Object.values(x) as string[]).filter(v => isNaN(Number(v)))
 }
 
+// NOTE that these should refer to the INTERNAL spellings/names, not necessarily
+// the ones used in the source json
 export enum KnownFields {
-    ID = 'id',
-    COIL_LENGTH_PER_HP = 'coilLengthPerHp',
-    TOTAL_COIL_LENGTH = 'totalCoilLength',
-    TOTAL_COIL_LENGTH_THRESHOLD = 'totalCoilLengthThresh',
-    MEAN_IOTA = 'meanIota',
-    NC_PER_HP = 'ncPerHp',
+    ID = 'uuid',
+    DATABASE_FROM = 'databaseFrom', // TODO: NEED A LIST OF THE VALID VALUES
+    GROUP_NAME = 'groupName',
+    DATABASE_FROM_ID = 'databaseFromId',
+    CANONICAL_PATH = 'canonicalPath',
     NFP = 'nfp',
-    N_FOURIER_COIL = 'nFourierCoil',
-    NSURFACES = 'nSurfaces',
-    MAX_KAPPA = 'maxKappa',
-    MAX_MEAN_SQUARED_CURVE = 'maxMeanSquaredCurve',
-    MIN_INTERCOIL_DIST = 'minIntercoilDist',
-    QS_ERROR = 'qsError',
-    ASPECT_RATIO = 'aspectRatio',
+    PHIEDGE = 'phiEdge',
     MINOR_RADIUS = 'minorRadius',
+    ASPECT_RATIO = 'aspectRatio',
     VOLUME = 'volume',
-    MIN_COIL_TO_SURFACE_DIST = 'minCoil2SurfaceDist',
-    MEAN_ELONGATION = 'meanElongation',
-    MAX_ELONGATION = 'maxElongation',
-    MESSAGE = 'message',
-    IOTA_PROFILE = 'iotaProfile',
-    TF_PROFILE = 'tfProfile',
-    SURFACE_TYPES = 'surfaceTypes',
-    HELICITY = 'helicity',
+    VOL_AVG_B = 'volAvgB',
+    MIN_L_GRAD_B = 'minLgradB',
+    VACUUM_WELL = 'vacuumWell',
+    LOSS_FRAC_S_0_25 = 'lossFractionS025',
 }
 
 export enum DependentVariables {
-    TOTAL_COIL_LENGTH = KnownFields.TOTAL_COIL_LENGTH,
-    TOTAL_COIL_LENGTH_THRESHOLD = KnownFields.TOTAL_COIL_LENGTH_THRESHOLD,
-    COIL_LENGTH_PER_HP = KnownFields.COIL_LENGTH_PER_HP,
-    MIN_INTERCOIL_DIST = KnownFields.MIN_INTERCOIL_DIST,
-    MIN_COIL_TO_SURFACE_DIST = KnownFields.MIN_COIL_TO_SURFACE_DIST,
-    QS_ERROR = KnownFields.QS_ERROR,
-    MAX_KAPPA = KnownFields.MAX_KAPPA,
-    MAX_MEAN_SQUARED_CURVE = KnownFields.MAX_MEAN_SQUARED_CURVE,
-    ASPECT_RATIO = KnownFields.ASPECT_RATIO,
+    // DATABASE_FROM = KnownFields.DATABASE_FROM,
+    // GROUP_NAME = KnownFields.GROUP_NAME,
+    NFP = KnownFields.NFP,
+    PHIEDGE = KnownFields.PHIEDGE,
     MINOR_RADIUS = KnownFields.MINOR_RADIUS,
+    ASPECT_RATIO = KnownFields.ASPECT_RATIO,
     VOLUME = KnownFields.VOLUME,
-    MEAN_ELONGATION = KnownFields.MEAN_ELONGATION,
-    MAX_ELONGATION = KnownFields.MAX_ELONGATION
+    VOL_AVG_B = KnownFields.VOL_AVG_B,
+    MIN_L_GRAD_B = KnownFields.MIN_L_GRAD_B,
+    VACUUM_WELL = KnownFields.VACUUM_WELL,
+    LOSS_FRAC_S_0_25 = KnownFields.LOSS_FRAC_S_0_25,
 }
 
 export enum IndependentVariables {
-    TOTAL_COIL_LENGTH = KnownFields.TOTAL_COIL_LENGTH,
-    TOTAL_COIL_LENGTH_THRESHOLD = KnownFields.TOTAL_COIL_LENGTH_THRESHOLD,
-    COIL_LENGTH_PER_HP = KnownFields.COIL_LENGTH_PER_HP,
-    MIN_INTERCOIL_DIST = KnownFields.MIN_INTERCOIL_DIST,
-    MIN_COIL_TO_SURFACE_DIST = KnownFields.MIN_COIL_TO_SURFACE_DIST,
-    QS_ERROR = KnownFields.QS_ERROR,
-    MAX_KAPPA = KnownFields.MAX_KAPPA,
-    MAX_MEAN_SQUARED_CURVE = KnownFields.MAX_MEAN_SQUARED_CURVE,
-    ASPECT_RATIO = KnownFields.ASPECT_RATIO,
-    MINOR_RADIUS = KnownFields.MINOR_RADIUS,
-    VOLUME = KnownFields.VOLUME,
-    MEAN_IOTA = KnownFields.MEAN_IOTA,
-    MEAN_ELONGATION = KnownFields.MEAN_ELONGATION,
-    MAX_ELONGATION = KnownFields.MAX_ELONGATION,
-    // NOTE: I think putting categorical variables on the x-axis isn't going to be terribly informative, but we'll try it
-    NC_PER_HP = KnownFields.NC_PER_HP,
+    // DATABASE_FROM = KnownFields.DATABASE_FROM,
+    // GROUP_NAME = KnownFields.GROUP_NAME,
     NFP = KnownFields.NFP,
-    N_FOURIER_COIL = KnownFields.N_FOURIER_COIL,
-    NSURFACES = KnownFields.NSURFACES,
+    PHIEDGE = KnownFields.PHIEDGE,
+    MINOR_RADIUS = KnownFields.MINOR_RADIUS,
+    ASPECT_RATIO = KnownFields.ASPECT_RATIO,
+    VOLUME = KnownFields.VOLUME,
+    VOL_AVG_B = KnownFields.VOL_AVG_B,
+    MIN_L_GRAD_B = KnownFields.MIN_L_GRAD_B,
+    VACUUM_WELL = KnownFields.VACUUM_WELL,
+    LOSS_FRAC_S_0_25 = KnownFields.LOSS_FRAC_S_0_25,
 }
 
 export enum ToggleableVariables {
-    NC_PER_HP = KnownFields.NC_PER_HP,
+    DATABASE_FROM = KnownFields.DATABASE_FROM,
     NFP = KnownFields.NFP,
-    MEAN_IOTA = KnownFields.MEAN_IOTA,
-    N_SURFACES = KnownFields.NSURFACES,
 }
 
 export enum RangeVariables {
-    COIL_LENGTH_PER_HP = KnownFields.COIL_LENGTH_PER_HP,
-    TOTAL_COIL_LENGTH = KnownFields.TOTAL_COIL_LENGTH,
-    TOTAL_COIL_LENGTH_THRESHOLD = KnownFields.TOTAL_COIL_LENGTH_THRESHOLD,
-    MAX_KAPPA = KnownFields.MAX_KAPPA,
-    MAX_MEAN_SQUARED_CURVE = KnownFields.MAX_MEAN_SQUARED_CURVE,
-    MIN_INTERCOIL_DIST = KnownFields.MIN_INTERCOIL_DIST,
-    QS_ERROR = KnownFields.QS_ERROR,
-    ASPECT_RATIO = KnownFields.ASPECT_RATIO,
+    PHIEDGE = KnownFields.PHIEDGE,
     MINOR_RADIUS = KnownFields.MINOR_RADIUS,
+    ASPECT_RATIO = KnownFields.ASPECT_RATIO,
     VOLUME = KnownFields.VOLUME,
-    MIN_COIL_TO_SURFACE_DIST = KnownFields.MIN_COIL_TO_SURFACE_DIST,
-    MEAN_ELONGATION = KnownFields.MEAN_ELONGATION,
-    MAX_ELONGATION = KnownFields.MAX_ELONGATION,
+    VOL_AVG_B = KnownFields.VOL_AVG_B,
+    MIN_L_GRAD_B = KnownFields.MIN_L_GRAD_B,
+    VACUUM_WELL = KnownFields.VACUUM_WELL,
+    LOSS_FRAC_S_0_25 = KnownFields.LOSS_FRAC_S_0_25,
 }
 
 export enum TripartiteVariables {
-    N_FOURIER_COIL = KnownFields.N_FOURIER_COIL,
-    HELICITY = KnownFields.HELICITY,
+    // N_FOURIER_COIL = KnownFields.N_FOURIER_COIL,
+    // HELICITY = KnownFields.HELICITY,
 }
 
 export const dependentVariableDropdownConfig: { key: number, value: DependentVariables }[] = [
-    { key:  1, value: DependentVariables.QS_ERROR                    },
-    { key:  2, value: DependentVariables.MAX_KAPPA                   },
-    { key:  3, value: DependentVariables.MAX_MEAN_SQUARED_CURVE      },
-    { key:  4, value: DependentVariables.MIN_INTERCOIL_DIST          },
-    { key:  5, value: DependentVariables.MIN_COIL_TO_SURFACE_DIST    },
-    { key:  6, value: DependentVariables.MINOR_RADIUS                },
-    { key:  7, value: DependentVariables.VOLUME                      },
-    { key:  8, value: DependentVariables.ASPECT_RATIO                },
-    { key:  9, value: DependentVariables.COIL_LENGTH_PER_HP          },
-    { key: 10, value: DependentVariables.TOTAL_COIL_LENGTH           },
-    { key: 11, value: DependentVariables.TOTAL_COIL_LENGTH_THRESHOLD },
-    { key: 12, value: DependentVariables.MEAN_ELONGATION             },
-    { key: 13, value: DependentVariables.MAX_ELONGATION              },
+    // { key:  1, value: DependentVariables.DATABASE_FROM               },
+    // { key:  2, value: DependentVariables.GROUP_NAME                  },
+    { key:  1, value: DependentVariables.NFP                         },
+    { key:  2, value: DependentVariables.PHIEDGE                     },
+    { key:  3, value: DependentVariables.MINOR_RADIUS                },
+    { key:  4, value: DependentVariables.ASPECT_RATIO                },
+    { key:  5, value: DependentVariables.VOLUME                      },
+    { key:  6, value: DependentVariables.VOL_AVG_B                   },
+    { key:  7, value: DependentVariables.MIN_L_GRAD_B                },
+    { key:  8, value: DependentVariables.VACUUM_WELL                 },
+    { key:  9, value: DependentVariables.LOSS_FRAC_S_0_25            },
 ]
 
 export const independentVariableDropdownConfig: { key: number, value: IndependentVariables }[] = [
-    { key:  1, value: IndependentVariables.TOTAL_COIL_LENGTH           },
-    { key:  2, value: IndependentVariables.COIL_LENGTH_PER_HP          },
-    { key:  3, value: IndependentVariables.TOTAL_COIL_LENGTH_THRESHOLD },
-    { key:  4, value: IndependentVariables.MIN_INTERCOIL_DIST          },
-    { key:  5, value: IndependentVariables.MIN_COIL_TO_SURFACE_DIST    },
-    { key:  6, value: IndependentVariables.QS_ERROR                    },
-    { key:  7, value: IndependentVariables.MAX_KAPPA                   },
-    { key:  8, value: IndependentVariables.MAX_MEAN_SQUARED_CURVE      },
-    { key:  9, value: IndependentVariables.ASPECT_RATIO                },
-    { key: 10, value: IndependentVariables.MINOR_RADIUS                },
-    { key: 11, value: IndependentVariables.VOLUME                      },
-    { key: 12, value: IndependentVariables.MEAN_IOTA                   },
-    { key: 13, value: IndependentVariables.MEAN_ELONGATION             },
-    { key: 14, value: IndependentVariables.MAX_ELONGATION              },
-    { key: 15, value: IndependentVariables.NC_PER_HP                   },
-    { key: 16, value: IndependentVariables.NFP                         },
-    { key: 17, value: IndependentVariables.N_FOURIER_COIL              },
-    { key: 18, value: IndependentVariables.NSURFACES                   },
+    // { key:  1, value: IndependentVariables.DATABASE_FROM               },
+    // { key:  2, value: IndependentVariables.GROUP_NAME                  },
+    { key:  1, value: IndependentVariables.NFP                         },
+    { key:  2, value: IndependentVariables.PHIEDGE                     },
+    { key:  3, value: IndependentVariables.MINOR_RADIUS                },
+    { key:  4, value: IndependentVariables.ASPECT_RATIO                },
+    { key:  5, value: IndependentVariables.VOLUME                      },
+    { key:  6, value: IndependentVariables.VOL_AVG_B                   },
+    { key:  7, value: IndependentVariables.MIN_L_GRAD_B                },
+    { key:  8, value: IndependentVariables.VACUUM_WELL                 },
+    { key:  9, value: IndependentVariables.LOSS_FRAC_S_0_25            },
 ]
 
 export const toggleableVariableDropdownConfig: { key: number, value: ToggleableVariables }[] = [
-    { key: 1, value: ToggleableVariables.MEAN_IOTA  },
-    { key: 2, value: ToggleableVariables.NC_PER_HP  },
+    { key: 1, value: ToggleableVariables.DATABASE_FROM  },
+    // { key: 2, value: ToggleableVariables.NC_PER_HP  },
     { key: 3, value: ToggleableVariables.NFP        },
-    { key: 4, value: ToggleableVariables.N_SURFACES },
+    // { key: 4, value: ToggleableVariables.N_SURFACES },
 ]
 
 
@@ -156,6 +123,7 @@ export type FieldDescription = {
     unit?: string,
     range: [number, number],
     values?: number[],
+    valueLabels?: string[],
     isLog: boolean,
     isCategorical: boolean
     markedValue?: number,
@@ -164,71 +132,24 @@ export type FieldDescription = {
     displayInTable: boolean
 }
 
+
 type FieldRecords = {
     [name in KnownFields]: FieldDescription
 }
 
 
-// These are out of date and not really used.
-// They principally serve to provide visible stops on the slider for the corresponding
-// fields in the filter UI, but those aren't needed or really helpful.
-// export const coilLengthPerHpValidValues = [
-//     4.5, 4.75, 5.0, 5.25, 5.5, 5.75, 6.0, 
-//     6.25, 6.5, 6.75, 7.0, 7.25, 7.5, 7.75, 8.0, 8.25,
-//     8.5, 8.75, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0,
-//     12.5, 13.0, 13.5, 14.0, 14.25, 14.5, 15.0, 15.5, 15.75,
-//     16.0, 16.5, 17.0, 17.25, 17.5, 18.0, 18.75, 19.0, 19.5,
-//     20.0, 20.25, 21.0, 21.75, 22.0, 22.5, 23.0, 23.25, 23.75,
-//     24.0, 24.75, 25.0, 25.5, 26.0, 26.25, 27.0, 27.5, 28.0,
-//     28.5, 28.75, 29.0, 30.0, 31.0, 31.25, 31.5, 32.0, 32.5,
-//     33.0, 33.25, 33.75, 34.0, 34.5, 35.0, 36.0, 36.25, 36.75,
-//     37.5, 38.0, 38.5, 38.75, 39.0, 40.0, 40.25, 40.5, 41.25,
-//     42.0, 42.5, 42.75, 43.5, 43.75, 44.0, 45.0, 45.5, 46.0,
-//     46.5, 47.25, 47.5, 48.0, 49.0, 49.5, 50.0, 50.75, 51.0,
-//     51.75, 52.0, 52.25, 52.5, 54.0, 54.25, 55.0, 56.0, 56.25,
-//     57.0, 57.5, 57.75, 58.0, 58.5, 60.0
-// ]
-
-// export const totalCoilLengthValidValues = [
-//     28.5, 30.0, 31.0, 31.5, 32.0, 33.0, 34.0, 34.5, 35.0, 
-//     36.0, 37.5, 38.0, 39.0, 40.0, 40.5, 42.0, 43.5, 44.0,
-//     45.0, 46.0, 46.5, 47.5, 48.0, 49.5, 50.0, 51.0, 52.0,
-//     52.5, 54.0, 55.0, 56.0, 57.0, 57.5, 58.0, 60.0, 62.0,
-//     62.5, 63.0, 64.0, 65.0, 66.0, 66.5, 67.5, 68.0, 69.0,
-//     70.0, 72.0, 72.5, 73.5, 75.0, 76.0, 77.0, 77.5, 78.0, 
-//     80.0, 80.5, 81.0, 82.5, 84.0, 85.0, 85.5, 87.0, 87.5,
-//     88.0, 90.0, 91.0, 92.0, 93.0, 94.5, 95.0, 96.0, 98.0, 
-//     99.0, 100.0, 101.5, 102.0, 103.5, 104.0, 104.5, 105.0,
-//     108.0, 108.5, 110.0, 112.0, 112.5, 114.0, 115.0, 115.5, 
-//     116.0, 117.0, 120.0
-// ]
-
-export const meanIotaValidValues = [
-    0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
-    0.91, 0.92, 0.93, 0.94, 0.95, 0.96, 0.97, 0.98, 0.99,
-    1.0,
-    1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9,
-    2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
-    3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9,
-    4.0, 4.1, 4.2, 4.3, 4.4, 4.5
-]
-
-export const ncPerHpValidValues = [
-    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
-]
-
 export const nfpValidValues = [
     1, 2, 3, 4, 5, 6, 7, 8
 ]
 
-export const nFourierCoilValidValues = [6, 16]
 
-export const helicityValidValues = [0, 1] // 0 = QA, 1 = QH
-// The below is a hack, and we should do something more principled.
-export const helicityValuesTranslation = ['QA', 'QH']
+export const databaseFromLabels = [
+    "kappel_2024",
+]
 
-export const nSurfacesValidValues = [
-    1, 2, 3, 4, 5, 6, 7
+
+export const databaseFromValidValues = [
+    1,
 ]
 
 
@@ -253,91 +174,76 @@ export const getValuesFromBoolArray = (field: string, choices: boolean[]) => {
 
 // TODO: add sorting order field for table
 
+// NOTE: This describes the fields in the *overview database*. It does NOT describe
+// the full data set in the per-record payload file. That's to be handled separately.
+
 const METER_UNIT = "M"
 export const Fields: FieldRecords = {
-    'id': {
-        shortLabel: "ID",
-        plotLabel: "ID",
+    'uuid': {
+        shortLabel: "UUID",
+        plotLabel: "UUID",
         fullLabel: "Device ID",
-        description: "Unique identifier of the design simulation",
+        description: "Artemiss-assigned unique device identifier",
         unit: undefined,
-        range: [952, 2793242],
+        range: [952, 2793242],      // TODO: does this break
         isLog: false,
         isCategorical: true,
         markedValue: undefined,
         tableColumnWidth: 70,
         displayInTable: true
     },
-    'coilLengthPerHp': {
-        shortLabel: "HP len",
-        plotLabel: "Half-period len",
-        fullLabel: "Coil length per half-period",
-        description: "Total length of coil per half-period",
-        unit: METER_UNIT,
+    'databaseFrom': {
+        shortLabel: "Source DB",
+        plotLabel: "Source DB",
+        fullLabel: "Original source",
+        description: "Original source database/publication for this device",
+        unit: undefined,
+        range: [2.4, 60.1],
+        values: databaseFromValidValues,
+        valueLabels: databaseFromLabels,
+        isLog: false,
+        isCategorical: true,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'groupName': {
+        shortLabel: "Group",
+        plotLabel: "Group",
+        fullLabel: "Device subgroup",
+        description: "Subgrouping of device source (internal use only)",
+        unit: undefined,
         range: [2.4, 60.1],
         // values: coilLengthPerHpValidValues,
         isLog: false,
-        isCategorical: false,       // technically it is, but there's too many categories for it to make sense
+        isCategorical: false,
         markedValue: undefined,
         tableColumnWidth: 80,
-        displayInTable: true
+        displayInTable: false
     },
-    'totalCoilLength': {
-        shortLabel: "Tot len",
-        plotLabel: "Total coil len",
-        fullLabel: "Total coil length",
-        description: "Total length of coil used to construct the device",
-        unit: METER_UNIT,
-        range: [19.2, 120.1],
-        // values: totalCoilLengthValidValues,
-        isLog: false,
-        isCategorical: false,       // technically it is, but there's too many categories for it to make sense
-        markedValue: undefined,
-        tableColumnWidth: 80,
-        displayInTable: true
-    },
-    'totalCoilLengthThresh': {
-        shortLabel: "Thresh Len",
-        plotLabel: "Total coil len thresh",
-        fullLabel: "Total coil length threshold",
-        description: "Upper bound of allowed total coil length for simulation",
-        unit: METER_UNIT,
-        range: [19.2, 120.1],
-        // values: totalCoilLengthValidValues,
-        isLog: false,
-        isCategorical: false,       // technically it is, but there's too many categories for it to make sense
-        markedValue: undefined,
-        tableColumnWidth: 80,
-        displayInTable: true
-    },
-    'meanIota': {
-        // TODO: CONFIRM VERBIAGE ON THIS
-        shortLabel: "Mean Iota",
-        plotLabel: "Mean Iota",
-        fullLabel: "Mean Iota",
-        description: "The mean pitch of a particle trajectory across the surface",
+    'databaseFromId': {
+        shortLabel: "DB ID",
+        plotLabel: "Source-DB ID",
+        fullLabel: "ID in source database",
+        description: "ID assigned to device by its original source",
         unit: undefined,
-        range: [0.1, 4.5],
-        values: meanIotaValidValues,
+        range: [2.4, 60.1],
+        // values: coilLengthPerHpValidValues,
         isLog: false,
-        isCategorical: true,
-        markedValue: undefined,
-        tableColumnWidth: 90,
-        displayInTable: true
-    },
-    'ncPerHp': {
-        shortLabel: "NC/HP",
-        plotLabel: "Coils per HP",
-        fullLabel: "Coil count per half-period (NC per HP)",
-        description: "Coil count per half-period",
-        unit: undefined,
-        range: [1, 13],
-        values: ncPerHpValidValues,
-        isLog: false,
-        isCategorical: true,
+        isCategorical: false,
         markedValue: undefined,
         tableColumnWidth: 80,
-        displayInTable: true
+        displayInTable: false
+    },
+    'canonicalPath': {
+        shortLabel: "canpath",
+        plotLabel: "canonPath",
+        fullLabel: "canonical path",
+        description: "Correctly populated path to individual record data",
+        range: [0, 1],
+        isCategorical: false,
+        isLog: false,
+        displayInTable: false
     },
     'nfp': {
         shortLabel: "NFP",
@@ -347,223 +253,115 @@ export const Fields: FieldRecords = {
         unit: undefined,
         range: [1, 8],
         values: nfpValidValues,
+        valueLabels: nfpValidValues.map(i => `${i}`),
         isLog: false,
         isCategorical: true,
         markedValue: undefined,
         tableColumnWidth: 75,
         displayInTable: true
     },
-    'nFourierCoil': {
-        shortLabel: "Modes",
-        plotLabel: "Fourier mode count",
-        fullLabel: "Number of Fourier modes per coil",
-        description: "Number of fourier modes used to represent each modular coil",
-        range: [6, 16],
-        values: nFourierCoilValidValues,
+    'phiEdge': {
+        shortLabel: "phi edge",
+        plotLabel: "Phi edge",
+        fullLabel: "Phi edge",
+        description: "Total toroidal magnetic flux within the device",
+        unit: METER_UNIT,   // TODO FIXME
+        range: [15.0, 150.0],
+        // values: totalCoilLengthValidValues,
         isLog: false,
-        isCategorical: true,
+        isCategorical: false,
         markedValue: undefined,
-        tableColumnWidth: 75,
-        displayInTable: true
-    },
-    'nSurfaces': {
-        shortLabel: "Surfaces",
-        plotLabel: "Surface count",
-        fullLabel: "Number of surfaces",
-        description: "Number of surfaces on which quasiasymmetry was optimized",
-        range: [1, 7],
-        values: nSurfacesValidValues,
-        isLog: false,
-        isCategorical: true,
-        tableColumnWidth: 75,
-        displayInTable: true
-    },
-    'maxKappa': {
-        shortLabel: "Max kappa",
-        plotLabel: "Max curve",
-        fullLabel: "Max curvature (kappa)",
-        description: "Maximum curvature in the coils of the device",
-        unit: `1/${METER_UNIT}`,
-        range: [1.7, 19.55],
-        isLog: false,
-        isCategorical: false,
-        // markedValue: 5,
-        // markedValueDesc: "DESCRIPTION TK",
-        displayInTable: true
-    },
-    'maxMeanSquaredCurve': {
-        shortLabel: "Max MSC",
-        plotLabel: "Max mean-sq curve",
-        fullLabel: "Max mean-squared curvature",
-        description: "Maximum mean squared curvature of the coils",
-        unit: `1/${METER_UNIT}^2`,
-        range: [1.21, 35.05],
-        isLog: false,
-        isCategorical: false,
-        // markedValue: 5,
-        // markedValueDesc: "DESCRIPTION TK",
-        displayInTable: true
-    },
-    'minIntercoilDist': {
-        shortLabel: "Min C-C dist",
-        plotLabel: "Min intercoil dist",
-        fullLabel: "Minimum intercoil dist",
-        description: "Minimum distance between coils",
-        unit: METER_UNIT,
-        range: [0.09, 0.38],
-        isLog: false,
-        isCategorical: false,
-        // markedValue: 0.1,
-        // markedValueDesc: "DESCRIPTION TK",
-        displayInTable: true
-    },
-    'qsError': {
-        shortLabel: "Sqrt(QS Err)",
-        plotLabel: "Root of QS Error",
-        fullLabel: "Root of Quasisymmetry (QS) Error",
-        description: "Square root of quasisymmetry (QS) error, proxy for particle loss",
-        range: [-5.47, -0.4],
-        isLog: true,
-        isCategorical: false,
-        markedValue: -4.30,
-        markedValueDesc: "Marked line indicates the Earth's background magnetic field.",
-        displayInTable: true
-    },
-    // 'gradient': {
-    //     shortLabel: "Gradient",
-    //     plotLabel: "Gradient",
-    //     fullLabel: "Optimization gradient",
-    //     description: "Norm of the gradient at the final iteration of the optimization algorithm--an indicator of closeness to optimality",
-    //     range: [-12.74, 12.12],
-    //     isLog: true,
-    //     isCategorical: false,
-    //     displayInTable: true
-    // },
-    'aspectRatio': {
-        shortLabel: "AR",
-        plotLabel: "Aspect ratio",
-        fullLabel: "Aspect ratio (AR)",
-        description: "The aspect ratio of the device, computed using the VMEC definition",
-        range: [2.7, 24.6],
-        isLog: false,
-        isCategorical: false,   // technically not categorical, but for our display purposes, might as well be
-        tableColumnWidth: 75,
+        tableColumnWidth: 80,
         displayInTable: true
     },
     'minorRadius': {
         shortLabel: "Minor rad",
         plotLabel: "Minor radius",
         fullLabel: "Minor radius",
-        description: "The minor radius of the outermost surface, scaled so the major radius is 1",
+        description: "The minor radius of the outermost surface (unscaled)",
         unit: METER_UNIT,
-        range: [0.0413, 0.356],
+        range: [0.6, 2.5],
         isLog: false,
         isCategorical: false,
+        displayInTable: true
+    },
+    'aspectRatio': {
+        shortLabel: "AR",
+        plotLabel: "Aspect ratio",
+        fullLabel: "Aspect ratio (AR)",
+        description: "The aspect ratio of the device, computed using the VMEC definition",
+        range: [2.7, 12.0],
+        isLog: false,
+        isCategorical: false,
+        tableColumnWidth: 75,
         displayInTable: true
     },
     'volume': {
         shortLabel: "Vol",
         plotLabel: "Volume",
         fullLabel: "Volume",
-        description: "Volume enclosed by the outermost toroidal surface over which quasiasymmetry was optimized",
+        description: "Volume enclosed by the outermost toroidal surface",
         unit: `${METER_UNIT}^3`,
-        range: [0.034, 2.42],
+        range: [0.034, 2.42],   // TODO: DOUBLE-CHECK
         isLog: false,
         isCategorical: false,
         displayInTable: true
     },
-    'minCoil2SurfaceDist': {
-        shortLabel: "Min C-S dist",
-        plotLabel: "Min coil-surface dist",
-        fullLabel: "Min coil-surface distance",
-        description: "Minimumn distance between any device coil and the outermost surface over which quasiasymmetry was optimized",
-        unit: METER_UNIT,
-        range: [0.0999, 0.685],
+    'volAvgB': {
+        shortLabel: "Vol-avg-B",
+        plotLabel: "Volume avg B",
+        fullLabel: "Volume-averaged B",
+        description: "Magnetic field strength averaged over the plasma volume",
+        unit: `T/${METER_UNIT}^3`,   // TODO: FIXME
+        range: [4.5, 10.0],
+        // values: totalCoilLengthValidValues,
         isLog: false,
         isCategorical: false,
-        // markedValue: 0.1,
-        // markedValueDesc: "DESCRIPTION TK",
-        displayInTable: true
-    },
-    'meanElongation': {
-        shortLabel: "AvgElng",
-        plotLabel: "Mean Elongation",
-        fullLabel: "Mean Elongation (elliptical axis ratio)",
-        description: "Ratio of major to minor axis of an ellipse fitted to an innermost magnetic surface (mean)",
-        range: [1, 66],
-        isLog: false,
-        isCategorical: false,
-        // markedValue?: undefined,
-        displayInTable: true
-    },
-    'maxElongation': {
-        shortLabel: "MxElng",
-        plotLabel: "Max Elongation",
-        fullLabel: "Max Elongation (elliptical axis ratio)",
-        description: "Maximum ratio of major to m inor axis of an ellipse fitted to an innermost magnetic surface",
-        range: [1.1, 313.2],
-        isLog: false,
-        isCategorical: false,
-        // markedValue?: undefined,
-        displayInTable: true
-    },
-    'message': {
-        shortLabel: "Msg",
-        plotLabel: "Message",
-        fullLabel: "Notes on method",
-        description: "Descriptor of analysis type",
-        range: [0, 1],
-        isLog: false,
-        isCategorical: true,
-        // tableColumnWidth: 0,
-        displayInTable: false
-    },
-    'iotaProfile': {
-        shortLabel: "i-prof",
-        plotLabel: "Iota profile",
-        fullLabel: "Iota profile",
-        description: "Rotational transform with respect to normalized toroidal flux (# of surfaces + 1 values)",
-        range: [0, 1],
-        isLog: false,
-        isCategorical: false,
-        tableColumnWidth: 0,
-        displayInTable: false
-    },
-    'tfProfile': {
-        shortLabel: "tf-prof",
-        plotLabel: "TF profile",
-        fullLabel: "Toroidal Flux profile",
-        description: "Normalized toroidal flux (# of surfaces + 1 values)",
-        range: [0, 1.5],
-        isLog: false,
-        isCategorical: false,
-        tableColumnWidth: 0,
-        displayInTable: false
-    },
-    'surfaceTypes': {
-        shortLabel: "SurfTypes",
-        plotLabel: "Surface Types",
-        fullLabel: "Types of Surfaces",
-        description: "For each of (# surfaces + 1) surfaces, whether the surface is BoozerExact or least-squares",
-        range: [0, 1],
-        isLog: false,
-        isCategorical: false,
-        tableColumnWidth: 0,
-        displayInTable: false
-    },
-    'helicity': {
-        shortLabel: "QS Type",
-        plotLabel: "QS Type",
-        fullLabel: "Type of Quasi-symmetry",
-        description: "Quasi-axisymmetric (QA) or Quasi-helically symmetric (QH)",
-        range: [0, 1],
-        values: helicityValidValues,
-        isLog: false,
-        isCategorical: true,
         markedValue: undefined,
         tableColumnWidth: 80,
         displayInTable: true
-    }
+    },
+    'minLgradB': {
+        shortLabel: "L_grad_B",
+        plotLabel: "L grad B",
+        fullLabel: "L grad B",
+        description: "Magnetic gradient scale length",
+        unit: METER_UNIT,
+        range: [0.5, 9.0],
+        // values: meanIotaValidValues,
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 90,
+        displayInTable: true
+    },
+    'vacuumWell': {
+        shortLabel: "vwell",
+        plotLabel: "V well",
+        fullLabel: "Vacuum Magnetic Well",
+        description: "Metric for plasma equilibrium stability",
+        unit: undefined,    // TODO
+        range: [-0.11, 0.2],
+        // values: ncPerHpValidValues,
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'lossFractionS025': {
+        shortLabel: "Loss Frac",
+        plotLabel: "Loss frac s=0.25",
+        fullLabel: "Loss fraction S=0.25",
+        description: "Fraction of particles born on s=0.25 that escape plasma within 0.1 seconds",
+        range: [0.0, 0.5],
+        // values: nFourierCoilValidValues,
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 75,
+        displayInTable: true
+    },
 }
 
 export const fieldIsCategorical = (fieldName?: string): boolean => (
@@ -578,39 +376,347 @@ export const fieldMarkedValueDesc = (fieldName?: string): string | undefined => 
     Fields[fieldName as KnownFields]?.markedValueDesc
 )
 
-export const getFieldValueDescriptions = (fieldName: TripartiteVariables): string[] | number[] => {
-    if (fieldName === TripartiteVariables.HELICITY) {
-        return helicityValuesTranslation
-    }
-    return Fields[fieldName]?.values ?? []
-}
+// I don't think this is actually used
+// export const getFieldValueDescriptions = (fieldName: TripartiteVariables): string[] | number[] => {
+//     if (fieldName === TripartiteVariables.HELICITY) {
+//         return helicityValuesTranslation
+//     }
+//     return Fields[fieldName]?.values ?? []
+// }
 
 
 export enum CategoricalIndexedFields {
-    MEAN_IOTA = 'meanIota',
-    NC_PER_HP = 'ncPerHp',
     NFP = 'nfp',
-    NFOURIER = 'nFourierCoil',
-    NSURFACES = 'nSurfaces',
-    HELICITY = 'helicity',
+    DATABASE_FROM = 'databaseFrom'
 }
 
 export enum KnownPathType {
-    COILS = "curves",
-    SURFACES = "surfaces",
-    MODB = "modB",
+    WEB = "web",
+    // SURFACES = "surfaces",
+    // MODB = "modB",
     NML_VMEC = "nml",
     SIMSOPT = "simsopt_serials",
-    CURRENTS = "currents",
-    POINCARE = "poincare",
+    // CURRENTS = "currents",
+    // POINCARE = "poincare",
     DATABASE = "database",
-    RECORD = "record"
+    // RECORD = "record"
 }
 
 export enum GraphicsType {
-    COILS = KnownPathType.COILS,
-    CURRENTS = KnownPathType.CURRENTS,
-    SURFACES = KnownPathType.SURFACES,
-    MODB = KnownPathType.MODB,
-    POINCARE = KnownPathType.POINCARE
+    WEB = KnownPathType.WEB,
+    // COILS = KnownPathType.COILS,
+    // CURRENTS = KnownPathType.CURRENTS,
+    // SURFACES = KnownPathType.SURFACES,
+    // MODB = KnownPathType.MODB,
+    // POINCARE = KnownPathType.POINCARE
 }
+
+type DeviceFieldRecords = { [name in keyof Device]: DeviceManifestEntry }
+
+export type DeviceManifestEntry = {
+    label: string,
+    order: number,
+    displayInTable: boolean
+    unit?: string,
+    isLog: boolean,
+    valueLabels?: { [key: string | number]: string},
+}
+
+export const DeviceFields: DeviceFieldRecords = {
+    uuid: {
+        label: 'UUID',
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined,
+    },
+    databaseFrom: {
+        label: "Source Database",
+        order: 1,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    groupName: {
+        label: "Subgroup",
+        order: 2,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    databaseFromId: {
+        label: "ID in Source DB",
+        order: 4,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    nfp: {
+        label: "Number of field periods (NFP)",
+        order: 5,
+        displayInTable: true,
+        isLog: false,
+    },
+    stellsym: {
+        label: "Has stellarator symmetry",
+        order: 50,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+    },
+    surfaceDistances: {
+        label: "Surface distances",
+        order: 60,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    surface: {
+        label: "Surface cartesian points",
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    nSurfaces: {
+        label: "Number of surfaces",
+        order: 59,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    aspectRatio: {
+        label: "Aspect ratio",
+        order: 70,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    minorRadius: {
+        label: "Minor radius",
+        order: 80,
+        displayInTable: true,
+        unit: METER_UNIT,
+        isLog: false,
+        valueLabels: undefined
+    },
+    volume: {
+        label: "Volume",
+        order: 90,
+        displayInTable: true,
+        unit: `${METER_UNIT}^3`,
+        isLog: false,
+        valueLabels: undefined
+    },
+    volAvgB: {
+        label: "Volume-averaged B",
+        order: 100,
+        displayInTable: true,
+        unit: `T/${METER_UNIT}`,
+        isLog: false,
+        valueLabels: undefined
+    },
+    mirrorRatio: {
+        label: "Mag mirror ratio",
+        order: 110,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    minLgradB: {
+        label: "Min gradient scale length",
+        order: 120,
+        displayInTable: true,
+        unit: METER_UNIT,
+        isLog: false,
+        valueLabels: undefined
+    },
+    modbBoozer: {
+        label: "magnitude of b fields at surface",
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    pressure: {
+        label: "Plasma pressure profile",
+        order: 130,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    plasmaBeta: {
+        label: "Vol-avg plasma beta",
+        order: 140,
+        displayInTable: true,
+        unit: "FIXME",
+        isLog: false,
+        valueLabels: undefined
+    },
+    boozerI: {
+        label: "Normalized toroidal current",
+        order: 150,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    boozerG: {
+        label: "Normalized poloidal current",
+        order: 160,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    jdotbVmec: {
+        label: "Bootstrap current (VMEC)",
+        order: 170,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    iota: {
+        label: "Iota profile",
+        order: 180,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    vacuumWell: {
+        label: "Vacuum well",
+        order: 190,
+        displayInTable: true,
+        unit: "FIXME",
+        isLog: false,
+        valueLabels: undefined
+    },
+    mercierCriterion: {
+        label: "Mercier criterion",
+        order: 200,
+        displayInTable: true,
+        unit: "FIXME",
+        isLog: false,
+        valueLabels: undefined
+    },
+    magneticAxis: {
+        label: "cartesian coordinates of magnetic axis",
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    integratedAxisTorsion: {
+        label: "Int. torsion on mag axis",
+        order: 210,
+        displayInTable: true,
+        unit: "FIXME",
+        isLog: false,
+        valueLabels: undefined
+    },
+    axisHelicity: {
+        label: "Helicty of axis",
+        order: 220,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    sqrtBoozerQsError: {
+        label: "Root QS error",
+        order: 230,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    epsilonEff: {
+        label: "Effective ripple (epsilon)",
+        order: 240,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    qiError: {
+        label: "Goodman QI error",
+        order: 250,
+        displayInTable: true,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    lossTracings: {
+        label: "do not display",
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    lossCharacteristics: {
+        label: "do not display",
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    }
+} as const
+
+
+export type Translation = { abbrev: string, full: string }
+export const DbFromIdAbbreviations: readonly Translation[] = [
+    { abbrev: 'QH4-A8-MW',  full: '20210728-01-026_QH_nfp4_A8_magwell_aScaling' },
+    { abbrev: 'QH4-A65-SF', full: '20220102-01-053-003_QH_nfp4_aspect6p5_beta0p05_iteratedWithSfincs'},
+    { abbrev: 'GIU-24',     full: '20220124-01-GiulianiSurfaceOptVmecAnalysis_len24_aScaling'},
+    { abbrev: 'QFM0',       full: '20220124_qfm_well0_length24_aScaling'},
+    { abbrev: 'QFM1',       full: '20220124_qfm_well1_length24_aScaling'},
+    { abbrev: 'QH3-A6',     full: '20220609-02-032_QH_nfp3_A6_aScaling'},
+    { abbrev: 'ATEN',       full: 'aten_aScaling'},
+    { abbrev: 'ATEN-HI',    full: 'aten_hires_aScaling'},
+    { abbrev: 'ATF',        full: 'ATF_aScaling'},
+    { abbrev: 'B000',       full: 'b000_aScaling'},
+    { abbrev: 'CFQS-HI',    full: 'cfqs_2b40_hires_aScaling'},
+    { abbrev: 'EST24',      full: 'estell_24_scaled_aScaling'},
+    { abbrev: 'GQI1',       full: 'Goodman_QI_nfp1_aScaling'},
+    { abbrev: 'HSX-V',      full: 'HSX_QHS_vacuum_ns201_aScaling'},
+    { abbrev: 'HSX-NCR',    full: 'HSX_without_coil_ripple_nmax4'},
+    { abbrev: 'LNF-AC-B4',  full: 'LNF1714_2537_almostARIESCScaled_beta4'},
+    { abbrev: 'MO-QH3',     full: 'multiopt_scan_QH_nfp3_20210924-01-046_QH_nfp3_no_magwell_smaller_6551_aScaling'},
+    { abbrev: 'NCSX',       full: 'ncsx_c09r00_fixed_aScaling'},
+    { abbrev: 'LPQA-MW',    full: 'new_QA_magwell_aScaling'},
+    { abbrev: 'LPQH-HI',    full: 'new_QH_hires_aScaling'},
+    { abbrev: 'NZ88',       full: 'NuhrenbergZille_1988_QHS_aScaling'},
+    { abbrev: 'QA-DRE-HR',  full: 'QA_beta0p025_iota0p42_dreopt_HIGHERRES_2022-04-15'},
+    { abbrev: 'QI1',        full: 'QI_NFP1_r1_test_aScaling'},
+    { abbrev: 'QI2',        full: 'QI_nfp2_aScaling'},
+    { abbrev: 'QI3',        full: 'QI_nfp3_aScaling'},
+    { abbrev: 'SP-ITER',    full: 'Spong_20160107_ITER_hybridAxisymmFixedBoundary_lasymF_aScaling'},
+    { abbrev: 'ST-AUG',     full: 'st_a34_i32v22_beta_35_scaledAUG_aScaling'},
+    { abbrev: 'W7X',        full: 'W7-X_standard_configuration_aScaling'},
+] as const
+
+export const DbSrcAbbreviations: readonly Translation[] = [
+    { abbrev: 'Qu', full: 'quasr' },
+    { abbrev: 'Qp', full: 'quasr_perturbed' },
+    { abbrev: 'Co', full: 'constellaration' },
+    { abbrev: 'Om', full: 'omnigenity' },
+    { abbrev: 'Ka', full: 'kappel_2024' },
+    { abbrev: 'Bi', full: 'bindel_2023' },
+    { abbrev: 'Bp', full: 'bindel_2023_perturbed' },
+] as const

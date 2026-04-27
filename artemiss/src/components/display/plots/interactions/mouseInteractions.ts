@@ -18,7 +18,7 @@ type perGraphClickProps = {
     fineValue?: number,
     data: number[],
     radius: number[],
-    ids: number[]
+    urls: string[]
 }
 
 type PointContainsClickFnType = (testX: number, testY: number, pointX: number, pointY: number, radiusSq: number) => boolean
@@ -65,18 +65,18 @@ export const useMouseHandlerFactory = (props: useClickHandlerFactoryProps) => {
     const { plotClickHandler, interpretClick, pointClickChecker } = props
 
     return useCallback((props: perGraphClickProps) => {
-        const { coarseValue, fineValue, data, radius, ids } = props
+        const { coarseValue, fineValue, data, radius, urls } = props
         const overallPlotClick = () => { plotClickHandler(coarseValue, fineValue) }
 
         return (e: React.MouseEvent) => {
             const [clickX, clickY] = getEventPoint(e)
             const [dataX, dataY] = interpretClick(clickX, clickY)
             // Look up the id of the nearest point and do onClikcDot for that id
-            const id = ids.find((_, idx) => pointClickChecker(dataX, dataY, data[2*idx], data[2*idx + 1], radius[idx]**2))
-            if (id === undefined) {
+            const url = urls.find((_, idx) => pointClickChecker(dataX, dataY, data[2*idx], data[2*idx + 1], radius[idx]**2))
+            if (url === undefined) {
                 overallPlotClick()
             } else {
-                onClickDot(id)
+                onClickDot(url)
             }    
         }    
     }, [interpretClick, plotClickHandler, pointClickChecker])    

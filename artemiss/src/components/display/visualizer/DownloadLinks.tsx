@@ -1,6 +1,6 @@
 import { Button, Tooltip } from '@mui/material'
-import { KnownPathType } from '@snTypes/DataDictionary'
-import makeResourcePath, { getStringId } from "@snUtil/makeResourcePath"
+// import { KnownPathType } from '@snTypes/DataDictionary'
+// import makeResourcePath, { getStringId } from "@snUtil/makeResourcePath"
 import { FunctionComponent } from "react"
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter"
 import python from "react-syntax-highlighter/dist/esm/languages/hljs/python"
@@ -16,20 +16,22 @@ SyntaxHighlighter.registerLanguage('python', python)
 const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
     const { id } = props
     
-    const vmecPath = makeResourcePath(getStringId(id), KnownPathType.NML_VMEC)
-    const simsoptPath = makeResourcePath(getStringId(id), KnownPathType.SIMSOPT)
+    // const vmecPath = makeResourcePath(getStringId(id), KnownPathType.NML_VMEC)
+    // const simsoptPath = makeResourcePath(getStringId(id), KnownPathType.SIMSOPT)
     
     // We have to do some fussy path-munging in order to construct the forced-download link correctly--otherwise
     // the browser will suggest saving the file according to its full path, not just its file name.
-    const vmecPathParts = vmecPath.split("/")
-    const vmecFile = vmecPathParts.pop() ?? ""
-    const vmecPathFinal = vmecPathParts.join("/")
-    const simsoptPathParts = simsoptPath.split("/")
-    const simsoptFile = simsoptPathParts.pop() ?? ""
-    const simsoptPathFinal = simsoptPathParts.join("/")
+    // const vmecPathParts = vmecPath.split("/")
+    // const vmecFile = vmecPathParts.pop() ?? ""
+    // const vmecPathFinal = vmecPathParts.join("/")
+    // const simsoptPathParts = simsoptPath.split("/")
+    // const simsoptFile = simsoptPathParts.pop() ?? ""
+    // const simsoptPathFinal = simsoptPathParts.join("/")
+
     const codeSnippet =
 `from simsopt._core import load
-[surfaces, coils] = load('${simsoptFile}')`
+[surfaces, coils] = load('foo')`
+// // // [surfaces, coils] = load('${simsoptFile}')`
 
     return  (<div className="indent">
                 <Tooltip
@@ -44,7 +46,7 @@ const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
                         Download VMEC
                     </Button>
                 </Tooltip>
-                <a id="vmec_download" href={`${vmecPathFinal}/${vmecFile}`} download={vmecFile} style={{display: "none"}} />
+                {/* <a id="vmec_download" href={`${vmecPathFinal}/${vmecFile}`} download={vmecFile} style={{display: "none"}} /> */}
                 <Tooltip
                     title="Download SIMSOPT coils, magnetic axis, and surface serializations"
                 >
@@ -57,7 +59,7 @@ const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
                         Download SIMSOPT
                     </Button>
                 </Tooltip>
-                <a id="simsopt_download" href={`${simsoptPathFinal}/${simsoptFile}`} download={simsoptFile} style={{display: "none"}} />
+                {/* <a id="simsopt_download" href={`${simsoptPathFinal}/${simsoptFile}`} download={simsoptFile} style={{display: "none"}} /> */}
                 <div>
                     <span>To load downloaded SIMSOPT data, execute the following Python script:</span>
                     <div style={{border: "1px solid #7f7f7f", margin: 10}}>

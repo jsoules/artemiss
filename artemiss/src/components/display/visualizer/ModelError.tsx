@@ -18,8 +18,8 @@ const msgExtractor = (data?: dataType) => {
 const ModelError: FunctionComponent = () => {
     const error = useRouteError()
     const params = useParams()
-    const id = params.modelId ?? "default"
-    if (id === "default") {
+    const url = params.modelUrlChunk ?? "default"
+    if (url === "default") {
         console.log(`Unexpected: params ${JSON.stringify(params)} did not define modelId.`)
     }
     const errorBody =
@@ -40,7 +40,7 @@ const ModelError: FunctionComponent = () => {
     if (isRouteErrorResponse(error)) {
         return (
             <div>
-                <h1>Error fetching device {id}</h1>
+                <h1>Error fetching device {url}</h1>
                 {errorBody}
             </div>
 

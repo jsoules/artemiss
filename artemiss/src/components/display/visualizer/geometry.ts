@@ -3,7 +3,7 @@ import { ScalarField, Vec3, Vec3Field } from "@snTypes/Types"
 import { useMemo } from "react"
 import * as THREE from "three"
 
-export const SURFACE_SIDE_RESOLUTION = 60
+export const SURFACE_SIDE_RESOLUTION = 21
 
 export const makeTubes = (coils: Vec3[][]): THREE.TubeGeometry[] => {
     if (coils.length === 0) return []
@@ -116,11 +116,11 @@ const useBoundingBox = (points: Vec3[]): BoundingPoints => {
 }
 
 
-export const usePositions = (coils?: Vec3[][]) => {
+export const usePositions = (pointSet?: Vec3[][]) => {
     // It's probably not necessary to split the memoization like this,
     // but I'm concerned about substantively-equal-but-referentially-distinct
     // repeated calls, which I'm attempting to cut off here.
-    const extremePts = useBoundingBox(coils ? coils.flat() : [])
+    const extremePts = useBoundingBox(pointSet ? pointSet.flat() : [])
     const xSpan = (extremePts.xmax - extremePts.xmin)
     const ySpan = (extremePts.ymax - extremePts.ymin)
     const centerX = (extremePts.xmin + extremePts.xmax)/2

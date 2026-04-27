@@ -2,7 +2,7 @@ import { SelectChangeEvent } from '@mui/material'
 import { GridRowSelectionModel } from '@mui/x-data-grid'
 import { FacetSplitType, NavigatorStateAction } from '@snState/NavigatorReducer'
 import { DependentVariables, IndependentVariables, RangeVariables, ToggleableVariables, TripartiteVariables } from '@snTypes/DataDictionary'
-import { NavigatorDispatch } from '@snTypes/Types'
+import { NavigatorDispatch, PKType } from '@snTypes/Types'
 import { Dispatch, useCallback, useMemo } from 'react'
 
 export const defaultTripartiteBothState = -1
@@ -89,7 +89,7 @@ export const handleTripartiteDropdownChangeBase = (dispatch: NavigatorDispatch, 
 }
 
 export const handleUpdateMarkedRecords = (dispatch: NavigatorDispatch, model: GridRowSelectionModel) => {
-    const selections = new Set<number>(model as unknown as number[])
+    const selections = new Set<PKType>(model.ids as unknown as PKType[])
     const update: NavigatorStateAction = {
         type: 'updateMarkedRecords',
         newSelections: selections

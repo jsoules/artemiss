@@ -1,34 +1,26 @@
-import { FilterSettings, NavigatorDatabase, StellaratorRecord } from "@snTypes/Types"
-import { CategoricalIndexedFields, DependentVariables, Fields, IndependentVariables, ToggleableVariables, meanIotaValidValues, ncPerHpValidValues, nfpValidValues } from "./DataDictionary"
+import { ArtemissRecord, Device, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
+import { CategoricalIndexedFields, DependentVariables, Fields, IndependentVariables, ToggleableVariables, nfpValidValues } from "./DataDictionary"
 
 export const defaultFinePlotSplit = ToggleableVariables.NFP
-export const defaultCoarsePlotSplit = ToggleableVariables.NC_PER_HP
-export const defaultDependentVariableValue = DependentVariables.QS_ERROR
-export const defaultIndependentVariableValue = IndependentVariables.TOTAL_COIL_LENGTH
-export const defaultPlotColorSplit = ToggleableVariables.NC_PER_HP
+export const defaultCoarsePlotSplit = ToggleableVariables.DATABASE_FROM
+export const defaultDependentVariableValue = DependentVariables.VOL_AVG_B
+export const defaultIndependentVariableValue = IndependentVariables.MINOR_RADIUS
+export const defaultPlotColorSplit = ToggleableVariables.DATABASE_FROM
 
 export const initialNavigatorState: FilterSettings = {
-    coilLengthPerHp: (Fields.coilLengthPerHp.range),
-    totalCoilLength: (Fields.totalCoilLength.range),
-    totalCoilLengthThresh: (Fields.totalCoilLengthThresh.range),
-    // Default-check the first and last elements--this ensures that some of both QA and QH devices are visible
-    // with default settings. (This is a bit of a hack; if needs change, might consider referencing the actual
-    // values in the list.)
-    meanIota: [ true, ...(new Array<boolean>(meanIotaValidValues.length - 2).fill(false)), true ],
-    ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
-    nfp: new Array<boolean>(nfpValidValues.length).fill(true),
-    nSurfaces: new Array<boolean>((Fields.nSurfaces.values ?? []).length).fill(false),
-    maxKappa: (Fields.maxKappa.range),
-    maxMeanSquaredCurve: (Fields.maxMeanSquaredCurve.range),
-    minIntercoilDist: (Fields.minIntercoilDist.range),
-    qsError: (Fields.qsError.range),
-    aspectRatio: (Fields.aspectRatio.range),
+    // When we actually have more values, we'll set up a default source or something
+    // to limit getting slammed by the initial data.
+    // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
+    databaseFrom: [ true ], //[ true, ...(new Array<boolean>(meanIotaValidValues.length - 2).fill(false)), true ],
+    nfp: [ true, ...(new Array<boolean>(nfpValidValues.length - 2).fill(false)), true ], //new Array<boolean>(nfpValidValues.length).fill(true),
+    phiEdge: (Fields.phiEdge.range),
     minorRadius: (Fields.minorRadius.range),
+    aspectRatio: (Fields.aspectRatio.range),
     volume: (Fields.volume.range),
-    minCoil2SurfaceDist: (Fields.minCoil2SurfaceDist.range),
-    meanElongation: (Fields.meanElongation.range),
-    maxElongation: (Fields.maxElongation.range),
-    nFourierCoil: undefined,
+    volAvgB: (Fields.volAvgB.range),
+    minLgradB: (Fields.minLgradB.range),
+    vacuumWell: (Fields.vacuumWell.range),
+    lossFractionS025: (Fields.lossFractionS025.range),
     //
     dependentVariable: defaultDependentVariableValue,
     independentVariable: defaultIndependentVariableValue,
@@ -37,48 +29,84 @@ export const initialNavigatorState: FilterSettings = {
     finePlotSelectedValue: 1,
     database: undefined,
     records: [],
-    recordIds: new Set<number>(),
-    markedRecords: new Set<number>(),
+    recordIds: new Set<PKType>(),
+    markedRecords: new Set<PKType>(),
+    markedRecordUrls: new Set<string>(),
 }
+
 
 export const initialDatabase: NavigatorDatabase = {
     list: [],
     byId: {},
     categoricalIndexes: {
-        [ CategoricalIndexedFields.MEAN_IOTA ]: {},
-        [ CategoricalIndexedFields.NC_PER_HP ]: {},
-        [ CategoricalIndexedFields.NFP       ]: {},
-        [ CategoricalIndexedFields.NFOURIER  ]: {},
-        [ CategoricalIndexedFields.NSURFACES ]: {},
-        [ CategoricalIndexedFields.HELICITY  ]: {}
+        [ CategoricalIndexedFields.NFP           ]: {},
+        [ CategoricalIndexedFields.DATABASE_FROM ]: {},
     },
-    allIdSet: new Set<number>([])
+    allIdSet: new Set<PKType>([])
 }
 
+
 export const nonExtantRecordId = '000000'
-export const defaultEmptyRecord: StellaratorRecord = {
-    id: parseInt(nonExtantRecordId),
-    coilLengthPerHp: 0,
-    totalCoilLength: 0,
-    totalCoilLengthThresh: 0,
-    meanIota: 0,
-    ncPerHp: 0,
+export const defaultEmptyRecord: ArtemissRecord = {
+    uuid: nonExtantRecordId,
+    databaseFrom: '',
+    groupName: '',
+    databaseFromId: '',
+    canonicalPath: '',
     nfp: 1,
-    nFourierCoil: 0,
-    nSurfaces: 1,
-    maxKappa: 0,
-    maxMeanSquaredCurve: 0,
-    minIntercoilDist: 0,
-    qsError: 0,
+    phiEdge: 0.,
+    minorRadius: 0.,
+    aspectRatio: 0.,
+    volume: 0.,
+    volAvgB: 0.,
+    minLgradB: 0.,
+    vacuumWell: 0.,
+    lossFractionS025: 0.,
+}
+
+export const defaultEmptyDevice: Device = {
+    uuid: nonExtantRecordId,
+    databaseFrom: '',
+    groupName: '',
+    databaseFromId: "",
+    nfp: 0,
+    stellsym: false,
+    surfaceDistances: [],
+    surface: [],
+    nSurfaces: 0,
     aspectRatio: 0,
     minorRadius: 0,
     volume: 0,
-    minCoil2SurfaceDist: 0,
-    meanElongation: 0,
-    maxElongation: 0,
-    message: "",
-    iotaProfile: [],
-    tfProfile: [],
-    surfaceTypes: [],
-    helicity: 0
+    volAvgB: 0,
+    mirrorRatio: 0,
+    minLgradB: 0,
+    modbBoozer: [],
+    pressure: [],
+    plasmaBeta: 0,
+    boozerI: [],
+    boozerG: [],
+    jdotbVmec: [],
+    iota: [],
+    vacuumWell: 0,
+    mercierCriterion: [],
+    magneticAxis: [],
+    integratedAxisTorsion: 0,
+    axisHelicity: 0,
+    sqrtBoozerQsError: [],
+    epsilonEff: [],
+    qiError: [],
+    lossTracings: {
+        time: [],
+        lossFracS0_01: 0,
+        lossFracS0_25: 0,
+        lossFracS0_50: 0,
+        meanConfinementTimeS0_01: 0,
+        meanConfinementTimeS0_25: 0,
+        meanConfinementTimeS0_50: 0
+    },
+    lossCharacteristics: {
+        thetaLostS0_25: [],
+        zetaLostS0_25: [],
+        energyLostS0_25: []
+    }
 }

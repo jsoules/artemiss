@@ -2,12 +2,12 @@ import queryFn from '@snQuerying/queryFn'
 import { RawData, makeDatabase } from '@snState/database'
 import { KnownPathType } from '@snTypes/DataDictionary'
 import { initialDatabase } from "@snTypes/Defaults"
-import makeResourcePath, { getStringId } from '@snUtil/makeResourcePath'
+import makeResourcePath from '@snUtil/makeResourcePath'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from "react"
 
 const useDatabase = () => {
-    const databasePath = makeResourcePath(getStringId(''), KnownPathType.DATABASE)
+    const databasePath = makeResourcePath('', KnownPathType.DATABASE)
     const { data: rawDatabase, error } = useQuery({
         queryKey: ['database'],
         queryFn: () => queryFn<RawData>(databasePath, !import.meta.env.DEV),

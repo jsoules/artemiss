@@ -2,26 +2,23 @@ import { NavigatorStateAction } from "@snState/NavigatorReducer"
 import { CategoricalIndexedFields, DependentVariables, IndependentVariables, ToggleableVariables } from "@snTypes/DataDictionary"
 import { Dispatch } from "react"
 
+
+export type PKType = string
+export const NullId = ''
+export const ConcatenationToken = '---'
+
 export type FilterSettings = {
-    coilLengthPerHp: number[]
-    totalCoilLength: number[]
-    totalCoilLengthThresh: number[]
-    meanIota: boolean[]
-    ncPerHp: boolean[]
+    databaseFrom: boolean[]
     nfp: boolean[]
-    nSurfaces: boolean[]
-    maxKappa: number[]
-    maxMeanSquaredCurve: number[]
-    minIntercoilDist: number[]
-    qsError: number[]
-    aspectRatio: number[]
+    phiEdge: number[],
     minorRadius: number[]
+    aspectRatio: number[]
     volume: number[]
-    minCoil2SurfaceDist: number[]
-    meanElongation: number[]
-    maxElongation: number[]
-    nFourierCoil?: number
-    helicity?: number
+    volAvgB: number[]
+    minLgradB: number[]
+    vacuumWell: number[]
+    lossFractionS025: number[]
+    // system settings
     dependentVariable: DependentVariables
     independentVariable: IndependentVariables
     coarsePlotSplit?: ToggleableVariables
@@ -29,71 +26,56 @@ export type FilterSettings = {
     coarsePlotSelectedValue?: number
     finePlotSelectedValue?: number
     database: NavigatorDatabase | undefined
-    records: StellaratorRecord[]
-    recordIds: Set<number>
-    markedRecords: Set<number>
+    records: ArtemissRecord[]
+    recordIds: Set<PKType>
+    markedRecords: Set<PKType>
+    markedRecordUrls: Set<string>
 }
-
-// --> ANY FLOAT should be eligible for dependent axis, ANY VALUE for independent axis.
-// EXCEPT GRADIENT we just won't plot that
-
 
 // See also the further explanations/notes in DataDictionary.ts
-export type StellaratorRecord = {
+// TODO QUERY: Might want to combine the UUID (pk) into an object with the other 3 record-identifying properties
+// in light of the fact we need all of them to reconstruct the path
+export type ArtemissRecord = {
     // PK
-    id: number,                     // 952 - 2,793,242. 7 digits.
+    uuid: PKType,                   // UUID
+    // Identification fields
+    databaseFrom: string,           // Closed set, should be an enum maybe?
+    groupName: string,              // Closed set, maybe an enum? Used for distributing device records over directories NOT INDEXED
+    databaseFromId: string,         // Whatever the ID of the device was in the database it's native to NOT INDEXED
+    canonicalPath: string,          // assembled per-rule from uuid, groupName, etc
     // Categorical fields
-    // Note: coil lengths are technically categorical but we mark them as continuous in the the
-    // data dictionary because there's like 80 possible values
-    coilLengthPerHp: number,        // range 2.4-60.epsilon. Length of coil used per half-period (meters)
-    totalCoilLength: number,        // range 19.2 - 120.1. Total length of coil used to construct coils (m)
-    totalCoilLengthThresh: number,  // threshold for total coil length. Many values; range 19.2 - 120.0
-    meanIota: number,               // range 0.1 - 4.5, 54 distinct values
-    ncPerHp: number,                // range 1-13, coil count per half-period
-    nfp: number,                    // range 1-8, field period count
-    nFourierCoil: number,           // 6 or 16. (Number of Fourier modes used in coil simulation)
-    helicity: number,               // 0 or 1. 0: QA--Quasiaxisymmetric (original); 1: QH--quasi-helically symmetric (devices added post-2024.01)
-    nSurfaces: number,              // # of surfaces over which QS was optimized. (1-7). Shld correspond to surface data.
+    nfp: number,                    // range 1-8?, field period count
     // Globally unique(ish)/continuous fields
-    maxKappa: number,               // range 1.7 - 19.55, max curvature
-    maxMeanSquaredCurve: number,    // range 1.21 - 35.05, ??
-    minIntercoilDist: number,       // range 0.09 - 0.38, minimum distance between coils
-    qsError: number,                // stored in log10, -5.47 to -0.4, quasiasymmetry error (no unit)
-    // gradient: number,               // stored in log10, -12.74 to +12.12, arbitrary convergence measure (no unit)  // removed as of 2024.01 export
-    aspectRatio: number,            // range 2.7 - 24.6 (no unit)
-    minorRadius: number,            // range 0.0413 - 0.356 (M). Minor radius of outermost surface ("minor radius")
-                                    // Note somewhere that this is scaled so that major radius is always 1
-    volume: number,                 // range 0.034 - 2.42. Volume enclosed by outermost toroidal surface over which QS was optimized. (m^3)
-    minCoil2SurfaceDist: number,    // range [0.0999, 0.685]. min distance between coil and outermost optimization surface. (m)
-    meanElongation: number,         // range [1, 66]. 
-    maxElongation: number,          // range [1.1, 313.2].
-    // Weird ones
-    message: string,                // descriptor of analysis: as "[Naive | TuRBO], [global | fine] scan"
-    iotaProfile: number[],          // array of nSurfaces+2 length, each element a rotational transform value (y-axis of iota profile plot)
-    tfProfile: number[],            // array of nSurfaces+2 length, each element a normalized toriodal flux value (x-axis of iota profile plot)
-                                    // both are unitless and tfProfile should be constrained to lie on (0, 1)
-    surfaceTypes: string[]          // array of nSurfaces+1 length, each element's values in ("exact", "ls")
+    phiEdge: number,                // range 15.0 - 150.0? (unit?) Total toroidal magnetic flux in the device
+    minorRadius: number,            // range 1.5 - 2.5? (M). Minor radius of outermost surface ("minor radius")
+    aspectRatio: number,            // range 2.7 - 12.0 (no unit)
+    volume: number,                 // range 0.034 - 2.42, Volume enclosed by outermost toroidal surface over which QS was optimized. (m^3)
+    volAvgB: number,                // range 4.5 - 10.0?, magnetic field strength averaged over plasma volume
+    minLgradB: number,              // range 0.5 - 9.0, predicts required coil separation length to maintain containment
+    vacuumWell: number,             // range -0.11 - 0.2. Metric for plasma equilibrium stability
+    lossFractionS025: number,       // Fraction (0 - 1). Fraction of particles born on s=0.25 that escape plasma w/in 0.1 sec
+    // MORE WILL COME but won't be represented by the overview file...
 }
-export type RecordDict = Record<number, StellaratorRecord>
+export type RecordDict = Record<string, ArtemissRecord>
 
 export type NavigatorDatabase = {
-    list: StellaratorRecord[]
+    list: ArtemissRecord[]
     byId: RecordDict
-    allIdSet: Set<number>
+    allIdSet: Set<string>
     categoricalIndexes: CategoricalIndexSet
 }
 
 export type CategoricalIndexSet = {[key in CategoricalIndexedFields]: NumericIndex}
-export type NumericIndex = Record<number, Set<number>>
+export type NumericIndex = Record<number, Set<string>>
 
 export type NavigatorDispatch = Dispatch<NavigatorStateAction>
 
 export type NavigatorContextType = {
     filterSettings: FilterSettings
-    selection: Set<number>
+    selection: Set<PKType>
     database: NavigatorDatabase
     dispatch: React.Dispatch<NavigatorStateAction>
-    fetchRecords: (ids: Set<number>) => StellaratorRecord[]
+    fetchRecords: (ids: Set<PKType>) => ArtemissRecord[]
 }
 
 export type FilterUpdateAction = unknown
@@ -132,13 +114,89 @@ export type Vec3Field = Vec3[][]
 
 export type ScalarField = number[][]
 
-export type CoilRecord = {
-    coil: Vec3[],
-    current: number
-}
+// I'm going to leave this in, on the assumption that we may
+// want to re-incorporate coils in the future
+// export type CoilRecord = {
+//     coil: Vec3[],
+//     current: number
+// }
 
 export type SurfaceObject = {
     surfacePoints: Vec3Field[],
     pointValues: ScalarField[],
     incomplete: boolean
+}
+
+
+export type MagneticAxisObject = {
+    axisPoints: Vec3[],
+    incomplete: boolean
+}
+
+
+export type DeviceTimeSeries = {
+    time: number[], // time codes for particle confinement/tracing simulations. Used for plotting.
+    lossFracS0_01: number,  // doc says should be nt but example is scalar. TODO
+                            // frac of particles born on s=0.01 (i.e. very close to axis)
+                            // which are lost after time step t
+    lossFracS0_25: number,  // scalar or nt? Fraction particles born on s=0.25 lost after t
+    lossFracS0_50: number,  // ditto. Born at s=0.50 lost after time t
+    meanConfinementTimeS0_01: number,   // scalar or nt? As above
+    meanConfinementTimeS0_25: number,   // scalar or nt? As above
+    meanConfinementTimeS0_50: number,   // scalar or nt? As above
+}
+
+
+export type LossSeries = {
+    thetaLostS0_25:  number[],  // poloidal angle (theta) when crossing boundary
+                                // of lost particles born on s=0.25. MAY NOT BE POPULATED
+    zetaLostS0_25:   number[],  // toroidal angle zeta where particles crossed the boundary
+    energyLostS0_25: number[],  // particle energy at time of loss, in MeV
+}
+
+
+export type Device = {
+    uuid: PKType,
+    databaseFrom: string,
+    groupName: string,
+    databaseFromId: string,
+    nfp: number,
+    stellsym: boolean,
+    surfaceDistances: number[], // s1d
+    surface: Vec3Field, // SINGLE complete period of OUTERMOST surface.
+                        // to be painted with other values in the object (user-selectable)
+                        // TODO: Make this an actual list again...
+    nSurfaces: number,
+    aspectRatio: number,
+    minorRadius: number,
+    volume: number,
+    volAvgB: number,
+    mirrorRatio: number,    // B_max / B_min
+    minLgradB: number,
+    modbBoozer: ScalarField[],  // currently has ALL surfaces
+    pressure: number[], // same dimensionality as n surfaces
+    plasmaBeta: number, // volume-averaged plasma beta (pressure / mag pressure)
+    boozerI: number[],  // ns. normalized toroidal current
+    boozerG: number[],  // ns. normalized poloidal current
+    jdotbVmec: number[],    // ns. bootstrap current from vmec
+    iota: number[],     // ns. Rotational transform profile (twist of field lines)
+    vacuumWell: number, // magnetic well, stability criterion
+    mercierCriterion: number[], // ns. Local stability measure
+    magneticAxis: Vec3[],   // n_phi x 3. Trace line of mag axis. Colorize? native "xyz_axis".
+    integratedAxisTorsion: number,  // integrated torsion along magnetic axis
+    axisHelicity: number,   // helicity of magnetic axis
+    sqrtBoozerQsError: number[],    // ns. root of Boozer quasi-symmetry error
+    epsilonEff: number[],   // ns. effective ripple per-surface
+    qiError: number[],  // ns. quasi-isodynamic error measure, per surface.
+    lossTracings: DeviceTimeSeries,
+    lossCharacteristics: LossSeries
+}
+
+
+export type Device3dModel = {
+    surfaceCount: number,
+    baseSurfaces: Vec3Field[],
+    fullSurfaces: Vec3Field[],
+    baseModBboozer: ScalarField[],
+    fullModBboozer: ScalarField[]
 }

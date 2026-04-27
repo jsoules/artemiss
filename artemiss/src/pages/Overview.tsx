@@ -17,7 +17,7 @@ import useFilterCallbacks from "@snControlComponents/SelectionControlCallbacks"
 import SelectionControlPanel from "@snControlComponents/SelectionControlPanel"
 import { NavigatorStateAction } from "@snState/NavigatorReducer"
 import { DependentVariables, ToggleableVariables, fieldIsCategorical } from "@snTypes/DataDictionary"
-import { FilterSettings, StellaratorRecord } from "@snTypes/Types"
+import { ArtemissRecord, FilterSettings } from "@snTypes/Types"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
 import { Dispatch, FunctionComponent, useMemo, useReducer, useState } from "react"
 import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
@@ -30,7 +30,7 @@ export const plotGridInternalMargin = 20
 
 
 type OverviewProps = {
-    records: StellaratorRecord[]
+    records: ArtemissRecord[]
     dispatch: Dispatch<NavigatorStateAction>
     filterSettings: FilterSettings
 }
@@ -140,6 +140,7 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
                 <SnTable
                     records={records}
                     markedIds={filterSettings.markedRecords}
+                    markedIdUrls={filterSettings.markedRecordUrls}
                     selectionHandler={callbacks.handleUpdateMarks}
                     filterCriteria={[filterSettings.coarsePlotSplit, filterSettings.finePlotSplit]}
                     filterValues={[filterSettings.coarsePlotSelectedValue, filterSettings.finePlotSelectedValue]}
