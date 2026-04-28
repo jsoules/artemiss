@@ -42,7 +42,7 @@ export type NavigatorStateAction = {
     target: FacetSplitType
 } | {
     type: 'updateFocusedPlotIndices',
-    newValues: (number | undefined)[]
+    newValues: (string | undefined)[]
 }
 
 const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSettings => {
@@ -112,7 +112,7 @@ const applyUpdatedFilters = (settings: FilterSettings, ignoreSizeCheck: boolean 
 }
 
 
-const selectedOrFirst = (field: ToggleableVariables, choices: boolean[], selected: number | undefined): number | undefined => {
+const selectedOrFirst = (field: ToggleableVariables, choices: boolean[], selected: string | undefined): string | undefined => {
     const setVals = getValuesFromBoolArray(field, choices)
     if (setVals.length === 0) return undefined
     return selected != undefined && setVals.includes(selected) ? selected : setVals[0]

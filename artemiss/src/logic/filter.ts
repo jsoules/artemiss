@@ -50,6 +50,7 @@ export const applyFiltersToSet = (filters: FilterSettings, database: NavigatorDa
         return callback(valueRange)
     })
     const finalSet = new Set(materializedRows.filter(r => rangeTests.every(test => test(r))).map(r => r.uuid))
+    console.log(`Final set has size ${finalSet.size} and elements ${[...finalSet.entries()].join(',')}`)
     return finalSet
 }
 
@@ -114,11 +115,11 @@ const rangeFilters = Object.values(RangeVariables).filter(rv => isNaN(Number(rv)
 // ).map(f => makeSelectionFilter(f as TripartiteVariables, database))
 
 
-export const filterTo = (records: ArtemissRecord[], filters: { [key in ToggleableVariables]?: number }) => {
+export const filterTo = (records: ArtemissRecord[], filters: { [key in ToggleableVariables]?: string }) => {
     let result = records
     Object.keys(filters).forEach(k => {
         if (filters[k as ToggleableVariables] !== undefined) {
-            result = result.filter(r => r[k as ToggleableVariables] === filters[k as ToggleableVariables])
+            result = result.filter(r => `${r[k as ToggleableVariables]}` === filters[k as ToggleableVariables])
         }
     })
     return result

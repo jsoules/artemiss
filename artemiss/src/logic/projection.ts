@@ -11,16 +11,14 @@ import { ArtemissRecord, FilterSettings, NullId, PKType } from "@snTypes/Types"
 type categorizationCriteria = {
     colorField?: DependentVariables | ToggleableVariables
     fineSplit?: ToggleableVariables
-    fineSplitVals?: number[]
     coarseSplit?: ToggleableVariables
-    coarseSplitVals?: number[]
 }
 
 export type ProjectionCriteria = categorizationCriteria & {
     yVar: DependentVariables
     xVar: IndependentVariables
     data: ArtemissRecord[]
-    markedIds?: Set<PKType>
+    filterSettings: FilterSettings
 }    
 
 
@@ -30,19 +28,21 @@ type ProjectedData = {
     colorValues: number[][][]
     ids: PKType[][][]
     urls: string[][][]
+    fineSplitVals: string[]
+    coarseSplitVals: string[]
 }
 
 
-export const makeValsFromFieldname = (field: ToggleableVariables | undefined, filters: FilterSettings, includeAllIfNone?: boolean) => {
+export const makeValsFromFieldname = (field: ToggleableVariables | undefined, filters: FilterSettings, includeAllIfNone?: boolean): string[] => {
     if (field === undefined) return []
     const allValidVals = Fields[field]?.values ?? []
-    const splitVals = (filters[field] ?? []).map((v, i) => (v ? allValidVals[i] : undefined)).filter(x => x !== undefined) as unknown as number[]
+    const splitVals = (filters[field] ?? []).map((v, i) => (v ? allValidVals[i] : undefined)).filter(x => x !== undefined) as unknown as string[]
     return includeAllIfNone && splitVals.length === 0 ? allValidVals : splitVals
 }
 
 
 export const defaultFieldKey = 'Any'
-const makeDefaultedList = (p: {baseList: number[] | undefined, defaultToAll?: boolean, fieldName?: ToggleableVariables | undefined}) => {
+const makeDefaultedList = (p: {baseList: string[] | undefined, defaultToAll?: boolean, fieldName?: ToggleableVariables | undefined}) => {
     if (p.baseList === undefined || p.baseList.length === 0) {
         return p.defaultToAll
             ? Fields[p.fieldName as unknown as KnownFields].values ?? [defaultFieldKey]
@@ -51,9 +51,11 @@ const makeDefaultedList = (p: {baseList: number[] | undefined, defaultToAll?: bo
     return p.baseList
 }
 
-const makeLookups = (c: categorizationCriteria) => {
-    // const { fineSplit, coarseSplit, colorField } = c
-    const { colorField } = c
+const makeLookups = (
+    colorField?: DependentVariables | ToggleableVariables,
+    fineSplitVals?: string[],
+    coarseSplitVals?: string[]
+) => {
     // TODO:
     // USE THIS OPPORTUNITY TO TREAT THE CATEGORICAL AS A PROPER TRANSLATION TABLE!
     // OR POSSIBLY the issue is in the makeDefaultedList using values rather than valueLabels... hm
@@ -66,11 +68,11 @@ const makeLookups = (c: categorizationCriteria) => {
     //     throw Error(`Data partition criteria must be distinct, but fine-split and coarse-split criterion match (${fineSplit}, ${coarseSplit})`)
     // }
 
-    const fineVals   = makeDefaultedList({ baseList: c.fineSplitVals })
-    const coarseVals = makeDefaultedList({ baseList: c.coarseSplitVals })
+    const fineVals   = makeDefaultedList({ baseList: fineSplitVals })
+    const coarseVals = makeDefaultedList({ baseList: coarseSplitVals })
     const colorFieldIsCategorical = fieldIsCategorical(colorField)
     // const colorVals  = colorFieldIsCategorical ? makeDefaultedList({ baseList: undefined, defaultToAll: true, fieldName: colorField as ToggleableVariables }) : []
-    const colorVals  = colorFieldIsCategorical ? Fields[colorField as ToggleableVariables].valueLabels ?? [] : []
+    const colorVals  = colorFieldIsCategorical ? Fields[colorField as ToggleableVariables].values ?? [] : []
 
     fineVals.forEach((v, i) => fineKeys[`${v}`] = i)
     coarseVals.forEach((v, i) => coarseKeys[`${v}`] = i)
@@ -81,7 +83,10 @@ const makeLookups = (c: categorizationCriteria) => {
 
 
 const projectToPlotReadyData = (props: ProjectionCriteria): ProjectedData => {
-    const { data, yVar, xVar, markedIds, colorField, fineSplit, coarseSplit } = props
+    const { data, yVar, xVar, filterSettings, colorField, fineSplit, coarseSplit } = props
+    const fineSplitVals = makeValsFromFieldname(fineSplit, filterSettings)
+    const coarseSplitVals = makeValsFromFieldname(coarseSplit, filterSettings)
+    const markedIds = filterSettings.markedRecords
     // We're going to be boorish and iterative here, because filtering properly would potentially involve
     // iterating over the entire database ~1000 times.
     // Instead, create a data structure with S x R x C buckets, where S = cardinality of field for colorCriteria,
@@ -89,10 +94,7 @@ const projectToPlotReadyData = (props: ProjectionCriteria): ProjectedData => {
     // Then iterate over the data set once, computing appropriate bucket based on those values &
     // populating the resulting list as a flat list of x, y values based on the chosen fields.
 
-    console.log(`Projection criteria: ${JSON.stringify({yVar, xVar, markedIds, colorField, fineSplit, coarseSplit, fsv: props.fineSplitVals, csv: props.coarseSplitVals})}`)
-    console.log(`Data: ${JSON.stringify(data)}`)
-    const { fineKeys, coarseKeys, colorKeys } = makeLookups(props)
-    console.log(`Lookups:\n${JSON.stringify(fineKeys)}\n${JSON.stringify(coarseKeys)}\n${JSON.stringify(colorKeys)}`)
+    const { fineKeys, coarseKeys, colorKeys } = makeLookups(props.colorField, fineSplitVals, coarseSplitVals)
     const colorFieldIsCategorical = fieldIsCategorical(colorField)
     
     const buckets: number[][][] = new Array(Object.keys(coarseKeys).length).fill(0)
@@ -132,7 +134,7 @@ const projectToPlotReadyData = (props: ProjectionCriteria): ProjectedData => {
             colorValues[coarseIdx][fineIdx].push(colorField === undefined ? 1 : record[colorField] as number)
         }
     })
-    return { data: buckets, radius, colorValues, ids, urls }
+    return { data: buckets, radius, colorValues, ids, urls, fineSplitVals, coarseSplitVals }
 }
 
 

@@ -69,13 +69,13 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
                 type={ToggleableVariables.NFP}
                 selections={nfp}
                 onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.NFP].valueLabels ?? [])}
+                labels={(Fields[ToggleableVariables.NFP].values ?? [])}
             />
             <ToggleableVariableCheckboxGroup
                 type={ToggleableVariables.DATABASE_FROM}
                 selections={databaseFrom}
                 onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.DATABASE_FROM].valueLabels ?? [])}
+                labels={(Fields[ToggleableVariables.DATABASE_FROM].values ?? [])}
             />
         </div>
     )

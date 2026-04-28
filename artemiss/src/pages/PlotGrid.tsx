@@ -16,8 +16,8 @@ export type PlotGridProps = {
     mouseHandlers: MouseHandlers
     plotFittings: PlotFittings
     plotColorProps: PlotColorProps
-    focusCoarseValue?: number
-    focusFineValue?: number
+    focusCoarseValue?: string
+    focusFineValue?: string
 }
 
 // TODO: Further simplify this to avoid passing so many props around, both into here and into CanvasPlotWrapper

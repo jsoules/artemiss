@@ -11,8 +11,8 @@ export const initialNavigatorState: FilterSettings = {
     // When we actually have more values, we'll set up a default source or something
     // to limit getting slammed by the initial data.
     // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
-    databaseFrom: [ true ], //[ true, ...(new Array<boolean>(meanIotaValidValues.length - 2).fill(false)), true ],
-    nfp: [ true, ...(new Array<boolean>(nfpValidValues.length - 2).fill(false)), true ], //new Array<boolean>(nfpValidValues.length).fill(true),
+    databaseFrom: [ true, false ], //[ true, ...(new Array<boolean>(meanIotaValidValues.length - 2).fill(false)), true ],
+    nfp: [ true, true, ...(new Array<boolean>(nfpValidValues.length - 2).fill(false)) ], //new Array<boolean>(nfpValidValues.length).fill(true),
     phiEdge: (Fields.phiEdge.range),
     minorRadius: (Fields.minorRadius.range),
     aspectRatio: (Fields.aspectRatio.range),
@@ -25,8 +25,9 @@ export const initialNavigatorState: FilterSettings = {
     dependentVariable: defaultDependentVariableValue,
     independentVariable: defaultIndependentVariableValue,
     coarsePlotSplit: defaultCoarsePlotSplit,
+    // coarsePlotSelectedValue: 'kappel_2024',
     finePlotSplit: defaultFinePlotSplit,
-    finePlotSelectedValue: 1,
+    finePlotSelectedValue: '1',
     database: undefined,
     records: [],
     recordIds: new Set<PKType>(),

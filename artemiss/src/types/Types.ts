@@ -23,8 +23,8 @@ export type FilterSettings = {
     independentVariable: IndependentVariables
     coarsePlotSplit?: ToggleableVariables
     finePlotSplit?: ToggleableVariables
-    coarsePlotSelectedValue?: number
-    finePlotSelectedValue?: number
+    coarsePlotSelectedValue?: string
+    finePlotSelectedValue?: string
     database: NavigatorDatabase | undefined
     records: ArtemissRecord[]
     recordIds: Set<PKType>
@@ -65,8 +65,8 @@ export type NavigatorDatabase = {
     categoricalIndexes: CategoricalIndexSet
 }
 
-export type CategoricalIndexSet = {[key in CategoricalIndexedFields]: NumericIndex}
-export type NumericIndex = Record<number, Set<string>>
+export type CategoricalIndex = Record<string, Set<string>>
+export type CategoricalIndexSet = {[key in CategoricalIndexedFields]: CategoricalIndex}
 
 export type NavigatorDispatch = Dispatch<NavigatorStateAction>
 

@@ -1,5 +1,5 @@
 import { CategoricalIndexedFields, Fields, KnownFields } from "@snTypes/DataDictionary"
-import { ArtemissRecord, CategoricalIndexSet, NavigatorDatabase, NumericIndex, RecordDict } from "@snTypes/Types"
+import { ArtemissRecord, CategoricalIndex, CategoricalIndexSet, NavigatorDatabase, RecordDict } from "@snTypes/Types"
 import { makeUrl } from "@snUtil/makeResourcePath"
 
 // NOTE: TODO: purge comments/outdated stuff
@@ -100,9 +100,9 @@ export const makeDatabase = (rawData: RawData) => {
             throw Error(`Bad value in indexes-keys: ${k}`)
         }
         const key = k as keyof ArtemissRecord
-        const idx: NumericIndex = {}
+        const idx: CategoricalIndex = {}
         vals.forEach(v => {
-            idx[v] = new Set(dataList.filter(row => row[key] === v).map(row => row.uuid))
+            idx[v] = new Set(dataList.filter(row => `${row[key]}` === v).map(row => row.uuid))
         })
         categoricalFieldIndexes[k] = idx
     })

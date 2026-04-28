@@ -12,7 +12,7 @@ type SnTableProps = {
     markedIdUrls: Set<string>
     selectionHandler: (model: GridRowSelectionModel) => void
     filterCriteria: (ToggleableVariables | undefined)[]
-    filterValues: (number | undefined)[]
+    filterValues: (string | undefined)[]
 }
 
 const variableColumnsDefaultWidth = 110
@@ -50,13 +50,15 @@ const varWidthCols: GridColDef[] = varWidthFields.map(f => {
 
 const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
     const { records, selectionHandler, markedIds, filterCriteria, filterValues } = props
+    console.log(`pre-filter record count: ${records.length} filters ${JSON.stringify(filterCriteria)} with values ${filterValues}`)
 
-    const filters: {[key in ToggleableVariables]?: number | undefined} = {}
+    const filters: {[key in ToggleableVariables]?: string | undefined} = {}
     filterCriteria.forEach((f, i) => {
         if (f !== undefined && filterValues[i] !== undefined) {
             filters[f] = filterValues[i]
         }
     })
+    console.log(`filters: ${JSON.stringify(filters)}`)
     const filteredRecords = filterTo(records, filters)
 
     const columns = [...fixedWidthCols, ...varWidthCols]

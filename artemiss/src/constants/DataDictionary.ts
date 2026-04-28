@@ -76,15 +76,15 @@ export enum TripartiteVariables {
 export const dependentVariableDropdownConfig: { key: number, value: DependentVariables }[] = [
     // { key:  1, value: DependentVariables.DATABASE_FROM               },
     // { key:  2, value: DependentVariables.GROUP_NAME                  },
-    { key:  1, value: DependentVariables.NFP                         },
-    { key:  2, value: DependentVariables.PHIEDGE                     },
-    { key:  3, value: DependentVariables.MINOR_RADIUS                },
-    { key:  4, value: DependentVariables.ASPECT_RATIO                },
-    { key:  5, value: DependentVariables.VOLUME                      },
-    { key:  6, value: DependentVariables.VOL_AVG_B                   },
-    { key:  7, value: DependentVariables.MIN_L_GRAD_B                },
-    { key:  8, value: DependentVariables.VACUUM_WELL                 },
-    { key:  9, value: DependentVariables.LOSS_FRAC_S_0_25            },
+    // { key:  1, value: DependentVariables.NFP                         },
+    { key:  1, value: DependentVariables.PHIEDGE                     },
+    { key:  2, value: DependentVariables.MINOR_RADIUS                },
+    { key:  3, value: DependentVariables.ASPECT_RATIO                },
+    { key:  4, value: DependentVariables.VOLUME                      },
+    { key:  5, value: DependentVariables.VOL_AVG_B                   },
+    { key:  6, value: DependentVariables.MIN_L_GRAD_B                },
+    { key:  7, value: DependentVariables.VACUUM_WELL                 },
+    { key:  8, value: DependentVariables.LOSS_FRAC_S_0_25            },
 ]
 
 export const independentVariableDropdownConfig: { key: number, value: IndependentVariables }[] = [
@@ -122,8 +122,7 @@ export type FieldDescription = {
     description: string,
     unit?: string,
     range: [number, number],
-    values?: number[],
-    valueLabels?: string[],
+    values?: string[],
     isLog: boolean,
     isCategorical: boolean
     markedValue?: number,
@@ -140,17 +139,21 @@ type FieldRecords = {
 
 export const nfpValidValues = [
     1, 2, 3, 4, 5, 6, 7, 8
-]
-
-
-export const databaseFromLabels = [
-    "kappel_2024",
-]
-
+].map(x => `${x}`)
 
 export const databaseFromValidValues = [
-    1,
+    "kappel_2024",
+    "quasr"
 ]
+
+// export const databaseFromLabels = [
+//     "kappel_2024",
+// ]
+
+
+// export const databaseFromValidValues = [
+//     1,
+// ]
 
 
 // TODO: Something about init-capping these in some contexts
@@ -200,7 +203,7 @@ export const Fields: FieldRecords = {
         unit: undefined,
         range: [2.4, 60.1],
         values: databaseFromValidValues,
-        valueLabels: databaseFromLabels,
+        // valueLabels: databaseFromLabels,
         isLog: false,
         isCategorical: true,
         markedValue: undefined,
@@ -253,7 +256,7 @@ export const Fields: FieldRecords = {
         unit: undefined,
         range: [1, 8],
         values: nfpValidValues,
-        valueLabels: nfpValidValues.map(i => `${i}`),
+        // valueLabels: nfpValidValues.map(i => `${i}`),
         isLog: false,
         isCategorical: true,
         markedValue: undefined,
@@ -302,7 +305,7 @@ export const Fields: FieldRecords = {
         fullLabel: "Volume",
         description: "Volume enclosed by the outermost toroidal surface",
         unit: `${METER_UNIT}^3`,
-        range: [0.034, 2.42],   // TODO: DOUBLE-CHECK
+        range: [5., 1500.],   // TODO: DOUBLE-CHECK; also should we log-scale this???
         isLog: false,
         isCategorical: false,
         displayInTable: true

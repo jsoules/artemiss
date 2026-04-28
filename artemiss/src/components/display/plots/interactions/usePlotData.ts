@@ -1,4 +1,4 @@
-import projectToPlotReadyData, { ProjectionCriteria, makeValsFromFieldname } from "@snState/projection"
+import projectToPlotReadyData, { ProjectionCriteria } from "@snState/projection"
 import { ToggleableVariables, fieldIsCategorical } from "@snTypes/DataDictionary"
 import { ArtemissRecord, FilterSettings, PKType } from "@snTypes/Types"
 import { useMemo } from "react"
@@ -30,20 +30,16 @@ export const usePlotData: plotHookType = ({records, filterSettings, colorSplit})
     const fineSplit = filterSettings.finePlotSplit
     const coarseSplit = filterSettings.coarsePlotSplit
     const res = useMemo(() => {
-        const fineSplitVals = makeValsFromFieldname(fineSplit, filterSettings)
-        const coarseSplitVals = makeValsFromFieldname(coarseSplit, filterSettings)
         const projectionCriteria: ProjectionCriteria = {
             data: records,
             yVar: filterSettings.dependentVariable,
             xVar: filterSettings.independentVariable,
-            markedIds: filterSettings.markedRecords,
+            filterSettings,
             colorField: colorSplit,
             fineSplit,
             coarseSplit,
-            fineSplitVals,
-            coarseSplitVals
         }
-        const { data, radius, colorValues, ids, urls } = projectToPlotReadyData(projectionCriteria)
+        const { data, radius, colorValues, ids, urls, fineSplitVals, coarseSplitVals } = projectToPlotReadyData(projectionCriteria)
         const colorFieldRange: number[] = fieldIsCategorical(colorSplit)
             ? []
             : filterSettings[colorSplit] as number[]
