@@ -14,8 +14,8 @@ type Props = {
     colorValuesRgb: number[]
     highlightedSeries?: number
     colorMap?: string[]
-    fineValue?: number
-    coarseValue?: number
+    fineValue?: string
+    coarseValue?: string
     isFocus?: boolean
     plotFittings: PlotFittings
     mouseHandler: (e: React.MouseEvent) => void

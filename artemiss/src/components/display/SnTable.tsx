@@ -50,7 +50,6 @@ const varWidthCols: GridColDef[] = varWidthFields.map(f => {
 
 const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
     const { records, selectionHandler, markedIds, filterCriteria, filterValues } = props
-    console.log(`pre-filter record count: ${records.length} filters ${JSON.stringify(filterCriteria)} with values ${filterValues}`)
 
     const filters: {[key in ToggleableVariables]?: string | undefined} = {}
     filterCriteria.forEach((f, i) => {
@@ -58,7 +57,6 @@ const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
             filters[f] = filterValues[i]
         }
     })
-    console.log(`filters: ${JSON.stringify(filters)}`)
     const filteredRecords = filterTo(records, filters)
 
     const columns = [...fixedWidthCols, ...varWidthCols]

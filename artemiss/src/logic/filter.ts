@@ -50,7 +50,6 @@ export const applyFiltersToSet = (filters: FilterSettings, database: NavigatorDa
         return callback(valueRange)
     })
     const finalSet = new Set(materializedRows.filter(r => rangeTests.every(test => test(r))).map(r => r.uuid))
-    console.log(`Final set has size ${finalSet.size} and elements ${[...finalSet.entries()].join(',')}`)
     return finalSet
 }
 

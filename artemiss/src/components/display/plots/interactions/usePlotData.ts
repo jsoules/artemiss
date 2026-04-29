@@ -12,8 +12,8 @@ export type PlotDataSummary = {
     urls: string[][][]
     colorValues: number[][][]
     colorFieldRange: number[]
-    fineSplitVals: number[]
-    coarseSplitVals: number[]
+    fineSplitVals: string[]
+    coarseSplitVals: string[]
     coarseSplitField?: ToggleableVariables
     fineSplitField?: ToggleableVariables
 }

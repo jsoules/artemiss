@@ -14,8 +14,8 @@ type useClickHandlerFactoryProps = {
 }
 
 type perGraphClickProps = {
-    coarseValue?: number,
-    fineValue?: number,
+    coarseValue?: string,
+    fineValue?: string,
     data: number[],
     radius: number[],
     urls: string[]
