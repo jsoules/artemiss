@@ -1,6 +1,6 @@
 import { KnownPathType } from "@snTypes/DataDictionary"
 import { defaultEmptyDevice } from '@snTypes/Defaults'
-import { Device, DeviceTimeSeries, LossSeries } from "@snTypes/Types"
+import { Device, DeviceTimeSeries, LossSeries, ScalarField } from "@snTypes/Types"
 import makeResourcePath from "@snUtil/makeResourcePath"
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -56,6 +56,7 @@ const deviceJig: { raw: RawDeviceFields, dev: keyof Device }[] = [
     { raw: RawDeviceFields.UUID,                    dev: "uuid"                  },
     { raw: RawDeviceFields.DB_FROM,                 dev: "databaseFrom"          },
     { raw: RawDeviceFields.GROUP_NAME,              dev: "groupName"             },
+    { raw: RawDeviceFields.DB_FROM_ID,              dev: "databaseFromId"        },
     { raw: RawDeviceFields.NFP,                     dev: "nfp"                   },
     { raw: RawDeviceFields.STELLSYM,                dev: "stellsym"              },
     { raw: RawDeviceFields.S1D,                     dev: "surfaceDistances"      },
@@ -108,6 +109,16 @@ const makeLossSeriesFromRawDevice = (dev: RawDevice): LossSeries => {
 }
 
 
+const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
+    const vAvgB = dev[RawDeviceFields.VOL_AVG_B] as any as number
+    const rangeMin = vAvgB / 3
+    const rangeDelta = (8 * rangeMin)   // ((3 * vAvgB) - (1/3 * vAvgB)) = 9/3 - 1/3 = 8/3
+    const modb = dev[RawDeviceFields.MODB_BOOZER] as ScalarField[]
+
+    return modb.map(shell => shell.map(row => row.map(pt => ((pt - rangeMin) / rangeDelta))))
+}
+
+
 const makeDeviceFromRawDevice = (dev: RawDevice): Device => {
     // not sure if the direct conversion of surf_xyz, magneticAxis are gonna work
     // we'll see!
@@ -117,6 +128,7 @@ const makeDeviceFromRawDevice = (dev: RawDevice): Device => {
     record["nSurfaces"] = 1//(dev['surf_xyz'] as any as number[]).length  // just hard-code 1 since we only have 1 right now TODO
     record["lossTracings"] = makeTimeSeriesFromRawDevice(dev)
     record["lossCharacteristics"] = makeLossSeriesFromRawDevice(dev)
+    record["modbBoozer"] = normalizeMagneticFlux(dev)
 
     return record as Device
 }
@@ -145,8 +157,8 @@ const useDevice = (urlChunk: string) => {
     const device = useMemo(() => {
         if (!rawDevice) return defaultEmptyDevice
         return makeDeviceFromRawDevice(rawDevice)
-    }, [urlChunk])    // note, linter/react may not like this;
-    // previous version used rawDevice instead
+    }, [rawDevice])
+    // ^-- references data structure so it updates when async query finishes
 
     return device
 }

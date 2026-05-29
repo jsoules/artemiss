@@ -283,7 +283,7 @@ export const Fields: FieldRecords = {
         fullLabel: "Minor radius",
         description: "The minor radius of the outermost surface (unscaled)",
         unit: METER_UNIT,
-        range: [0.6, 2.5],
+        range: [0.3, 2.5],
         isLog: false,
         isCategorical: false,
         displayInTable: true
@@ -610,7 +610,7 @@ export const DeviceFields: DeviceFieldRecords = {
     mercierCriterion: {
         label: "Mercier criterion",
         order: 200,
-        displayInTable: true,
+        displayInTable: false,  // TODO: use graph??
         unit: "FIXME",
         isLog: false,
         valueLabels: undefined
@@ -642,7 +642,7 @@ export const DeviceFields: DeviceFieldRecords = {
     sqrtBoozerQsError: {
         label: "Root QS error",
         order: 230,
-        displayInTable: true,
+        displayInTable: false,  // TODO: use graph??
         unit: undefined,
         isLog: false,
         valueLabels: undefined
@@ -650,7 +650,7 @@ export const DeviceFields: DeviceFieldRecords = {
     epsilonEff: {
         label: "Effective ripple (epsilon)",
         order: 240,
-        displayInTable: true,
+        displayInTable: false,  // TODO: use graph??
         unit: undefined,
         isLog: false,
         valueLabels: undefined

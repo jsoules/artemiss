@@ -24,7 +24,7 @@ const Model: FunctionComponent = () => {
     const [instructionsOpen, setInstructionsOpen] = useState(false)
     const [colorMap, setColorMap] = useState<SupportedColorMap>(SupportedColorMap.PLASMA)
     const [showFullRing, setShowFullRing] = useState<boolean>(false)
-    const [showCurrents, setShowCurrents] = useState<boolean>(true)
+    // const [showCurrents, setShowCurrents] = useState<boolean>(true)
     const [autorotate, setAutorotate] = useState<boolean>(false)
     const [surfaceChecks, setSurfaceChecks] = useState<boolean[]>(Array(device.nSurfaces).fill(true))
     useEffect(() => {
@@ -35,26 +35,9 @@ const Model: FunctionComponent = () => {
     const downloadLinks = <DownloadLinks id={FIXME_STRINGID.id} />
     // const poincarePlot = <PoincarePlot id={stringId.id}/>
 
-    // const { width, height } = useWindowDimensions()
     const { width } = useWindowDimensions()
     const lw = useMemo(() => Math.max(0, (2 * width / 3) - 80), [width])
     const rw = useMemo(() => Math.max(0, (width / 3) - 40), [width])
-    // NOTE: Removed (for the time being) per feedback 3/20/24.
-    // Keeping this in comments since we may revisit later.
-    // // This is quite hacky--depends on hard-coding the dimensions of the top controls.
-    // // It will probably work for most but break on some setups.
-    // // I'm mostly letting it through because the whole thing ought to be done with CSS somehow.
-    // // Also note the similarity to some computations in defining the plot grid--
-    // // these should perhaps be unified in some way
-    // const ASSUMED_CONTROLS_HEIGHT = 350
-    // const prescribedHeight = lw * 0.8
-    // const availableHeight = height - ASSUMED_CONTROLS_HEIGHT
-    // const constrainedLeftWidth = prescribedHeight <= availableHeight
-    //     ? lw
-    //     : Math.floor(availableHeight / 0.8)
-    // const unused = lw - constrainedLeftWidth
-    // const leftMargin = unused === 0 ? 0 : unused / 2 + 20 // because the parent width is lw + 40
-    // // So many magic numbers for such a little layout task......
 
     const viewer = useMemo(() => {
         const ifAvail = (
@@ -71,7 +54,7 @@ const Model: FunctionComponent = () => {
                     // surfs={showFullRing ? fullSurfs : baseSurfs}
                     surfaceChecks={surfaceChecks}
                     colorScheme={colorMap}
-                    displayedPeriods={showFullRing ? 2 * device.nfp : 1}
+                    displayedPeriods={showFullRing ? device.nfp : 1}
                     // showCurrents={showCurrents}
                     autorotate={autorotate}
                 />
@@ -84,7 +67,8 @@ const Model: FunctionComponent = () => {
             </div>
         )
         return (deviceModel.baseSurfaces === undefined) ? spinner : ifAvail
-    }, [lw, showFullRing, surfaceChecks, colorMap, device.nfp, showCurrents, autorotate])
+    // }, [lw, showFullRing, surfaceChecks, colorMap, device.nfp, showCurrents, autorotate])
+    }, [lw, showFullRing, surfaceChecks, colorMap, device.nfp, autorotate])
 
     return device === defaultEmptyDevice
         ? <div></div>
@@ -100,8 +84,8 @@ const Model: FunctionComponent = () => {
                         checksNeeded={device.nSurfaces > 0}
                         surfaceChecks={surfaceChecks}
                         setSurfaceChecks={setSurfaceChecks}
-                        showCurrents={showCurrents}
-                        setShowCurrents={setShowCurrents}
+                        // showCurrents={showCurrents}
+                        // setShowCurrents={setShowCurrents}
                         colorMap={colorMap}
                         setColorMap={setColorMap}
                         showFullRing={showFullRing}

@@ -52,11 +52,6 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
     const frameRequest = useRef<number | undefined>(undefined)
     const totalTicks = useRef<number>(0)
     const canvas = canvasRef.current
-    // There is an issue with the tubes and surfaces refreshing when they logically shouldn't.
-    // This may have something to do with the cache, which is bad news.
-    // TODO: Find and plug the actual leak
-    // In the mean time, we're going to have to manually restrict our updates by looking at lengths of things,
-    // since we can't rely on actual object permanence. Sigh.
 
     // const myCoils = useMemo(() => {
     //     return coils ?? []
@@ -65,6 +60,7 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
     //     //     : coils
     // }, [coils?.length])
 
+    console.log(`In simulation view, surf dimensions\n\tbase: ${device?.baseSurfaces.length} x ${device?.baseSurfaces[0].length} x ${device?.baseSurfaces[0][0].length}\n\tfull: ${device?.fullSurfaces.length} x ${device?.fullSurfaces[0].length} x ${device?.fullSurfaces[0][0].length}`)
     const mySurfs = useMemo(() => {
         totalTicks.current = 0
         const surf = showFullRing ? device?.fullSurfaces : device?.baseSurfaces
@@ -74,7 +70,7 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
         return surf === undefined
             ? { surfacePoints: [], pointValues: [], incomplete: true } as SurfaceObject
             : { surfacePoints: surf, pointValues: colors, incomplete: false }
-    }, [device?.baseSurfaces[0]?.length])
+    }, [device?.baseSurfaces[0]?.length, showFullRing])
 
     // const tubes = useMemo(() => {
     //     // NOTE: Could memoize these out individually but it's probably not terribly expensive

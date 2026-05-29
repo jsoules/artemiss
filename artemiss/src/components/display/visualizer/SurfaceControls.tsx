@@ -9,8 +9,8 @@ type SurfaceControlsProps = {
     checksNeeded: boolean
     surfaceChecks: boolean[]
     setSurfaceChecks: Dispatch<SetStateAction<boolean[]>>
-    showCurrents: boolean
-    setShowCurrents: Dispatch<SetStateAction<boolean>>
+    // showCurrents: boolean
+    // setShowCurrents: Dispatch<SetStateAction<boolean>>
     colorMap: SupportedColorMap
     setColorMap: Dispatch<SetStateAction<SupportedColorMap>>
     showFullRing: boolean
@@ -21,7 +21,8 @@ type SurfaceControlsProps = {
 
 const SurfaceControls: FunctionComponent<SurfaceControlsProps> = (props: SurfaceControlsProps) => {
     const { checksNeeded, surfaceChecks, setSurfaceChecks, colorMap, setColorMap } = props
-    const { autorotate, setAutorotate, showCurrents, setShowCurrents, showFullRing, setShowFullRing } = props
+    // const { autorotate, setAutorotate, showCurrents, setShowCurrents, showFullRing, setShowFullRing } = props
+    const { autorotate, setAutorotate, showFullRing, setShowFullRing } = props
 
     const handleCheckboxChange = useCallback((index: number, newState: boolean) => {
         if (index === -1) {
@@ -64,14 +65,14 @@ const SurfaceControls: FunctionComponent<SurfaceControlsProps> = (props: Surface
                         handleChange={setShowFullRing}
                     />
                 </div>
-                <div className="surfaceControlFlexSplit">
+                {/* <div className="surfaceControlFlexSplit">
                     <SnSwitch
                         header="Coil currents"
                         label="Color coils per currents?"
                         checked={showCurrents}
                         handleChange={setShowCurrents}
                     />
-                </div>
+                </div> */}
                 <div className="surfaceControlFlexSplit">
                     <SnSwitch
                         header="Revolve model"

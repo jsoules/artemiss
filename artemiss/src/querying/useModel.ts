@@ -1,4 +1,5 @@
 import { applySurfaceSymmetries } from "@snComponents/display/visualizer/symmetries"
+import { defaultEmptyDevice } from "@snTypes/Defaults"
 import { Device, Device3dModel } from "@snTypes/Types"
 import { useMemo } from 'react'
 
@@ -20,7 +21,9 @@ const useDevice3dModel = (dev: Device): Device3dModel => {
     const baseSurf = useMemo(() => [dev.surface], [dev.uuid])
     const baseModB = useMemo(() => dev.modbBoozer, [dev.uuid])
     const {fullSurf, fullModB} = useMemo(() => {
-        return applySurfaceSymmetries(baseSurf, baseModB, dev.nfp)
+        return dev.uuid === defaultEmptyDevice.uuid
+            ? { fullSurf: [], fullModB: [] }
+            : applySurfaceSymmetries(baseSurf, baseModB, dev.nfp)
     }, [dev.uuid])
 
     return {
