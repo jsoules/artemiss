@@ -60,7 +60,6 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
     //     //     : coils
     // }, [coils?.length])
 
-    console.log(`In simulation view, surf dimensions\n\tbase: ${device?.baseSurfaces.length} x ${device?.baseSurfaces[0].length} x ${device?.baseSurfaces[0][0].length}\n\tfull: ${device?.fullSurfaces.length} x ${device?.fullSurfaces[0].length} x ${device?.fullSurfaces[0][0].length}`)
     const mySurfs = useMemo(() => {
         totalTicks.current = 0
         const surf = showFullRing ? device?.fullSurfaces : device?.baseSurfaces

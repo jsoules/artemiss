@@ -13,14 +13,17 @@ const deviceManifest: FunctionComponent<deviceProps> = (props: deviceProps) => {
     const maxWidth = 520 // "empirically observed" i.e. it looks okay on my monitor
     const margin = Math.max((colWidth - maxWidth)/2, 0)
 
-    type foo = keyof typeof DeviceFields
+    type deviceField = keyof typeof DeviceFields
     const metaRows = (Object.keys(DeviceFields)
         ).filter((x) => DeviceFields[x as keyof typeof DeviceFields].displayInTable
+        // [null, null, null, etc.]
         ).sort((n1, n2) => {
-            if (DeviceFields[n1 as foo].order > DeviceFields[n2 as foo].order) { return 1 }
+            if (DeviceFields[n1 as deviceField].order > DeviceFields[n2 as deviceField].order) { return 1 }
             return -1
         })
-
+    // This is a bit hacky, but we have some fields that can be expected to consist only of a list of nulls,
+    // so it's better to filter them out somehow
+    const justCommas = /^,*$/
 
     return (
         <div className="metadataManifest" style={{ maxWidth: maxWidth, marginLeft: margin }}>
@@ -37,9 +40,9 @@ const deviceManifest: FunctionComponent<deviceProps> = (props: deviceProps) => {
             </div>
             {metaRows.map((k) => (
                 <div key={k}>
-                    <div className="manifestLabel">{DeviceFields[k as foo].label}</div>
+                    <div className="manifestLabel">{DeviceFields[k as deviceField].label}</div>
                     <div className="manifestContent">
-                        {`${device[k as foo]}`}
+                        {`${device[k as deviceField]}`.match(justCommas) ? "N/A" : `${device[k as deviceField]}`}
                     </div>
                 </div>
             ))}

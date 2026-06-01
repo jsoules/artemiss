@@ -43,8 +43,6 @@ export const makeSurfaces = (surfacePoints: Vec3Field[], periods: number = 1) =>
         const surfaceGeometry = new THREE.BufferGeometry()
         const vertices = new Float32Array(field.flat(2))
         const indices = triangulateField(SURFACE_SIDE_RESOLUTION, SURFACE_SIDE_RESOLUTION * periods, periods > 1)
-        console.log(`Indices length: ${indices.length}`)
-        console.log(`Indices: ${indices}`)
 
         surfaceGeometry.setIndex(indices)
         surfaceGeometry.setAttribute('position', new THREE.BufferAttribute( vertices, 3 ))
