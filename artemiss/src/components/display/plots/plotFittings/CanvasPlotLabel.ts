@@ -8,8 +8,8 @@ type plotLabelProps = {
 }
 
 type fieldVals = {
-    coarseVal?: number
-    fineVal?: number
+    coarseVal?: string
+    fineVal?: string
 }
 
 export type CanvasPlotLabelCallbackType = (ctxt: CanvasRenderingContext2D, vals: fieldVals) => void

@@ -1,7 +1,6 @@
 import react from '@vitejs/plugin-react'
 import * as path from 'path'
 import { defineConfig } from 'vite'
-import tsconfigPaths from "vite-tsconfig-paths"
 import { configDefaults, coverageConfigDefaults } from 'vitest/config'
 
 // https://vitejs.dev/config/
@@ -10,6 +9,7 @@ export default defineConfig({
         alias: {
             src: path.resolve('src/')
         },
+        tsconfigPaths: true
     },
     test: {
         // note for test: mockReset clears all spies/mocks and resets to empty function,
@@ -37,7 +37,7 @@ export default defineConfig({
         },
         exclude: [...configDefaults.exclude],
     },
-    plugins: [react(), tsconfigPaths(),],
+    plugins: [react()],
     // base: "/~jsoules/QUASR",
     // base: "/~jsoules/test",
     server: {

@@ -1,3 +1,4 @@
 export { default as useDatabase } from "@snQuerying/useDatabase"
-export { default as useModel } from "@snQuerying/useModel"
-export { default as useRecord } from "@snQuerying/useRecord"
+export { default as useDevice } from "@snQuerying/useDevice"
+export { default as useDevice3dModel } from "@snQuerying/useModel"
+

@@ -30,7 +30,7 @@ const router = createBrowserRouter(
                 element={<Home />}
             />
             <Route
-                path="model/:modelId"
+                path="model/:modelUrlChunk"
                 element={<Model />}
                 errorElement={<ModelError />}
             />

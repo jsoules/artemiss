@@ -1,6 +1,6 @@
-import projectToPlotReadyData, { ProjectionCriteria, makeValsFromFieldname } from "@snState/projection"
+import projectToPlotReadyData, { ProjectionCriteria } from "@snState/projection"
 import { ToggleableVariables, fieldIsCategorical } from "@snTypes/DataDictionary"
-import { FilterSettings, StellaratorRecord } from "@snTypes/Types"
+import { ArtemissRecord, FilterSettings, PKType } from "@snTypes/Types"
 import { useMemo } from "react"
 import { PlotColorProps } from "./plotColors"
 
@@ -8,17 +8,18 @@ import { PlotColorProps } from "./plotColors"
 export type PlotDataSummary = {
     data: number[][][]
     radius: number[][][]
-    ids: number[][][]
+    ids: PKType[][][]
+    urls: string[][][]
     colorValues: number[][][]
     colorFieldRange: number[]
-    fineSplitVals: number[]
-    coarseSplitVals: number[]
+    fineSplitVals: string[]
+    coarseSplitVals: string[]
     coarseSplitField?: ToggleableVariables
     fineSplitField?: ToggleableVariables
 }
 
 type plotHookParams = PlotColorProps & {
-    records: StellaratorRecord[],
+    records: ArtemissRecord[],
     filterSettings: FilterSettings
 }
 
@@ -29,24 +30,20 @@ export const usePlotData: plotHookType = ({records, filterSettings, colorSplit})
     const fineSplit = filterSettings.finePlotSplit
     const coarseSplit = filterSettings.coarsePlotSplit
     const res = useMemo(() => {
-        const fineSplitVals = makeValsFromFieldname(fineSplit, filterSettings)
-        const coarseSplitVals = makeValsFromFieldname(coarseSplit, filterSettings)
         const projectionCriteria: ProjectionCriteria = {
             data: records,
             yVar: filterSettings.dependentVariable,
             xVar: filterSettings.independentVariable,
-            markedIds: filterSettings.markedRecords,
+            filterSettings,
             colorField: colorSplit,
             fineSplit,
             coarseSplit,
-            fineSplitVals,
-            coarseSplitVals
         }
-        const { data, radius, colorValues, ids } = projectToPlotReadyData(projectionCriteria)
+        const { data, radius, colorValues, ids, urls, fineSplitVals, coarseSplitVals } = projectToPlotReadyData(projectionCriteria)
         const colorFieldRange: number[] = fieldIsCategorical(colorSplit)
             ? []
             : filterSettings[colorSplit] as number[]
-        return { data, radius, ids, colorValues, fineSplitVals, coarseSplitVals, coarseSplitField: coarseSplit, fineSplitField: fineSplit, colorFieldRange }
+        return { data, radius, ids, urls, colorValues, fineSplitVals, coarseSplitVals, coarseSplitField: coarseSplit, fineSplitField: fineSplit, colorFieldRange }
     }, [coarseSplit, colorSplit, filterSettings, fineSplit, records])
 
     return res

@@ -1,6 +1,6 @@
 import { applyFiltersToSet, projectRecords, restrictMarksToFilteredInIds } from "@snState/filter"
 import { DependentVariables, Fields, IndependentVariables, RangeVariables, ToggleableVariables, TripartiteVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
-import { FilterSettings, NavigatorDatabase } from "@snTypes/Types"
+import { FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
 
 export type FacetSplitType = 'coarse' | 'fine'
 
@@ -35,14 +35,14 @@ export type NavigatorStateAction = {
     newValue: IndependentVariables
 } | {
     type: 'updateMarkedRecords',
-    newSelections: Set<number>
+    newSelections: Set<PKType>
 } | {
     type: 'updatePlotSplits',
     newSplit: (ToggleableVariables | undefined)
     target: FacetSplitType
 } | {
     type: 'updateFocusedPlotIndices',
-    newValues: (number | undefined)[]
+    newValues: (string | undefined)[]
 }
 
 const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSettings => {
@@ -64,9 +64,9 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
         case "updateCheckField": {
             return updateBooleanList(a.field, a.index, a.targetState, s)
         }
-        case "updateTripartiteField": {
-            return updateTripart(a.field, s, a.newValue)
-        }
+        // case "updateTripartiteField": {
+        //     return updateTripart(a.field, s, a.newValue)
+        // }
         case "updateDependentVariable": {
             return { ...s, dependentVariable: a.newValue }
         }
@@ -74,7 +74,9 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             return { ...s, independentVariable: a.newValue }
         }
         case "updateMarkedRecords": {
-            return { ...s, markedRecords: a.newSelections }
+            // const newSelectionUrls = s.database.
+            const newSelectionUrls = new Set<string>([...a.newSelections].map(newS => s.database?.byId[newS]?.canonicalPath ?? '') ?? [])
+            return { ...s, markedRecords: a.newSelections, markedRecordUrls: newSelectionUrls }
         }
         case "updatePlotSplits": {
             return updatePlotSplits(s, a.target, a.newSplit)
@@ -110,7 +112,7 @@ const applyUpdatedFilters = (settings: FilterSettings, ignoreSizeCheck: boolean 
 }
 
 
-const selectedOrFirst = (field: ToggleableVariables, choices: boolean[], selected: number | undefined): number | undefined => {
+const selectedOrFirst = (field: ToggleableVariables, choices: boolean[], selected: string | undefined): string | undefined => {
     const setVals = getValuesFromBoolArray(field, choices)
     if (setVals.length === 0) return undefined
     return selected != undefined && setVals.includes(selected) ? selected : setVals[0]
@@ -192,16 +194,16 @@ const resetRange = (key: RangeVariables, settings: FilterSettings) => {
 }
 
 
-const updateTripart = (key: TripartiteVariables, settings: FilterSettings, newValue: number | undefined) => {
-    const existingValue = settings[key]
-    if (existingValue === newValue) return settings
-    const newSettings = { ...settings }
-    newSettings[key] = newValue
+// const updateTripart = (key: TripartiteVariables, settings: FilterSettings, newValue: number | undefined) => {
+//     const existingValue = settings[key]
+//     if (existingValue === newValue) return settings
+//     const newSettings = { ...settings }
+//     newSettings[key] = newValue
 
-    // Note we CANNOT use size as a proxy here, because flipping one of these could conceivably actually
-    // create two distinct sets of different size.
-    return applyUpdatedFilters(newSettings, true)
-}
+//     // Note we CANNOT use size as a proxy here, because flipping one of these could conceivably actually
+//     // create two distinct sets of different size.
+//     return applyUpdatedFilters(newSettings, true)
+// }
 
 
 const updatePlotSplits = (settings: FilterSettings, target: FacetSplitType, newSplit: ToggleableVariables | undefined): FilterSettings => {

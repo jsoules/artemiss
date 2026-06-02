@@ -2,7 +2,7 @@ import { SelectChangeEvent } from '@mui/material'
 import { GridRowSelectionModel } from '@mui/x-data-grid'
 import { FacetSplitType, NavigatorStateAction } from '@snState/NavigatorReducer'
 import { DependentVariables, IndependentVariables, RangeVariables, ToggleableVariables, TripartiteVariables } from '@snTypes/DataDictionary'
-import { NavigatorDispatch } from '@snTypes/Types'
+import { NavigatorDispatch, PKType } from '@snTypes/Types'
 import { Dispatch, useCallback, useMemo } from 'react'
 
 export const defaultTripartiteBothState = -1
@@ -89,7 +89,7 @@ export const handleTripartiteDropdownChangeBase = (dispatch: NavigatorDispatch, 
 }
 
 export const handleUpdateMarkedRecords = (dispatch: NavigatorDispatch, model: GridRowSelectionModel) => {
-    const selections = new Set<number>(model as unknown as number[])
+    const selections = new Set<PKType>(model.ids as unknown as PKType[])
     const update: NavigatorStateAction = {
         type: 'updateMarkedRecords',
         newSelections: selections
@@ -97,7 +97,7 @@ export const handleUpdateMarkedRecords = (dispatch: NavigatorDispatch, model: Gr
     dispatch(update)
 }
 
-export const _handleUpdateFocusedPlotIndices = (dispatch: NavigatorDispatch, coarseVal: number | undefined, fineVal: number | undefined) => {
+export const _handleUpdateFocusedPlotIndices = (dispatch: NavigatorDispatch, coarseVal: string | undefined, fineVal: string | undefined) => {
     const newVals = [coarseVal, fineVal]
     const update: NavigatorStateAction = {
         type: 'updateFocusedPlotIndices',
@@ -107,7 +107,7 @@ export const _handleUpdateFocusedPlotIndices = (dispatch: NavigatorDispatch, coa
 }
 
 // TODO: Relocate this?
-export type PlotClickCallbackType = (coarsevVal: number | undefined, fineVal: number | undefined) => void
+export type PlotClickCallbackType = (coarsevVal: string | undefined, fineVal: string | undefined) => void
 export type RangesChangeCallbackType = (fields: RangeVariables[], newValues: number[][]) => void
 
 const useFilterCallbacks = (dispatch: Dispatch<NavigatorStateAction>) => {
@@ -142,7 +142,7 @@ const useFilterCallbacks = (dispatch: Dispatch<NavigatorStateAction>) => {
     const handleUpdateMarks = useCallback((model: GridRowSelectionModel) => {
         handleUpdateMarkedRecords(dispatch, model)
     }, [dispatch])
-    const handleUpdateFocusedPlotIndices = useCallback((coarseVal: number | undefined, fineVal: number | undefined) => {
+    const handleUpdateFocusedPlotIndices = useCallback((coarseVal: string | undefined, fineVal: string | undefined) => {
         _handleUpdateFocusedPlotIndices(dispatch, coarseVal, fineVal)
     }, [dispatch])
 

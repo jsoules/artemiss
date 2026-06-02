@@ -16,7 +16,10 @@ const RangeSlider: FunctionComponent<Props> = (props: Props) => {
         onChange(event, field, newValue)
     }, [field, onChange])
     const fieldDesc = Fields[field]
-    const marks = fieldDesc.values?.map(v => { return {value: v, label: ""} })
+    // NOTE: This is NEVER ACTUALLY USED, as "values" is only set in the
+    // categorical fields, which aren't valid for range sliders.
+    // const marks = fieldDesc.values?.map(v => { return {value: v, label: ""} })
+    const marks = undefined
     const step = marks ? null : (fieldDesc.range[1] - fieldDesc.range[0])/256
     const changeScale = step === null ? 1 : Math.max(0, -1 * (Math.floor(Math.log10(step))))
 

@@ -3,7 +3,7 @@ import { ScalarField, Vec3, Vec3Field } from "@snTypes/Types"
 import { useMemo } from "react"
 import * as THREE from "three"
 
-export const SURFACE_SIDE_RESOLUTION = 60
+export const SURFACE_SIDE_RESOLUTION = 21
 
 export const makeTubes = (coils: Vec3[][]): THREE.TubeGeometry[] => {
     if (coils.length === 0) return []
@@ -15,23 +15,18 @@ export const makeTubes = (coils: Vec3[][]): THREE.TubeGeometry[] => {
     })
 }
 
-const triangulateField = (width: number, height: number): number[] => {
-    return Array(height - 1).fill(0).map((_, h) => {
-      return Array(width - 1).fill(0).map((__, w) => {
-        const rowOffset = width * h
-        const x = rowOffset + w
-        // we need to make clear to the system that this surface actually is a tube.
-        // Without the "width - 2" check, we connect a flat surface where the first and
-        // last vertices happen to occupy the same physical space, but there is no surface
-        // connecting them: this creates a sharp seam which should be rounded.
-        // It's "-2" because we don't actually care about the repeated point in the data.
-        // If that repeated point should ever go away, we'd want to make this -1 instead.
-        if (w === width - 2) {
-            return [x, rowOffset, x+width, rowOffset, rowOffset+width, x+width]
-        }
-        return [x, x+1, x+width, x+1, x+width + 1, x+width]
+const triangulateField = (width: number, height: number, closed: boolean = false): number[] => {
+    const rangemax = height * width
+
+    return Array(height - (closed ? 0 : 1)).fill(0).map((_, h) => {
+      return Array(width).fill(0).map((__, w) => {
+        const base = width * h
+        const nextRow = width * (h + 1) % rangemax
+        const nextItem = (w + 1) % width
+
+        return [base + w, base + nextItem, nextRow + w, base + nextItem, nextRow + nextItem, nextRow + w]
       })
-    }).flat(2)
+    }).flat(2) 
 }
 
 
@@ -47,7 +42,7 @@ export const makeSurfaces = (surfacePoints: Vec3Field[], periods: number = 1) =>
     const surfaces = surfacePoints.map((field) => {
         const surfaceGeometry = new THREE.BufferGeometry()
         const vertices = new Float32Array(field.flat(2))
-        const indices = triangulateField(SURFACE_SIDE_RESOLUTION * periods, SURFACE_SIDE_RESOLUTION)
+        const indices = triangulateField(SURFACE_SIDE_RESOLUTION, SURFACE_SIDE_RESOLUTION * periods, periods > 1)
 
         surfaceGeometry.setIndex(indices)
         surfaceGeometry.setAttribute('position', new THREE.BufferAttribute( vertices, 3 ))
@@ -116,11 +111,11 @@ const useBoundingBox = (points: Vec3[]): BoundingPoints => {
 }
 
 
-export const usePositions = (coils?: Vec3[][]) => {
+export const usePositions = (pointSet?: Vec3[][]) => {
     // It's probably not necessary to split the memoization like this,
     // but I'm concerned about substantively-equal-but-referentially-distinct
     // repeated calls, which I'm attempting to cut off here.
-    const extremePts = useBoundingBox(coils ? coils.flat() : [])
+    const extremePts = useBoundingBox(pointSet ? pointSet.flat() : [])
     const xSpan = (extremePts.xmax - extremePts.xmin)
     const ySpan = (extremePts.ymax - extremePts.ymin)
     const centerX = (extremePts.xmin + extremePts.xmax)/2

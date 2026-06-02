@@ -1,10 +1,11 @@
 import { Button, Tooltip } from '@mui/material'
+import { PKType } from '@snTypes/Types'
 import { FunctionComponent } from 'react'
 import { onOpenSelected } from './plots/interactions/dotInteractions'
 
 
 type OpenSelectedProps = {
-    markedIds?: Set<number>
+    markedIds?: Set<PKType>
 }
 
 

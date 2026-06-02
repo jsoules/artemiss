@@ -16,14 +16,14 @@ export type PlotGridProps = {
     mouseHandlers: MouseHandlers
     plotFittings: PlotFittings
     plotColorProps: PlotColorProps
-    focusCoarseValue?: number
-    focusFineValue?: number
+    focusCoarseValue?: string
+    focusFineValue?: string
 }
 
 // TODO: Further simplify this to avoid passing so many props around, both into here and into CanvasPlotWrapper
 const PlotGrid: FunctionComponent<PlotGridProps> = (props: PlotGridProps) => {
     const { plotDimensions, mouseHandlers, plotFittings, focusCoarseValue, focusFineValue } = props
-    const { data, radius, ids, fineSplitVals, coarseSplitVals } = props.plotDataSummary
+    const { data, radius, urls, fineSplitVals, coarseSplitVals } = props.plotDataSummary
     const resolvedCoarseVals = (coarseSplitVals.length) === 0 ? [undefined] : coarseSplitVals
     const resolvedFineVals = (fineSplitVals.length) === 0 ? [undefined] : fineSplitVals
     const colorsRgb = makeColors({values: props.plotDataSummary.colorValues, scheme: props.plotColorProps.style, range: props.plotDataSummary.colorFieldRange})
@@ -37,10 +37,10 @@ const PlotGrid: FunctionComponent<PlotGridProps> = (props: PlotGridProps) => {
                         fineValue,
                         data: data[coarseIdx][fineIdx],
                         radius: radius[coarseIdx][fineIdx],
-                        ids: ids[coarseIdx][fineIdx]
+                        urls: urls[coarseIdx][fineIdx]
                     })
                     return (
-                        <Grid size={{ xs:0 }} key={`${fineValue}`}>
+                        <Grid key={`${fineValue}`}>
                             <CanvasPlotWrapper
                                 key={`${coarseValue}-${fineValue}`}
                                 data={data[coarseIdx][fineIdx]}

@@ -9,7 +9,6 @@ import { Dispatch, FunctionComponent, useState } from 'react'
 import ToggleableVariableCheckboxGroup from './Checkboxes'
 import PlotVariableControlsDropdown from './PlotVariableControlsDropdown'
 import RangeSlider from './RangeSlider'
-import TripartDropdownSelector from './TripartDropdownSelector'
 import VariableSelector from './VariableSelectDropdown'
 
 
@@ -34,7 +33,7 @@ type Props = {
 
 const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
     const { filterSettings, callbacks, colorChgDispatcher } = props
-    const { meanIota, ncPerHp, nfp, dependentVariable, independentVariable, coarsePlotSplit, finePlotSplit, nSurfaces } = filterSettings
+    const { databaseFrom, nfp, dependentVariable, independentVariable, coarsePlotSplit, finePlotSplit } = filterSettings
     const { colorSplit, style } = props.colorProps
     const [ plotVarsClosed, setPlotVarsClosed ] = useState(true)
 
@@ -43,17 +42,6 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
 
     const sliders = Object.values(RangeVariables).filter(rv => isNaN(Number(rv)))
         .map(rv => (<RangeSlider key={rv} field={rv} value={filterSettings[rv]} onChange={callbacks.handleRangeChange} onReset={callbacks.handleRangeReset} />))
-
-    // This is special-cased so it shows up as the first thing
-    const helicityDropdown = <TripartDropdownSelector
-        key={TripartiteVariables.HELICITY}
-        field={TripartiteVariables.HELICITY}
-        value={filterSettings[TripartiteVariables.HELICITY] ?? -1}
-        onChange={callbacks.handleTripartiteDropdownChange}
-    />
-    const tripartDropdowns = Object.values(TripartiteVariables).filter(tv => isNaN(Number(tv)))
-        .filter(tv => tv !== TripartiteVariables.HELICITY)
-        .map(tv => (<TripartDropdownSelector key={tv} field={tv} value={filterSettings[tv] ?? -1} onChange={callbacks.handleTripartiteDropdownChange} />))
 
     const styleSelector = fieldIsCategorical(colorSplit)
         ? <VariableSelector value={style as SupportedColorPalette} onChange={colorSchemeCallback} type="ColorStyleDiscrete" />
@@ -75,19 +63,20 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
                 <VariableSelector value={finePlotSplit} onChange={callbacks.handleFineVariableChange} type="FineSplit" />
             </PlotVariableControlsDropdown>
             <HrBar />
-            {helicityDropdown}
             {sliders}
             {/* TODO Unify the checkbox template thing by referencing values if it exists */}
             <ToggleableVariableCheckboxGroup
-                type={ToggleableVariables.MEAN_IOTA}
-                selections={meanIota}
+                type={ToggleableVariables.NFP}
+                selections={nfp}
                 onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.MEAN_IOTA].values ?? []).map(i => `${i}`)}
+                labels={(Fields[ToggleableVariables.NFP].values ?? [])}
             />
-            <ToggleableVariableCheckboxGroup type={ToggleableVariables.NC_PER_HP} selections={ncPerHp} onChange={callbacks.handleCheckboxChange} />
-            <ToggleableVariableCheckboxGroup type={ToggleableVariables.NFP} selections={nfp} onChange={callbacks.handleCheckboxChange} />
-            <ToggleableVariableCheckboxGroup type={ToggleableVariables.N_SURFACES} selections={nSurfaces} onChange={callbacks.handleCheckboxChange} />
-            {tripartDropdowns}
+            <ToggleableVariableCheckboxGroup
+                type={ToggleableVariables.DATABASE_FROM}
+                selections={databaseFrom}
+                onChange={callbacks.handleCheckboxChange}
+                labels={(Fields[ToggleableVariables.DATABASE_FROM].values ?? [])}
+            />
         </div>
     )
 

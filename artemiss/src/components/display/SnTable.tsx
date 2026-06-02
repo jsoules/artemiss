@@ -1,17 +1,18 @@
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import { plotGridInternalMargin } from '@snComponents/Overview'
 import { filterTo } from '@snState/filter'
-import { Fields, KnownFields, ToggleableVariables, helicityValuesTranslation } from '@snTypes/DataDictionary'
-import { StellaratorRecord } from '@snTypes/Types'
+import { Fields, KnownFields, ToggleableVariables } from '@snTypes/DataDictionary'
+import { ArtemissRecord, PKType } from '@snTypes/Types'
 import { FunctionComponent } from 'react'
 import OpenSelectedButton from './OpenSelected'
 
 type SnTableProps = {
-    records: StellaratorRecord[]
-    markedIds: Set<number>
+    records: ArtemissRecord[]
+    markedIds: Set<PKType>
+    markedIdUrls: Set<string>
     selectionHandler: (model: GridRowSelectionModel) => void
     filterCriteria: (ToggleableVariables | undefined)[]
-    filterValues: (number | undefined)[]
+    filterValues: (string | undefined)[]
 }
 
 const variableColumnsDefaultWidth = 110
@@ -50,7 +51,7 @@ const varWidthCols: GridColDef[] = varWidthFields.map(f => {
 const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
     const { records, selectionHandler, markedIds, filterCriteria, filterValues } = props
 
-    const filters: {[key in ToggleableVariables]?: number | undefined} = {}
+    const filters: {[key in ToggleableVariables]?: string | undefined} = {}
     filterCriteria.forEach((f, i) => {
         if (f !== undefined && filterValues[i] !== undefined) {
             filters[f] = filterValues[i]
@@ -61,26 +62,27 @@ const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
     const columns = [...fixedWidthCols, ...varWidthCols]
     const rows = filteredRecords.map(r => {
         return {
-            id: r.id,
-            coilLengthPerHp: r.coilLengthPerHp,
-            totalCoilLength: r.totalCoilLength,
-            totalCoilLengthThresh: r.totalCoilLengthThresh,
-            meanIota: r.meanIota,
-            ncPerHp: r.ncPerHp,
+            id: r.uuid,
+            uuid: r.uuid,
+            databaseFrom: r.databaseFrom,
             nfp: r.nfp,
-            nFourierCoil: r.nFourierCoil,
-            nSurfaces: r.nSurfaces,
-            maxKappa: r.maxKappa.toFixed(5),
-            maxMeanSquaredCurve: r.maxMeanSquaredCurve.toFixed(5),
-            minIntercoilDist: r.minIntercoilDist.toFixed(5),
-            qsError: (10 ** r.qsError).toExponential(4),
-            aspectRatio: r.aspectRatio.toFixed(1),
+            // phiEdge: r.phiEdge.toFixed(3),
             minorRadius: r.minorRadius.toFixed(3),
+            aspectRatio: r.aspectRatio.toFixed(2),
             volume: r.volume.toFixed(5),
-            minCoil2SurfaceDist: r.minCoil2SurfaceDist.toFixed(5),
-            meanElongation: r.meanElongation.toFixed(4),
-            maxElongation: r.maxElongation.toFixed(4),
-            helicity: helicityValuesTranslation[r.helicity] // TODO: standardize this better?
+            volAvgB: r.volAvgB,
+            mirrorRatio: r.mirrorRatio,
+            minLgradB: r.minLgradB,
+            plasmaBeta: r.plasmaBeta,
+            jdotbVmec: r.jdotbVmec,
+            iota: r.iota,
+            vacuumWell: r.vacuumWell,
+            mercierCriterion: r.mercierCriterion,
+            axisHelicity: r.axisHelicity,
+            sqrtBooxerQsErr: r.sqrtBoozerQsErr,
+            epsilonEff: r.epsilonEff,
+            qiError: r.qiError,
+            lossFractionS025: r.lossFractionS025,
         }
     })
 
@@ -88,10 +90,11 @@ const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
         <div style={{ marginLeft: plotGridInternalMargin, marginRight: plotGridInternalMargin }}>
             <div className="overviewTable">
                 <DataGrid
+                    disableRowSelectionExcludeModel
                     columns={columns}
                     rows={rows}
                     onRowSelectionModelChange={(newRowSelectionModel) => {selectionHandler(newRowSelectionModel)}}
-                    checkboxSelection
+                    checkboxSelection={true}
                     // can add initialState, pagination model, page size options
                 />
             </div>
