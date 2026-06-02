@@ -14,13 +14,22 @@ export enum KnownFields {
     DATABASE_FROM_ID = 'databaseFromId',
     CANONICAL_PATH = 'canonicalPath',
     NFP = 'nfp',
-    PHIEDGE = 'phiEdge',
+    // PHIEDGE = 'phiEdge',
     MINOR_RADIUS = 'minorRadius',
     ASPECT_RATIO = 'aspectRatio',
     VOLUME = 'volume',
     VOL_AVG_B = 'volAvgB',
+    MIRROR_RATIO = 'mirrorRatio',
     MIN_L_GRAD_B = 'minLgradB',
+    PLASMA_BETA = 'plasmaBeta',
+    JDOTB_VMEC = 'jdotbVmec',
+    IOTA = 'iota',
     VACUUM_WELL = 'vacuumWell',
+    MERCIER = 'mercierCriterion',
+    AXIS_HELICITY = 'axisHelicity',
+    SQRT_BOOZER_QS_ERROR = 'sqrtBoozerQsErr',
+    EPSILON_EFF = 'epsilonEff',
+    QI_ERROR = 'qiError',
     LOSS_FRAC_S_0_25 = 'lossFractionS025',
 }
 
@@ -28,13 +37,22 @@ export enum DependentVariables {
     // DATABASE_FROM = KnownFields.DATABASE_FROM,
     // GROUP_NAME = KnownFields.GROUP_NAME,
     NFP = KnownFields.NFP,
-    PHIEDGE = KnownFields.PHIEDGE,
+    // PHIEDGE = KnownFields.PHIEDGE,
     MINOR_RADIUS = KnownFields.MINOR_RADIUS,
     ASPECT_RATIO = KnownFields.ASPECT_RATIO,
     VOLUME = KnownFields.VOLUME,
     VOL_AVG_B = KnownFields.VOL_AVG_B,
+    MIRROR_RATIO = KnownFields.MIRROR_RATIO,
     MIN_L_GRAD_B = KnownFields.MIN_L_GRAD_B,
+    PLASMA_BETA = KnownFields.PLASMA_BETA,
+    JDOTB_VMEC = KnownFields.JDOTB_VMEC,
+    IOTA = KnownFields.IOTA,
     VACUUM_WELL = KnownFields.VACUUM_WELL,
+    MERCIER = KnownFields.MERCIER,
+    AXIS_HELICITY = KnownFields.AXIS_HELICITY,
+    SQRT_BOOZER_QS_ERROR = KnownFields.SQRT_BOOZER_QS_ERROR,
+    EPSILON_EFF = KnownFields.EPSILON_EFF,
+    QI_ERROR = KnownFields.QI_ERROR,
     LOSS_FRAC_S_0_25 = KnownFields.LOSS_FRAC_S_0_25,
 }
 
@@ -42,29 +60,47 @@ export enum IndependentVariables {
     // DATABASE_FROM = KnownFields.DATABASE_FROM,
     // GROUP_NAME = KnownFields.GROUP_NAME,
     NFP = KnownFields.NFP,
-    PHIEDGE = KnownFields.PHIEDGE,
+    // PHIEDGE = KnownFields.PHIEDGE,
     MINOR_RADIUS = KnownFields.MINOR_RADIUS,
     ASPECT_RATIO = KnownFields.ASPECT_RATIO,
     VOLUME = KnownFields.VOLUME,
     VOL_AVG_B = KnownFields.VOL_AVG_B,
+    MIRROR_RATIO = KnownFields.MIRROR_RATIO,
     MIN_L_GRAD_B = KnownFields.MIN_L_GRAD_B,
+    PLASMA_BETA = KnownFields.PLASMA_BETA,
+    JDOTB_VMEC = KnownFields.JDOTB_VMEC,
+    IOTA = KnownFields.IOTA,
     VACUUM_WELL = KnownFields.VACUUM_WELL,
+    MERCIER = KnownFields.MERCIER,
+    AXIS_HELICITY = KnownFields.AXIS_HELICITY,
+    SQRT_BOOZER_QS_ERROR = KnownFields.SQRT_BOOZER_QS_ERROR,
+    EPSILON_EFF = KnownFields.EPSILON_EFF,
+    QI_ERROR = KnownFields.QI_ERROR,
     LOSS_FRAC_S_0_25 = KnownFields.LOSS_FRAC_S_0_25,
 }
 
 export enum ToggleableVariables {
     DATABASE_FROM = KnownFields.DATABASE_FROM,
     NFP = KnownFields.NFP,
+    AXIS_HELICITY = KnownFields.AXIS_HELICITY
 }
 
 export enum RangeVariables {
-    PHIEDGE = KnownFields.PHIEDGE,
+    // PHIEDGE = KnownFields.PHIEDGE,
     MINOR_RADIUS = KnownFields.MINOR_RADIUS,
     ASPECT_RATIO = KnownFields.ASPECT_RATIO,
     VOLUME = KnownFields.VOLUME,
     VOL_AVG_B = KnownFields.VOL_AVG_B,
+    MIRROR_RATIO = KnownFields.MIRROR_RATIO,
     MIN_L_GRAD_B = KnownFields.MIN_L_GRAD_B,
+    PLASMA_BETA = KnownFields.PLASMA_BETA,
+    JDOTB_VMEC = KnownFields.JDOTB_VMEC,
+    IOTA = KnownFields.IOTA,
     VACUUM_WELL = KnownFields.VACUUM_WELL,
+    MERCIER = KnownFields.MERCIER,
+    SQRT_BOOZER_QS_ERROR = KnownFields.SQRT_BOOZER_QS_ERROR,
+    EPSILON_EFF = KnownFields.EPSILON_EFF,
+    QI_ERROR = KnownFields.QI_ERROR,
     LOSS_FRAC_S_0_25 = KnownFields.LOSS_FRAC_S_0_25,
 }
 
@@ -77,34 +113,52 @@ export const dependentVariableDropdownConfig: { key: number, value: DependentVar
     // { key:  1, value: DependentVariables.DATABASE_FROM               },
     // { key:  2, value: DependentVariables.GROUP_NAME                  },
     // { key:  1, value: DependentVariables.NFP                         },
-    { key:  1, value: DependentVariables.PHIEDGE                     },
-    { key:  2, value: DependentVariables.MINOR_RADIUS                },
-    { key:  3, value: DependentVariables.ASPECT_RATIO                },
-    { key:  4, value: DependentVariables.VOLUME                      },
-    { key:  5, value: DependentVariables.VOL_AVG_B                   },
+    // { key:  1, value: DependentVariables.PHIEDGE                     },
+    { key:  1, value: DependentVariables.MINOR_RADIUS                },
+    { key:  2, value: DependentVariables.ASPECT_RATIO                },
+    { key:  3, value: DependentVariables.VOLUME                      },
+    { key:  4, value: DependentVariables.VOL_AVG_B                   },
+    { key:  5, value: DependentVariables.MIRROR_RATIO                },
     { key:  6, value: DependentVariables.MIN_L_GRAD_B                },
-    { key:  7, value: DependentVariables.VACUUM_WELL                 },
-    { key:  8, value: DependentVariables.LOSS_FRAC_S_0_25            },
+    { key:  7, value: DependentVariables.PLASMA_BETA                 },
+    { key:  8, value: DependentVariables.JDOTB_VMEC                  },
+    { key:  9, value: DependentVariables.IOTA                        },
+    { key: 10, value: DependentVariables.VACUUM_WELL                 },
+    { key: 11, value: DependentVariables.MERCIER                     },
+    { key: 12, value: DependentVariables.AXIS_HELICITY               },
+    { key: 13, value: DependentVariables.SQRT_BOOZER_QS_ERROR        },
+    { key: 14, value: DependentVariables.EPSILON_EFF                 },
+    { key: 15, value: DependentVariables.QI_ERROR                    },
+    { key: 16, value: DependentVariables.LOSS_FRAC_S_0_25            },
 ]
 
 export const independentVariableDropdownConfig: { key: number, value: IndependentVariables }[] = [
     // { key:  1, value: IndependentVariables.DATABASE_FROM               },
     // { key:  2, value: IndependentVariables.GROUP_NAME                  },
     { key:  1, value: IndependentVariables.NFP                         },
-    { key:  2, value: IndependentVariables.PHIEDGE                     },
-    { key:  3, value: IndependentVariables.MINOR_RADIUS                },
-    { key:  4, value: IndependentVariables.ASPECT_RATIO                },
-    { key:  5, value: IndependentVariables.VOLUME                      },
-    { key:  6, value: IndependentVariables.VOL_AVG_B                   },
+    { key:  2, value: IndependentVariables.MINOR_RADIUS                },
+    { key:  3, value: IndependentVariables.ASPECT_RATIO                },
+    { key:  4, value: IndependentVariables.VOLUME                      },
+    { key:  5, value: IndependentVariables.VOL_AVG_B                   },
+    { key:  6, value: IndependentVariables.MIRROR_RATIO                },
     { key:  7, value: IndependentVariables.MIN_L_GRAD_B                },
-    { key:  8, value: IndependentVariables.VACUUM_WELL                 },
-    { key:  9, value: IndependentVariables.LOSS_FRAC_S_0_25            },
+    { key:  8, value: IndependentVariables.PLASMA_BETA                 },
+    { key:  9, value: IndependentVariables.JDOTB_VMEC                  },
+    { key: 10, value: IndependentVariables.IOTA                        },
+    { key: 11, value: IndependentVariables.VACUUM_WELL                 },
+    { key: 12, value: IndependentVariables.MERCIER                     },
+    { key: 13, value: IndependentVariables.AXIS_HELICITY               },
+    { key: 14, value: IndependentVariables.SQRT_BOOZER_QS_ERROR        },
+    { key: 15, value: IndependentVariables.EPSILON_EFF                 },
+    { key: 16, value: IndependentVariables.QI_ERROR                    },
+    { key: 17, value: IndependentVariables.LOSS_FRAC_S_0_25            },
 ]
 
 export const toggleableVariableDropdownConfig: { key: number, value: ToggleableVariables }[] = [
     { key: 1, value: ToggleableVariables.DATABASE_FROM  },
     // { key: 2, value: ToggleableVariables.NC_PER_HP  },
-    { key: 3, value: ToggleableVariables.NFP        },
+    { key: 3, value: ToggleableVariables.NFP            },
+    { key: 5, value: ToggleableVariables.AXIS_HELICITY  },
     // { key: 4, value: ToggleableVariables.N_SURFACES },
 ]
 
@@ -142,18 +196,18 @@ export const nfpValidValues = [
 ].map(x => `${x}`)
 
 export const databaseFromValidValues = [
+    "bindel_2023",
+    "bindel_2023_perturbed",
+    "constellaration",
     "kappel_2024",
-    "quasr"
+    "omnigenity",
+    "quasr",
+    "quasr_perturbed",
 ]
 
-// export const databaseFromLabels = [
-//     "kappel_2024",
-// ]
-
-
-// export const databaseFromValidValues = [
-//     1,
-// ]
+export const axisHelicityValidValues = [
+    -3, -2, -1, 0, 1, 2
+].map(x => `${x}`)
 
 
 // TODO: Something about init-capping these in some contexts
@@ -188,7 +242,7 @@ export const Fields: FieldRecords = {
         fullLabel: "Device ID",
         description: "Artemiss-assigned unique device identifier",
         unit: undefined,
-        range: [952, 2793242],      // TODO: does this break
+        range: [952, 2793242],      // NOTE: This is pleonastic, we don't actually need it
         isLog: false,
         isCategorical: true,
         markedValue: undefined,
@@ -263,27 +317,28 @@ export const Fields: FieldRecords = {
         tableColumnWidth: 75,
         displayInTable: true
     },
-    'phiEdge': {
-        shortLabel: "phi edge",
-        plotLabel: "Phi edge",
-        fullLabel: "Phi edge",
-        description: "Total toroidal magnetic flux within the device",
-        unit: METER_UNIT,   // TODO FIXME
-        range: [15.0, 150.0],
-        // values: totalCoilLengthValidValues,
-        isLog: false,
-        isCategorical: false,
-        markedValue: undefined,
-        tableColumnWidth: 80,
-        displayInTable: true
-    },
+    // 'phiEdge': {
+    //     shortLabel: "phi edge",
+    //     plotLabel: "Phi edge",
+    //     fullLabel: "Phi edge",
+    //     description: "Total toroidal magnetic flux within the device",
+    //     unit: METER_UNIT,   // TODO FIXME
+    //     range: [15.0, 150.0],
+    //     // values: totalCoilLengthValidValues,
+    //     isLog: false,
+    //     isCategorical: false,
+    //     markedValue: undefined,
+    //     tableColumnWidth: 80,
+    //     displayInTable: true
+    // },
+
     'minorRadius': {
         shortLabel: "Minor rad",
         plotLabel: "Minor radius",
         fullLabel: "Minor radius",
         description: "The minor radius of the outermost surface (unscaled)",
         unit: METER_UNIT,
-        range: [0.3, 2.5],
+        range: [0.3, 2.51],
         isLog: false,
         isCategorical: false,
         displayInTable: true
@@ -293,7 +348,7 @@ export const Fields: FieldRecords = {
         plotLabel: "Aspect ratio",
         fullLabel: "Aspect ratio (AR)",
         description: "The aspect ratio of the device, computed using the VMEC definition",
-        range: [2.7, 12.0],
+        range: [2.7, 12.07],
         isLog: false,
         isCategorical: false,
         tableColumnWidth: 75,
@@ -305,7 +360,7 @@ export const Fields: FieldRecords = {
         fullLabel: "Volume",
         description: "Volume enclosed by the outermost toroidal surface",
         unit: `${METER_UNIT}^3`,
-        range: [5., 1500.],   // TODO: DOUBLE-CHECK; also should we log-scale this???
+        range: [-16.02, 3672.],
         isLog: false,
         isCategorical: false,
         displayInTable: true
@@ -316,7 +371,20 @@ export const Fields: FieldRecords = {
         fullLabel: "Volume-averaged B",
         description: "Magnetic field strength averaged over the plasma volume",
         unit: `T/${METER_UNIT}^3`,   // TODO: FIXME
-        range: [4.5, 10.0],
+        range: [3.97, 10.96],
+        // values: totalCoilLengthValidValues,
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'mirrorRatio': {
+        shortLabel: "mirror",
+        plotLabel: "mirror ratio",
+        fullLabel: "Mirror Ratio",
+        description: "Magnetic mirror ratio",
+        range: [1.08, 80.28],
         // values: totalCoilLengthValidValues,
         isLog: false,
         isCategorical: false,
@@ -330,8 +398,46 @@ export const Fields: FieldRecords = {
         fullLabel: "L grad B",
         description: "Magnetic gradient scale length",
         unit: METER_UNIT,
-        range: [0.5, 9.0],
+        range: [0.0002, 80.3],
         // values: meanIotaValidValues,
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 90,
+        displayInTable: true
+    },
+    'plasmaBeta': {
+        shortLabel: "plasma_B",
+        plotLabel: "plasma B",
+        fullLabel: "Plasma beta",
+        description: "Volume-averaged plasma beta",
+        unit: undefined,
+        range: [0.0, 0.0565],
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 90,
+        displayInTable: true
+    },
+    'jdotbVmec': {
+        shortLabel: "JdotB",
+        plotLabel: "J dot B",
+        fullLabel: "J dot B vmec",
+        description: "Boostrap current (VMEC)",
+        unit: undefined,
+        range: [-160_000_000., 222_226_000.],
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 90,
+        displayInTable: true
+    },
+    'iota': {
+        shortLabel: "iota",
+        plotLabel: "Iota",
+        fullLabel: "Iota Profile",
+        description: "Iota Profile",
+        range: [-2.89, 2.86],
         isLog: false,
         isCategorical: false,
         markedValue: undefined,
@@ -344,8 +450,71 @@ export const Fields: FieldRecords = {
         fullLabel: "Vacuum Magnetic Well",
         description: "Metric for plasma equilibrium stability",
         unit: undefined,    // TODO
-        range: [-0.11, 0.2],
+        range: [-1.01, 0.636],
         // values: ncPerHpValidValues,
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'mercierCriterion': {
+        shortLabel: "mercier",
+        plotLabel: "Mercier",
+        fullLabel: "Mercier Criterion",
+        description: "FIXME TODO",
+        unit: undefined,    // TODO
+        range: [-754, 0.33],
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'axisHelicity': {
+        shortLabel: "helicity",
+        plotLabel: "Axis helicity",
+        fullLabel: "Axis Helicity",
+        description: "Helicity of Axis",
+        unit: undefined,
+        range: [-3, 3],
+        values: axisHelicityValidValues,
+        isLog: false,
+        isCategorical: true,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'sqrtBoozerQsErr': {
+        shortLabel: "sqrt-qs",
+        plotLabel: "sqrt(qs)",
+        fullLabel: "Root of Boozer QS Error",
+        description: "Square root of Boozer QS error",
+        range: [.003, 1.03],
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'epsilonEff': {
+        shortLabel: "epsilon",
+        plotLabel: "epsilon eff",
+        fullLabel: "Effective Epsilon",
+        description: "Effective ripple (epsilon)",
+        range: [2.78, 134_400_000.],
+        isLog: false,
+        isCategorical: false,
+        markedValue: undefined,
+        tableColumnWidth: 80,
+        displayInTable: true
+    },
+    'qiError': {
+        shortLabel: "qi",
+        plotLabel: "Qi Err",
+        fullLabel: "QI Error",
+        description: "Goodman QI error",
+        range: [0., 0.281],
         isLog: false,
         isCategorical: false,
         markedValue: undefined,
@@ -357,8 +526,7 @@ export const Fields: FieldRecords = {
         plotLabel: "Loss frac s=0.25",
         fullLabel: "Loss fraction S=0.25",
         description: "Fraction of particles born on s=0.25 that escape plasma within 0.1 seconds",
-        range: [0.0, 0.5],
-        // values: nFourierCoilValidValues,
+        range: [0.0, 1.01],
         isLog: false,
         isCategorical: false,
         markedValue: undefined,
@@ -390,7 +558,8 @@ export const fieldMarkedValueDesc = (fieldName?: string): string | undefined => 
 
 export enum CategoricalIndexedFields {
     NFP = 'nfp',
-    DATABASE_FROM = 'databaseFrom'
+    AXIS_HELICITY = 'axisHelicity',
+    DATABASE_FROM = 'databaseFrom',
 }
 
 export enum KnownPathType {

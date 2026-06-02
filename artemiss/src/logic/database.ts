@@ -12,32 +12,49 @@ export type RawData = {
     uuid: string[],
     database_from_ID: string[],
     nfp: number[],
-    phiedge: number[],
     minor_radius: number[],
     aspect_ratio: number[],
     volume: number[],
     volavgB: number[],
+    mirror_ratio: number[],
     min_L_grad_B: number[],
+    plasma_beta: number[],
+    jdotb_vmec: number[],
+    iota: number[],
     vacuum_well: number[],
+    mercier_criterion: number[],
+    axis_helicity: number[],
+    sqrt_boozer_qs_error: number[],
+    epsilon_eff: number[],
+    qi_error: number[],
     loss_fraction_s_0_25: number[],
 }
 
 
 type jigRow = { rawField: keyof RawData, objectField: KnownFields }
 const recordJig: jigRow[] = [
-    { rawField: "database_from",        objectField: KnownFields.DATABASE_FROM    },
-    { rawField: "group_name",           objectField: KnownFields.GROUP_NAME       },
-    { rawField: "uuid",                 objectField: KnownFields.ID               },
-    { rawField: "database_from_ID",     objectField: KnownFields.DATABASE_FROM_ID },
-    { rawField: "nfp",                  objectField: KnownFields.NFP              },
-    { rawField: "phiedge",              objectField: KnownFields.PHIEDGE          },
-    { rawField: "minor_radius",         objectField: KnownFields.MINOR_RADIUS     },
-    { rawField: "aspect_ratio",         objectField: KnownFields.ASPECT_RATIO     },
-    { rawField: "volume",               objectField: KnownFields.VOLUME           },
-    { rawField: "volavgB",              objectField: KnownFields.VOL_AVG_B        },
-    { rawField: "min_L_grad_B",         objectField: KnownFields.MIN_L_GRAD_B     },
-    { rawField: "vacuum_well",          objectField: KnownFields.VACUUM_WELL      },
-    { rawField: "loss_fraction_s_0_25", objectField: KnownFields.LOSS_FRAC_S_0_25 },
+    { rawField: "database_from",        objectField: KnownFields.DATABASE_FROM        },
+    { rawField: "group_name",           objectField: KnownFields.GROUP_NAME           },
+    { rawField: "uuid",                 objectField: KnownFields.ID                   },
+    { rawField: "database_from_ID",     objectField: KnownFields.DATABASE_FROM_ID     },
+    { rawField: "nfp",                  objectField: KnownFields.NFP                  },
+    // { rawField: "phiedge",              objectField: KnownFields.PHIEDGE              },
+    { rawField: "minor_radius",         objectField: KnownFields.MINOR_RADIUS         },
+    { rawField: "aspect_ratio",         objectField: KnownFields.ASPECT_RATIO         },
+    { rawField: "volume",               objectField: KnownFields.VOLUME               },
+    { rawField: "volavgB",              objectField: KnownFields.VOL_AVG_B            },
+    { rawField: "mirror_ratio",         objectField: KnownFields.MIRROR_RATIO         },
+    { rawField: "min_L_grad_B",         objectField: KnownFields.MIN_L_GRAD_B         },
+    { rawField: "plasma_beta",          objectField: KnownFields.PLASMA_BETA          },
+    { rawField: "jdotb_vmec",           objectField: KnownFields.JDOTB_VMEC           },
+    { rawField: "iota",                 objectField: KnownFields.IOTA                 },
+    { rawField: "vacuum_well",          objectField: KnownFields.VACUUM_WELL          },
+    { rawField: "mercier_criterion",    objectField: KnownFields.MERCIER              },
+    { rawField: "axis_helicity",        objectField: KnownFields.AXIS_HELICITY        },
+    { rawField: "sqrt_boozer_qs_error", objectField: KnownFields.SQRT_BOOZER_QS_ERROR },
+    { rawField: "epsilon_eff",          objectField: KnownFields.EPSILON_EFF          },
+    { rawField: "qi_error",             objectField: KnownFields.QI_ERROR             },
+    { rawField: "loss_fraction_s_0_25", objectField: KnownFields.LOSS_FRAC_S_0_25     },
 ]
 
 
@@ -83,7 +100,8 @@ export const makeDatabase = (rawData: RawData) => {
     const dataDict: RecordDict = {}
     const categoricalFieldIndexes: CategoricalIndexSet = {
         'nfp': {},
-        'databaseFrom': {}
+        'databaseFrom': {},
+        'axisHelicity': {},
         // 'nSurfaces': {},
     }
     const categoricalFields = Object.keys(categoricalFieldIndexes) as CategoricalIndexedFields[]

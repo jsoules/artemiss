@@ -10,13 +10,21 @@ export const ConcatenationToken = '---'
 export type FilterSettings = {
     databaseFrom: boolean[]
     nfp: boolean[]
-    phiEdge: number[],
     minorRadius: number[]
     aspectRatio: number[]
     volume: number[]
     volAvgB: number[]
+    mirrorRatio: number[]
     minLgradB: number[]
+    plasmaBeta: number[]
+    jdotbVmec: number[]
+    iota: number[]
     vacuumWell: number[]
+    mercierCriterion: number[]
+    axisHelicity: boolean[]
+    sqrtBoozerQsErr: number[]
+    epsilonEff: number[]
+    qiError: number[]
     lossFractionS025: number[]
     // system settings
     dependentVariable: DependentVariables
@@ -45,16 +53,24 @@ export type ArtemissRecord = {
     canonicalPath: string,          // assembled per-rule from uuid, groupName, etc
     // Categorical fields
     nfp: number,                    // range 1-8?, field period count
+    axisHelicity: number,           // range -3 - 2
     // Globally unique(ish)/continuous fields
-    phiEdge: number,                // range 15.0 - 150.0? (unit?) Total toroidal magnetic flux in the device
-    minorRadius: number,            // range 1.5 - 2.5? (M). Minor radius of outermost surface ("minor radius")
-    aspectRatio: number,            // range 2.7 - 12.0 (no unit)
-    volume: number,                 // range 0.034 - 2.42, Volume enclosed by outermost toroidal surface over which QS was optimized. (m^3)
-    volAvgB: number,                // range 4.5 - 10.0?, magnetic field strength averaged over plasma volume
-    minLgradB: number,              // range 0.5 - 9.0, predicts required coil separation length to maintain containment
-    vacuumWell: number,             // range -0.11 - 0.2. Metric for plasma equilibrium stability
-    lossFractionS025: number,       // Fraction (0 - 1). Fraction of particles born on s=0.25 that escape plasma w/in 0.1 sec
-    // MORE WILL COME but won't be represented by the overview file...
+    // phiEdge: number,                // range 15.0 - 150.0? (unit?) Total toroidal magnetic flux in the device
+    minorRadius: number,            // range 0.3 - 2.5 (M). Minor radius of outermost surface ("minor radius")
+    aspectRatio: number,            // range 2.7 - 12.07 (no unit)
+    volume: number,                 // range -16 - 3672, signed, Volume enclosed by outermost toroidal surface over which QS was optimized. (m^3)
+    volAvgB: number,                // range 3.97 - 11?, magnetic field strength averaged over plasma volume
+    mirrorRatio: number,            // range 1.08 - 80.28, magnetic mirror ratio
+    minLgradB: number,              // range 0.0002 - 80.3, predicts required coil separation length to maintain containment
+    plasmaBeta: number,             // range 0 - 0.0565, volume-averaged plasma beta
+    jdotbVmec: number,              // range -160M - 222.2M, bootstrap current
+    iota: number,                   // range -2.89 - 2.86, iota profile
+    vacuumWell: number,             // range -1.01 - 0.64. Metric for plasma equilibrium stability
+    mercierCriterion: number,       // range -754 - 0.33, Mercier criterion, negative is good
+    sqrtBoozerQsErr: number,        // range 0.003 - 1.03, root of Boozer QS error
+    epsilonEff: number,             // range 2.78 - 134.5M, effective ripple/epsilon
+    qiError: number,                // range 0 - 0.281, Goodman QI error
+    lossFractionS025: number,       // Fraction (0 - 1.01). Fraction of particles born on s=0.25 that escape plasma w/in 0.1 sec
 }
 export type RecordDict = Record<string, ArtemissRecord>
 
