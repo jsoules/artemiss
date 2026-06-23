@@ -3,12 +3,37 @@ import InstructionButton from "@snComponents/general/InstructionButton"
 import { ModelInstructionDrawer } from "@snComponents/general/InstructionDrawer"
 import { HrBar, Spinner } from "@snGeneralComponents/index"
 import { useDevice, useDevice3dModel } from "@snQuerying/index"
+import { DeviceFields } from "@snTypes/DataDictionary"
 import { defaultEmptyDevice } from "@snTypes/Defaults"
+import { Device } from "@snTypes/Types"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
-import { DownloadLinks, RecordManifest, SimulationView, SurfaceControls } from "@snVisualizer/index"
+import { DownloadLinks, LinePlot, RecordManifest, SimulationView, SurfaceControls } from "@snVisualizer/index"
 import { FunctionComponent, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router"
 import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
+
+const _mean: (series: number[]) => number = (series: number[]) => {
+    if (series.length === 0) {
+        return 0
+    }
+    return series.reduce((a, c) => a + c, 0) / series.length
+}
+
+// TODO: Switch mean calculation to use sumPrecise --> requries upgrading target math library version
+const makeLinePlot = (device: Device, xField: keyof Device, yField: keyof Device, edgeLength: number) => {
+    return <LinePlot
+        xLabel={DeviceFields[xField].label}
+        yLabel={DeviceFields[yField].label}
+        xDesc={DeviceFields[xField].desc ?? DeviceFields[xField].label}
+        yDesc={DeviceFields[yField].desc ?? DeviceFields[yField].label}
+        xSeries={device[xField] as any as number[]}
+        ySeries={device[yField] as any as number[]}
+        meanY={_mean(device[yField] as any as number[])}
+        width={edgeLength}
+        height={edgeLength}
+    />
+}
+
 
 const Model: FunctionComponent = () => {
     const params = useParams()
@@ -102,11 +127,19 @@ const Model: FunctionComponent = () => {
                     {viewer}
                 </div>
                 <div style={{width: Math.floor(rw) }}>
-                    {/* TODO: RE-ADD PLOTS */}
-                    {/* <IotaProfilePlot iotaProfile={device.iotaProfile} tfProfile={device.tfProfile} meanIota={device.meanIota} width={rw} height={rw} /> */}
-                    <HrBar />
+                    {/* <HrBar /> */}
                     <RecordManifest device={device} colWidth={Math.floor(rw)} />
                 </div>
+            </div>
+            <div className="flexWrapper">
+                {makeLinePlot(device, "surfaceDistances", "sqrtBoozerQsError", rw)}
+                {makeLinePlot(device, "surfaceDistances", "iota", rw)}
+                {makeLinePlot(device, "surfaceDistances", "pressure", rw)}
+            </div>
+            <div className="flexWrapper">
+                {makeLinePlot(device, "surfaceDistances", "boozerI", rw)}
+                {makeLinePlot(device, "surfaceDistances", "mercierCriterion", rw)}
+                {/* {makeLinePlot(device, "surfaceDistances", "pressure", rw)} */}
             </div>
             <HrBar />
             {/* {poincarePlot}

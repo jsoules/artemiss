@@ -5,11 +5,17 @@ import { baseDims } from "../plots/layout/PlotScaling"
 import SvgXAxis from "../plots/plotFittings/SvgXAxis"
 import SvgYAxis from "../plots/plotFittings/SvgYAxis"
 
+// TODO: Remove dependency on d3, given how little we actually need from
+// the scaling objects
 
 type Props = {
-    iotaProfile: number[],
-    tfProfile: number[],
-    meanIota: number,
+    xLabel: string,
+    yLabel: string,
+    xDesc: string,
+    yDesc: string,
+    xSeries: number[],
+    ySeries: number[],
+    meanY: number,
     width: number,
     height: number,
     // dims: BoundedPlotDimensions
@@ -17,10 +23,10 @@ type Props = {
 
 
 const getRange = (dataSeries: number[]) => {
-    // Note: it's actually possible the iota profile/tf profile data
+    // Note: it's actually possible the data series
     // will only have one data point. In that case, just add some
     // padding to that data point. (It'll be further padded by the
-    // margin-adding code in IotaProfilePlot below, but who cares)
+    // margin-adding code in the main plotter below, but who cares)
     const vals = dataSeries.length === 1
         ? [dataSeries[0] * .8, dataSeries[0] * 1.2]
         : dataSeries
@@ -33,7 +39,7 @@ const fontPx = 10
 const contentScaleTransform = `translate(${baseDims.marginLeft},${baseDims.marginTop})`
 
 
-const useTitleGroup = (width: number) => {
+const useTitleGroup = (width: number, xLabel: string, yLabel: string) => {
     return useMemo(() =>
         <g transform={`translate(${baseDims.marginLeft + width/2}, ${1.7*fontPx})`}>
             <text
@@ -43,7 +49,7 @@ const useTitleGroup = (width: number) => {
                     textAnchor: "middle"
                 }}
             >
-                Iota Profile
+                {`${xLabel} vs ${yLabel}`}
             </text>
         </g>
     , [width])
@@ -51,12 +57,12 @@ const useTitleGroup = (width: number) => {
 
 
 type LinearScale = ScaleLinear<number, number>
-const useIotaContent = (iotaProf: number[], tfProf: number[], canvasHeight: number, xScale: LinearScale, yScale: LinearScale) => {
+const useFeaturePlotContent = (xSeries: number[], ySeries: number[], canvasHeight: number, xScale: LinearScale, yScale: LinearScale) => {
 
     const dots = useMemo(() => (
-        tfProf.map((v, i) => {
+        xSeries.map((v, i) => {
             const x = xScale(v)
-            const y = yScale(iotaProf[i])
+            const y = yScale(ySeries[i])
             return <circle
                 key={`dot-${i}`}
                 cx={x}
@@ -65,9 +71,9 @@ const useIotaContent = (iotaProf: number[], tfProf: number[], canvasHeight: numb
                 r="4"
             />
         })
-    ), [canvasHeight, iotaProf, tfProf, xScale, yScale])
+    ), [canvasHeight, ySeries, xSeries, xScale, yScale])
 
-    const data = tfProf.map((v, i) => [v, iotaProf[i]])
+    const data = xSeries.map((v, i) => [v, ySeries[i]])
     const {slope, intercept} = useBestFitLine(data)
     const line = useMemo(() => {
         if (!slope || !intercept) return <></>
@@ -94,15 +100,15 @@ const useIotaContent = (iotaProf: number[], tfProf: number[], canvasHeight: numb
 }
 
 
-const IotaProfilePlot: FunctionComponent<Props> = (props: Props) => {
-    const { iotaProfile, tfProfile, width, height, meanIota } = props
-    // const { xRange, yRange } = getRanges(iotaProfile)
+const LinePlot: FunctionComponent<Props> = (props: Props) => {
+    const { xSeries, xLabel, xDesc, ySeries, yLabel, yDesc, width, height, meanY } = props
     // const xSpan = xRange[1] - xRange[0]
-    const { range } = getRange(iotaProfile)
-    const ySpan = range[1] - range[0]
+    const { range: yRange } = getRange(ySeries)
+    const _ySpan = yRange[1] - yRange[0]
+    const ySpan = _ySpan === 0 ? 1. : _ySpan
     // const broadXrange = useMemo(() => [Math.max(0, xRange[0] - xSpan * .2), xRange[1] + xSpan * .2], [xRange, xSpan])
-    const broadXrange = useMemo(() => [0, 1], [])
-    const broadYrange = useMemo(() => [Math.max(0, range[0] - ySpan * .2), range[1] + ySpan * .2], [range, ySpan])
+    const broadXrange = useMemo(() => [Math.min(0, xSeries[0]), Math.max(xSeries[xSeries.length - 1], 1)], [xSeries])
+    const broadYrange = useMemo(() => [(yRange[0] - ySpan * .2), yRange[1] + ySpan * .2], [yRange, ySpan])
     const boundedDims = useMemo(() => ({
         ...baseDims,
         height,
@@ -110,6 +116,7 @@ const IotaProfilePlot: FunctionComponent<Props> = (props: Props) => {
         width,
         boundedWidth: Math.max(0, width - baseDims.marginRight - baseDims.marginLeft)
     }), [height, width])
+
     const xScale = useMemo(() => {
         return scaleLinear()
             .domain(broadXrange)
@@ -125,7 +132,7 @@ const IotaProfilePlot: FunctionComponent<Props> = (props: Props) => {
                                     dataRange={xScale.domain()}
                                     canvasRange={xScale.range()}
                                     dims={boundedDims}
-                                    axisLabel="Normalized toroidal flux"
+                                    axisLabel={xDesc}
                                     isLog={false}
                                     isY={false}
                                 />,
@@ -133,27 +140,27 @@ const IotaProfilePlot: FunctionComponent<Props> = (props: Props) => {
     const yAxis = useMemo(() => <SvgYAxis
                                     dataRange={yScale.domain()}
                                     canvasRange={yScale.range()}
-                                    axisLabel="Rotational transform value"
+                                    axisLabel={yDesc}
                                     isLog={false}
-                                    markedValue={meanIota}
+                                    markedValue={meanY}
                                     dims={boundedDims}
                                     isY={true}
                                 />,
-        [boundedDims, meanIota, yScale])
+        [boundedDims, meanY, yScale])
     return (
         <div
             className="iotaProfileWrapper"
             style={{ width, height }}
         >
             <svg width={width} height={height}>
-                {useTitleGroup(boundedDims.boundedWidth)}
+                {useTitleGroup(boundedDims.boundedWidth, xLabel, yLabel)}
                 <g transform={contentScaleTransform}>
                     {xAxis}
                     {yAxis}
-                    {useIotaContent(iotaProfile, tfProfile, boundedDims.boundedHeight, xScale, yScale)}
+                    {useFeaturePlotContent(xSeries, ySeries, boundedDims.boundedHeight, xScale, yScale)}
                 </g>
             </svg>
         </div>)
 }
 
-export default IotaProfilePlot
+export default LinePlot
