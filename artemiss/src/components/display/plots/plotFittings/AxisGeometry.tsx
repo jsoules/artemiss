@@ -89,6 +89,7 @@ const computeTicks = (props: TicksData): TickDescriptor[] => {
     const baseTicks = getBaseTicks(props)
     const fixedDigits = isLog ? 1 : getFixedDigits(props, baseTicks.length)
     const ticksToLabel = isLog ? computeTicksToLabel(baseTicks) : []
+
     return baseTicks.map((value, i) => ({
         value,
         offset: isY ? canvasSpan - scale(value) : scale(value),
@@ -96,7 +97,9 @@ const computeTicks = (props: TicksData): TickDescriptor[] => {
             ? ticksToLabel.includes(i)
                 ? value.toExponential(1)
                 : ''
-            : value.toFixed(fixedDigits),
+            : fixedDigits > 4  // bit of a hack, here
+                ? value.toExponential(1)
+                : value.toFixed(fixedDigits),
         majorTick: !isLog || ticksToLabel.includes(i)
     }))
 }

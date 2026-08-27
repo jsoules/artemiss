@@ -587,6 +587,7 @@ type DeviceFieldRecords = { [name in keyof Device]: DeviceManifestEntry }
 
 export type DeviceManifestEntry = {
     label: string,
+    desc?: string,
     order: number,
     displayInTable: boolean
     unit?: string,
@@ -597,6 +598,7 @@ export type DeviceManifestEntry = {
 export const DeviceFields: DeviceFieldRecords = {
     uuid: {
         label: 'UUID',
+        desc: "Unique identifier",
         order: 0,
         displayInTable: false,
         unit: undefined,
@@ -620,7 +622,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     databaseFromId: {
-        label: "ID in Source DB",
+        label: "Source-ID",
+        desc: "ID in source database",
         order: 4,
         displayInTable: false,
         unit: undefined,
@@ -628,7 +631,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     nfp: {
-        label: "Number of field periods (NFP)",
+        label: "NFP",
+        desc: "Number of field periods",
         order: 5,
         displayInTable: true,
         isLog: false,
@@ -642,6 +646,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     surfaceDistances: {
         label: "Surface distances",
+        desc: "Surface distances",
         order: 60,
         displayInTable: false,
         unit: undefined,
@@ -666,6 +671,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     aspectRatio: {
         label: "Aspect ratio",
+        desc: "aspect ratio",
         order: 70,
         displayInTable: true,
         unit: undefined,
@@ -674,6 +680,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     minorRadius: {
         label: "Minor radius",
+        desc: "minor radius",
         order: 80,
         displayInTable: true,
         unit: METER_UNIT,
@@ -682,6 +689,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     volume: {
         label: "Volume",
+        desc: "volume",
         order: 90,
         displayInTable: true,
         unit: `${METER_UNIT}^3`,
@@ -690,6 +698,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     volAvgB: {
         label: "Volume-averaged B",
+        desc: "Volume-averaged magnetic field",
         order: 100,
         displayInTable: true,
         unit: `T/${METER_UNIT}`,
@@ -698,6 +707,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     mirrorRatio: {
         label: "Mag mirror ratio",
+        desc: "Magnetic mirror ratio",
         order: 110,
         displayInTable: true,
         unit: undefined,
@@ -713,7 +723,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     modbBoozer: {
-        label: "magnitude of b fields at surface",
+        label: "Mod-B Boozer",
+        desc: "magitude of B fields at surface",
         order: 0,
         displayInTable: false,
         unit: undefined,
@@ -721,7 +732,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     pressure: {
-        label: "Plasma pressure profile",
+        label: "Plasma pressure",
+        desc: "Plasma pressure profile",
         order: 130,
         displayInTable: true,
         unit: undefined,
@@ -729,7 +741,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     plasmaBeta: {
-        label: "Vol-avg plasma beta",
+        label: "Plasma beta",
+        desc: "Volume-averaged plasma beta",
         order: 140,
         displayInTable: true,
         unit: "FIXME",
@@ -737,7 +750,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     boozerI: {
-        label: "Normalized toroidal current",
+        label: "Boozer I",
+        desc: "Normalized toroidal current",
         order: 150,
         displayInTable: false,
         unit: undefined,
@@ -745,7 +759,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     boozerG: {
-        label: "Normalized poloidal current",
+        label: "Boozer G",
+        desc: "Normalized poloidal current",
         order: 160,
         displayInTable: false,
         unit: undefined,
@@ -753,7 +768,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     jdotbVmec: {
-        label: "Bootstrap current (VMEC)",
+        label: "J dot B",
+        desc: "Bootstrap current (VMEC)",
         order: 170,
         displayInTable: false,
         unit: undefined,
@@ -762,6 +778,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     iota: {
         label: "Iota profile",
+        desc: "Iota profile",
         order: 180,
         displayInTable: false,
         unit: undefined,
@@ -770,6 +787,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     vacuumWell: {
         label: "Vacuum well",
+        desc: "vacuum well",
         order: 190,
         displayInTable: true,
         unit: "FIXME",
@@ -778,6 +796,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     mercierCriterion: {
         label: "Mercier criterion",
+        desc: "Mercier criterion",
         order: 200,
         displayInTable: false,  // TODO: use graph??
         unit: "FIXME",
@@ -793,7 +812,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     integratedAxisTorsion: {
-        label: "Int. torsion on mag axis",
+        label: "Int Axis Torsion",
+        desc: "Integrated torsion on magnetic axis",
         order: 210,
         displayInTable: true,
         unit: "FIXME",
@@ -801,7 +821,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     axisHelicity: {
-        label: "Helicty of axis",
+        label: "Axis helicity",
+        desc: "helicity of axis",
         order: 220,
         displayInTable: true,
         unit: undefined,
@@ -809,7 +830,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     sqrtBoozerQsError: {
-        label: "Root QS error",
+        label: "Sqrt Boozer QS",
+        desc: "Root of Boozer QS error",
         order: 230,
         displayInTable: false,  // TODO: use graph??
         unit: undefined,
@@ -817,7 +839,8 @@ export const DeviceFields: DeviceFieldRecords = {
         valueLabels: undefined
     },
     epsilonEff: {
-        label: "Effective ripple (epsilon)",
+        label: "Epsilon",
+        desc: "effective ripple",
         order: 240,
         displayInTable: false,  // TODO: use graph??
         unit: undefined,
@@ -826,6 +849,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     qiError: {
         label: "Goodman QI error",
+        desc: "Goodman QI error",
         order: 250,
         displayInTable: true,
         unit: undefined,
