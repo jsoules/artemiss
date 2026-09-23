@@ -42,7 +42,7 @@ export const usePlotData: plotHookType = ({records, filterSettings, colorSplit})
         const { data, radius, colorValues, ids, urls, fineSplitVals, coarseSplitVals } = projectToPlotReadyData(projectionCriteria)
         const colorFieldRange: number[] = fieldIsCategorical(colorSplit)
             ? []
-            : filterSettings[colorSplit] as number[]
+            : filterSettings.activeFilters[colorSplit] as number[]
         return { data, radius, ids, urls, colorValues, fineSplitVals, coarseSplitVals, coarseSplitField: coarseSplit, fineSplitField: fineSplit, colorFieldRange }
     }, [coarseSplit, colorSplit, filterSettings, fineSplit, records])
 

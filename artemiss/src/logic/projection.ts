@@ -36,7 +36,7 @@ type ProjectedData = {
 export const makeValsFromFieldname = (field: ToggleableVariables | undefined, filters: FilterSettings, includeAllIfNone?: boolean): string[] => {
     if (field === undefined) return []
     const allValidVals = Fields[field]?.values ?? []
-    const splitVals = (filters[field] ?? []).map((v, i) => (v ? allValidVals[i] : undefined)).filter(x => x !== undefined) as unknown as string[]
+    const splitVals = (filters.activeFilters[field] ?? []).map((v, i) => (v ? allValidVals[i] : undefined)).filter(x => x !== undefined) as unknown as string[]
     return includeAllIfNone && splitVals.length === 0 ? allValidVals : splitVals
 }
 

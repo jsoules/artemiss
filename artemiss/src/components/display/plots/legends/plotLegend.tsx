@@ -18,7 +18,7 @@ const ColorCaption = (props: {text: string}) => (
 
 const getColorsForValues = (props: PlotLegendProps) => {
     const scheme = Palettes[props.style]
-    const options = (props.filters[props.var] ?? [])
+    const options = (props.filters.activeFilters[props.var] ?? [])
     const selected = options
         .map((v, i) => v ? i : undefined)
         .filter(x => x !== undefined) as number[]

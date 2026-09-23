@@ -122,10 +122,10 @@ const selectedOrFirst = (field: ToggleableVariables, choices: boolean[], selecte
 const rationalizeFocusedPlot = (settings: FilterSettings): FilterSettings => {
     const newCoarse = settings.coarsePlotSplit === undefined
         ? settings.coarsePlotSelectedValue
-        : selectedOrFirst(settings.coarsePlotSplit, settings[settings.coarsePlotSplit], settings.coarsePlotSelectedValue)
+        : selectedOrFirst(settings.coarsePlotSplit, settings.activeFilters[settings.coarsePlotSplit], settings.coarsePlotSelectedValue)
     const newFine = settings.finePlotSplit === undefined
         ? settings.finePlotSelectedValue
-        : selectedOrFirst(settings.finePlotSplit, settings[settings.finePlotSplit], settings.finePlotSelectedValue)
+        : selectedOrFirst(settings.finePlotSplit, settings.activeFilters[settings.finePlotSplit], settings.finePlotSelectedValue)
     if (newCoarse !== settings.coarsePlotSelectedValue || newFine !== settings.finePlotSelectedValue) {
         return { ...settings, coarsePlotSelectedValue: newCoarse, finePlotSelectedValue: newFine }
     }
@@ -134,7 +134,7 @@ const rationalizeFocusedPlot = (settings: FilterSettings): FilterSettings => {
 
 
 const doSingleRangeUpdate = (key: RangeVariables, newRange: number[], settings: FilterSettings): FilterSettings => {
-    const existingRange = settings[key]
+    const existingRange = settings.activeFilters[key]
     if (existingRange.length !== 2) {
         throw Error(`Error attempting to update non-extant/misconfigured range ${key} (currently ${existingRange[0]}, ${existingRange[1]})`)
     }
@@ -142,7 +142,7 @@ const doSingleRangeUpdate = (key: RangeVariables, newRange: number[], settings: 
         // no change, return reference equality. e.g. user clicks "reset" for already-default range.
         return settings
     }
-    settings[key] = [Math.min(...newRange), Math.max(...newRange)]
+    settings.activeFilters[key] = [Math.min(...newRange), Math.max(...newRange)]
 
     return settings
 }
@@ -150,10 +150,10 @@ const doSingleRangeUpdate = (key: RangeVariables, newRange: number[], settings: 
 
 const updateBooleanList = (key: ToggleableVariables, index: number, newState: boolean, settings: FilterSettings): FilterSettings => {
     const rightLength = (Fields[key].values ?? []).length
-    if (!(key in settings)) {
+    if (!(key in settings.activeFilters)) {
         throw Error(`Initialization error for boolean filter for ${key}.`)
     }
-    const current = settings[key]
+    const current = settings.activeFilters[key]
     const reset = current.length !== rightLength    // handles initialization
     const newSelections: boolean[] = reset ? new Array<boolean>(rightLength).fill(false)
                                            : index === -1
@@ -164,7 +164,7 @@ const updateBooleanList = (key: ToggleableVariables, index: number, newState: bo
     }
 
     const result: FilterSettings = { ...settings }
-    result[key] = newSelections
+    result.activeFilters[key] = newSelections
 
     return applyUpdatedFilters(result)
 }
@@ -209,7 +209,7 @@ const resetRange = (key: RangeVariables, settings: FilterSettings) => {
 const updatePlotSplits = (settings: FilterSettings, target: FacetSplitType, newSplit: ToggleableVariables | undefined): FilterSettings => {
     // because of the dropdown select interface, this is sometimes passed a literal string value of "undefined" :(
     const splitUndefined = newSplit === undefined || ("undefined" === newSplit as string)
-    const value = splitUndefined ? undefined : (Fields[newSplit]?.values ?? [])[settings[newSplit].findIndex(x => x)]
+    const value = splitUndefined ? undefined : (Fields[newSplit]?.values ?? [])[settings.activeFilters[newSplit].findIndex(x => x)]
     switch(target) {
         case 'coarse':
             return { ...settings, coarsePlotSplit: newSplit, coarsePlotSelectedValue: value }

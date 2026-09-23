@@ -16,7 +16,7 @@ export const useDataGeometry = (filters: FilterSettings): DataGeometry => {
 
 const getExtrema = (filters: FilterSettings, field: IndependentVariables | DependentVariables, validRangeField: boolean) => {
     const baseRange = Fields[field].range
-    const range = (validRangeField ? (filters[field] ?? []) : baseRange) as number[]
+    const range = (validRangeField ? (filters.activeFilters[field] ?? []) : baseRange) as number[]
     const low = baseRange[0] === range[0] ? Math.min(0, range[0]) : range[0]
     const high = range[1]
     return ({low, high})

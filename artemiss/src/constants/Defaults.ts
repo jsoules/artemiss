@@ -1,4 +1,4 @@
-import { ArtemissRecord, Device, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
+import { ArtemissRecord, Device, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
 import { CategoricalIndexedFields, DependentVariables, Fields, IndependentVariables, ToggleableVariables, axisHelicityValidValues, databaseFromValidValues, nfpValidValues } from "./DataDictionary"
 
 export const defaultFinePlotSplit = ToggleableVariables.NFP
@@ -7,10 +7,7 @@ export const defaultDependentVariableValue = DependentVariables.VOL_AVG_B
 export const defaultIndependentVariableValue = IndependentVariables.MINOR_RADIUS
 export const defaultPlotColorSplit = ToggleableVariables.DATABASE_FROM
 
-export const initialNavigatorState: FilterSettings = {
-    // When we actually have more values, we'll set up a default source or something
-    // to limit getting slammed by the initial data.
-    // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
+const defaultFilterState: FilterControlState = {
     databaseFrom: [ true, ...(new Array<boolean>(databaseFromValidValues.length - 2).fill(false)), true ],
     nfp: [ true, true, ...(new Array<boolean>(nfpValidValues.length - 2).fill(false)) ], //new Array<boolean>(nfpValidValues.length).fill(true),
     axisHelicity: new Array<boolean>(axisHelicityValidValues.length).fill(false),
@@ -50,6 +47,14 @@ export const initialNavigatorState: FilterSettings = {
     meanConfinementTimeS010: (Fields.meanConfinementTimeS010.range),
     meanConfinementTimeS025: (Fields.meanConfinementTimeS025.range),
     meanConfinementTimeS050: (Fields.meanConfinementTimeS050.range),
+}
+
+export const initialNavigatorState: FilterSettings = {
+    // When we actually have more values, we'll set up a default source or something
+    // to limit getting slammed by the initial data.
+    // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
+    activeFilters: {...defaultFilterState},
+    priorFilters: {...defaultFilterState},
     //
     dependentVariable: defaultDependentVariableValue,
     independentVariable: defaultIndependentVariableValue,

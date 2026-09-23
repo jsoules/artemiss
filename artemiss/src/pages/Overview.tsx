@@ -87,7 +87,7 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
         :   <ColorBar
                 field={plotColorProps.colorSplit as DependentVariables}
                 style={plotColorProps.style as SupportedColorMap}
-                visRange={filterSettings[plotColorProps.colorSplit] as number[]}
+                visRange={filterSettings.activeFilters[plotColorProps.colorSplit] as number[]}
             />
     
 

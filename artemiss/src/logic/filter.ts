@@ -35,7 +35,7 @@ const intersect = (...sets: Set<PKType>[]): Set<PKType> => {
 export const applyFiltersToSet = (filters: FilterSettings, database: NavigatorDatabase, set?: Set<PKType>): Set<PKType> => {
     const boolSets = makeBooleanFilters(database).map(b => {
         const { key, callback } = b
-        const choices = filters[key]
+        const choices = filters.activeFilters[key]
         return callback(choices)
     })
     // const selectionSets = makeSelectionFilters(database).map(f => {
@@ -51,7 +51,7 @@ export const applyFiltersToSet = (filters: FilterSettings, database: NavigatorDa
     const materializedRows = projectRecords(indexIntersectionSet, database)
     const rangeTests = rangeFilters.map(r => {
         const { key, callback } = r
-        const valueRange = filters[key]
+        const valueRange = filters.activeFilters[key]
         return callback(valueRange)
     })
     const finalSet = new Set(materializedRows.filter(r => rangeTests.every(test => test(r))).map(r => r.uuid))

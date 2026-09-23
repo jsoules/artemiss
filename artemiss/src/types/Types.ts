@@ -7,7 +7,7 @@ export type PKType = string
 export const NullId = ''
 export const ConcatenationToken = '---'
 
-export type FilterSettings = {
+export type FilterControlState = {
     databaseFrom: boolean[]
     nfp: boolean[]
     stellsym: boolean[]
@@ -47,6 +47,11 @@ export type FilterSettings = {
     meanConfinementTimeS010: number[]
     meanConfinementTimeS025: number[]
     meanConfinementTimeS050: number[]
+}
+
+export type FilterSettings = {
+    activeFilters: FilterControlState
+    priorFilters: FilterControlState
     // system settings
     dependentVariable: DependentVariables
     independentVariable: IndependentVariables

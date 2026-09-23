@@ -33,7 +33,8 @@ type Props = {
 
 const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
     const { filterSettings, callbacks, colorChgDispatcher } = props
-    const { databaseFrom, nfp, dependentVariable, independentVariable, coarsePlotSplit, finePlotSplit } = filterSettings
+    const { dependentVariable, independentVariable, coarsePlotSplit, finePlotSplit } = filterSettings
+    const { databaseFrom, nfp, } = filterSettings.activeFilters
     const { colorSplit, style } = props.colorProps
     const [ plotVarsClosed, setPlotVarsClosed ] = useState(true)
 
@@ -41,7 +42,7 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
     
 
     const sliders = Object.values(RangeVariables).filter(rv => isNaN(Number(rv)))
-        .map(rv => (<RangeSlider key={rv} field={rv} value={filterSettings[rv]} onChange={callbacks.handleRangeChange} onReset={callbacks.handleRangeReset} />))
+        .map(rv => (<RangeSlider key={rv} field={rv} value={filterSettings.activeFilters[rv]} onChange={callbacks.handleRangeChange} onReset={callbacks.handleRangeReset} />))
 
     const styleSelector = fieldIsCategorical(colorSplit)
         ? <VariableSelector value={style as SupportedColorPalette} onChange={colorSchemeCallback} type="ColorStyleDiscrete" />
