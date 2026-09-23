@@ -1,6 +1,11 @@
 import { Fields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
 import { ArtemissRecord, CategoricalIndexSet, FilterSettings, NavigatorDatabase, NullId, PKType } from "@snTypes/Types"
 
+// TODO: IMPROVE FILTERING PERFORMANCE
+// we now have O(40) range filters (which are all basically the same)
+// meaning we may be iterating over the ENTIRE 170k DATABASE upwards
+// of 40 times, this is probably BAD and is definitely causing
+// noticeable performance challenges
 
 export const projectRecords = (selection: Set<PKType>, database: NavigatorDatabase | undefined) => {
     if (database === undefined) return []
@@ -90,7 +95,9 @@ const makeRangeFilter = (key: RangeVariables) => {
         const valRange = Fields[key].range
         const noOp = range[0] <= valRange[0] && range[1] >= valRange[1]
         if (noOp) return () => true
-        return (row: ArtemissRecord) => row[key] >= range[0] && row[key] <= range[1]
+        // need to filter-in the NaN values for keys
+        return (row: ArtemissRecord) => 
+            (row[key] >= range[0] && row[key] <= range[1]) || isNaN(row[key])
     }
     return {key, callback}
 }
