@@ -52,6 +52,8 @@ export type FilterControlState = {
 export type FilterSettings = {
     activeFilters: FilterControlState
     priorFilters: FilterControlState
+    // TODO: add a third layer, the "cached" set, along with a third filter,
+    // which tracks the filter state that populated the cache
     // system settings
     dependentVariable: DependentVariables
     independentVariable: IndependentVariables

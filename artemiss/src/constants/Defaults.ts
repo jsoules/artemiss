@@ -55,7 +55,6 @@ export const initialNavigatorState: FilterSettings = {
     // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
     activeFilters: {...defaultFilterState},
     priorFilters: {...defaultFilterState},
-    //
     dependentVariable: defaultDependentVariableValue,
     independentVariable: defaultIndependentVariableValue,
     coarsePlotSplit: defaultCoarsePlotSplit,

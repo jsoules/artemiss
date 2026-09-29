@@ -1,5 +1,5 @@
 import { Fields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
-import { ArtemissRecord, CategoricalIndexSet, FilterSettings, NavigatorDatabase, NullId, PKType } from "@snTypes/Types"
+import { ArtemissRecord, CategoricalIndexSet, FilterControlState, FilterSettings, NavigatorDatabase, NullId, PKType } from "@snTypes/Types"
 
 // TODO: IMPROVE FILTERING PERFORMANCE
 // we now have O(40) range filters (which are all basically the same)
@@ -59,6 +59,58 @@ export const applyFiltersToSet = (filters: FilterSettings, database: NavigatorDa
 }
 
 
+type BooleanAddDrops = { allAdds: boolean[][], allDrops: boolean[][] }
+const getBooleanAddDrops = (newFilters: FilterControlState, oldFilters: FilterControlState): BooleanAddDrops => {
+    let allAdds: boolean[][] = []
+    let allDrops: boolean[][] = []
+
+    booleanFields.forEach(f => {
+        const adds = newFilters[f].map((e, i) => e && !oldFilters[f][i])
+        const drops = newFilters[f].map((e, i) => !e && oldFilters[f][i])
+        allAdds.push(adds)
+        allDrops.push(drops)
+    })
+    return { allAdds, allDrops }
+}
+
+
+const getBooleanDifference = (addDrops: BooleanAddDrops, current: Set<PKType>, database: NavigatorDatabase): { added: Set<PKType>, kept: Set<PKType> } => {
+    const boolFilters = makeBooleanFilters(database).filter(x => x !== undefined)
+    let allAdds = new Set<PKType>()
+    let allDrops = new Set<PKType>()
+
+    boolFilters.forEach((b, i) => {
+        const added = b.callback(addDrops.allAdds[i])
+        const drops = b.callback(addDrops.allDrops[i])
+        if (added !== undefined) {
+            allAdds = allAdds.union(added)
+        }
+        if (drops !== undefined) {
+            allDrops = allDrops.union(drops)
+        }
+    })
+    return { added: allAdds, kept: current.difference(allDrops) }
+}
+
+
+const getRangeAddDrops = (newFilters: FilterControlState, oldFilters: FilterControlState) => {
+    let addRanges = []
+    let dropRanges = []
+
+
+}
+
+
+export const applyUpdatedFilters = (newFilters: FilterControlState, oldFilters: FilterControlState, database: NavigatorDatabase): Set<PKType> => {
+    const boolSets = makeBooleanFilters(database).map(b => {
+        const { key, callback } = b
+        const choices = newFilters[key]
+        return callback(choices)
+    })
+
+}
+
+
 export const restrictMarksToFilteredInIds = (currentMarks: Set<PKType>, filteredIn: Set<PKType>) => {
     if (currentMarks.size === 0 || filteredIn.size === 0) return new Set([NullId])
     return intersect(currentMarks, filteredIn)
@@ -82,6 +134,9 @@ const makeBooleanFilter = (key: ToggleableVariables, db: NavigatorDatabase) => {
 // const booleanFields: ToggleableVariables[] = [ToggleableVariables.MEAN_IOTA, ToggleableVariables.NFP, ToggleableVariables.NC_PER_HP, ToggleableVariables.N_SURFACES]
 const booleanFields: ToggleableVariables[] = [ToggleableVariables.NFP, ToggleableVariables.DATABASE_FROM]
 const makeBooleanFilters = (database: NavigatorDatabase) => booleanFields.map(f => makeBooleanFilter(f, database))
+// NOTE: boolean filters can't be pre-populated, because we need to look up values from the categorical index sets,
+// which are not known at compile time--they have to be populated from the data.
+// We could maybe wrap this setup in an effect hook, but it's not worth the complication.
 
 
 const makeRangeFilter = (key: RangeVariables) => {
