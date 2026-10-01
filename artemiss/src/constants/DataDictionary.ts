@@ -8,6 +8,7 @@ export const getEnumVals = (x: object): string[] => {
 // NOTE that these should refer to the INTERNAL spellings/names, not necessarily
 // the ones used in the source json
 export enum KnownFields {
+    ROWID = 'rowid',
     ID = 'uuid',
     DATABASE_FROM = 'databaseFrom', // TODO: NEED A LIST OF THE VALID VALUES
     GROUP_NAME = 'groupName',
@@ -363,8 +364,23 @@ export const getValuesFromBoolArray = (field: string, choices: boolean[]) => {
 // NOTE: This describes the fields in the *overview database*. It does NOT describe
 // the full data set in the per-record payload file. That's to be handled separately.
 
+// TODO: Consider adding "as const" to each entry
+
 const METER_UNIT = "M"
 export const Fields: FieldRecords = {
+    'rowid': {
+        shortLabel: "ROWID",
+        plotLabel: "ROWID",
+        fullLabel: "Arbitrary numeric ID",
+        description: "Arbitrary numeric ID",
+        unit: undefined,
+        range: [0, 200000],
+        isLog: false,
+        isCategorical: true,
+        markedValue: undefined,
+        tableColumnWidth: undefined,
+        displayInTable: false
+    } as const,
     'uuid': {
         shortLabel: "UUID",
         plotLabel: "UUID",

@@ -1,5 +1,5 @@
-import { CategoricalIndexedFields, Fields, KnownFields } from "@snTypes/DataDictionary"
-import { ArtemissRecord, CategoricalIndex, CategoricalIndexSet, NavigatorDatabase, RecordDict } from "@snTypes/Types"
+import { CategoricalIndexedFields, Fields, KnownFields, RangeVariables } from "@snTypes/DataDictionary"
+import { ArtemissRecord, CategoricalIndex, CategoricalIndexSet, MaskSet, NavigatorDatabase, RangeIndex, RangeIndexSet, RecordDict } from "@snTypes/Types"
 import { makeUrl } from "@snUtil/makeResourcePath"
 
 // NOTE: TODO: purge comments/outdated stuff
@@ -99,7 +99,7 @@ const recordJig: jigRow[] = [
     { rawField: "mean_confinement_time_s_0_10", objectField: KnownFields.MEAN_CONF_T_S_0_10        },
     { rawField: "mean_confinement_time_s_0_25", objectField: KnownFields.MEAN_CONF_T_S_0_25        },
     { rawField: "mean_confinement_time_s_0_50", objectField: KnownFields.MEAN_CONF_T_S_0_50        },
-]
+] as const
 
 
 const _numberizeBools = (field: fieldType | boolean): fieldType => {
@@ -108,30 +108,47 @@ const _numberizeBools = (field: fieldType | boolean): fieldType => {
 }
 
 const makeRecordFromRowIndex = (data: RawData, i: number): ArtemissRecord => {
-
     const rec = {} as {[field in KnownFields]: fieldType }
     recordJig.forEach(field => { rec[field.objectField] = _numberizeBools(data[field.rawField][i]) } )
+    rec['rowid'] = i
     rec['canonicalPath'] = makeUrl(rec as ArtemissRecord)
     return rec as ArtemissRecord
 }
 
 
-// export const makeRecordFromObject = (rawRecord: rawObject): ArtemissRecord => {
-//     const record = {} as {[field in KnownFields]: fieldType}
-//     recordJig.forEach(field => { record[field.objectField] = rawRecord[field.raw] })
-//     return record as ArtemissRecord
-// }
+// Note: can use the ? post-qualifier to soften the [key in RangeVariables] restriction,
+// BUT doing that would mean that elsewhere we always have to assert that the keys are
+// actually present. So we should just do that here.
+const makeRangeIndices = (dataList: ArtemissRecord[]): RangeIndexSet => {
+    const rangeKeys = Object.keys(RangeVariables) as RangeVariables[]
+    const presort = Object.fromEntries(
+        rangeKeys.map((k) => [k, []]
+    )) as any as { [key in RangeVariables]: { val: number, rowid: number }[] }
+    // note: could use ? post-qualifier to indicate that not all keys of RangeVariables
+    // will be used to populate the list, but that uncertainty would propagate and
+    // in actual usage we'd always have to assert that the key we want exists...
 
-// const makeRecordFromRow = (row: fieldType[]): ArtemissRecord => {
-//     const record = {} as {[field in KnownFields]: fieldType}
-//     recordJig.forEach(field => record[field.objectField] = row[field.order])
-//     return record as ArtemissRecord
-// }
+    dataList.forEach((v: ArtemissRecord) => {
+        rangeKeys.forEach((k) => {
+            presort[k].push({ val: v[k], rowid: v['rowid']})
+        })
+    })
+
+    const indices: RangeIndexSet = Object.fromEntries(rangeKeys.map((k) => {
+        const rec = presort[k]
+        rec.sort((a, b) => a.val < b.val ? -1 : a.val == b.val ? 0 : 1)
+        const ri: RangeIndex = {
+            val: Float64Array.from(rec.map(x => x.val)),
+            rowid: Uint32Array.from(rec.map(x => x.rowid)),
+        }
+        return [k, ri]
+    })) as any as RangeIndexSet
+
+    return indices
+}
 
 
-
-export const makeDatabase = (rawData: RawData) => {
-    const dataDict: RecordDict = {}
+const makeCategoricalIndices = (dataList: ArtemissRecord[]) => {
     const categoricalFieldIndexes: CategoricalIndexSet = {
         'nfp': {},
         'axisHelicity': {},
@@ -139,13 +156,8 @@ export const makeDatabase = (rawData: RawData) => {
         // 'nSurfaces': {},
     }
     const categoricalFields = Object.keys(categoricalFieldIndexes) as CategoricalIndexedFields[]
-    const dataList: ArtemissRecord[] = rawData.aspect_ratio.map((_, i) => makeRecordFromRowIndex(rawData, i))
 
-    // for (let i in rawData.aspect_ratio) {
-    //     dataList.push(makeRecordFromRowIndex(rawData, i))
-    // }
-    dataList.forEach(entry => { dataDict[entry.uuid] = entry })
-
+    
     categoricalFields.forEach(k => {
         const vals = Fields[k].values
         if (vals === undefined) {
@@ -154,18 +166,46 @@ export const makeDatabase = (rawData: RawData) => {
         const key = k as keyof ArtemissRecord
         const idx: CategoricalIndex = {}
         vals.forEach(v => {
-            idx[v] = new Set(dataList.filter(row => `${row[key]}` === v).map(row => row.uuid))
+            idx[v] = new Set(dataList.filter(row => `${row[key]}` === v).map(row => row.rowid))
         })
         categoricalFieldIndexes[k] = idx
     })
+
+    return categoricalFieldIndexes
+}
+
+
+export const makeDatabase = (rawData: RawData) => {
+    const dataDict: RecordDict = {}
+    const dataList: ArtemissRecord[] = rawData.aspect_ratio.map((_, i) => makeRecordFromRowIndex(rawData, i))
+    const fullApproval = (2n ** BigInt(recordJig.length + 1)) - 1n   // should give appropriate bitfield
+
+    // e.g. if we have 4 fields, 2^5 is 32 = 0b10000, subtract 1 for 0b01111 yielding 4 flags
+    // // // filterInMask: 2n ** BigInt(i),
+    // // // filterOutMask: fullApproval ^ (2n ** BigInt(i))
+    const maskSet = Object.fromEntries(recordJig.map((r, i) => {
+        const inmask = 2n ** BigInt(i)
+        const outmask = fullApproval ^ inmask
+        return [r.objectField, { inmask, outmask }]
+    })) as any as MaskSet
+
+    const rowSelectionStatus = new BigInt64Array(dataList.length).fill(fullApproval)
+    const categoricalFieldIndexes = makeCategoricalIndices(dataList)
+    const rangeIndexSet = makeRangeIndices(dataList)
+
+    dataList.forEach(entry => { dataDict[entry.rowid] = entry })
 
 
     const database: NavigatorDatabase = {
         list: dataList,
         byId: dataDict,
-        allIdSet: new Set(dataList.map(r => r.uuid)),
+        rowSelectionStatus: rowSelectionStatus,
+        allIdSet: new Set(dataList.map(r => r.rowid)),
         //---Indexes
-        categoricalIndexes: categoricalFieldIndexes
+        categoricalIndexes: categoricalFieldIndexes,
+        rangeIndexes: rangeIndexSet,
+        fullApproval,
+        masks: maskSet
     }
 
     return database

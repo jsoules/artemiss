@@ -118,11 +118,11 @@ const projectToPlotReadyData = (props: ProjectionCriteria): ProjectedData => {
     data.forEach((record) => {
         const fineIdx   = (fineSplit   ?   fineKeys[record[fineSplit]]   : 0) ?? 0
         const coarseIdx = (coarseSplit ? coarseKeys[record[coarseSplit]] : 0) ?? 0
-        const isSelected = markedIds?.has(record.uuid) ?? false
+        const isSelected = markedIds?.has(record.rowid) ?? false
         buckets[coarseIdx][fineIdx].push(record[xVar])
         buckets[coarseIdx][fineIdx].push(record[yVar])
         radius[coarseIdx][fineIdx].push(isSelected ? dotMargin : dotMargin / 2)
-        ids[coarseIdx][fineIdx].push(record.uuid)
+        ids[coarseIdx][fineIdx].push(record.rowid)
         urls[coarseIdx][fineIdx].push(record.canonicalPath)
         if (colorFieldIsCategorical) {
             // TODO: See if this works with string-valued categorical variables, i.e. database-from.

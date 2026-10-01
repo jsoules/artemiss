@@ -9,6 +9,9 @@ type OpenSelectedProps = {
 }
 
 
+// TODO FIXME: THIS IS BROKEN, needs to get the url property of the row, but expects
+// to compute the URL from the id.
+// Fix is to remap in the SnTable where OpenSelectedButton is created.
 const OpenSelectedButton: FunctionComponent<OpenSelectedProps> = (props: OpenSelectedProps) => {
     const { markedIds } = props
 

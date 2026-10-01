@@ -49,12 +49,24 @@ const defaultFilterState: FilterControlState = {
     meanConfinementTimeS050: (Fields.meanConfinementTimeS050.range),
 }
 
+
+export const allOnFilterState: FilterControlState = {
+    ...defaultFilterState,
+    databaseFrom: (new Array<boolean>(databaseFromValidValues.length).fill(true)),
+    nfp: new Array<boolean>(nfpValidValues.length).fill(true), 
+    axisHelicity: new Array<boolean>(axisHelicityValidValues.length).fill(true),
+    stellsym: [true, true],
+    enforceVacuum: [true, true],
+}
+
+
 export const initialNavigatorState: FilterSettings = {
     // When we actually have more values, we'll set up a default source or something
     // to limit getting slammed by the initial data.
     // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
     activeFilters: {...defaultFilterState},
     priorFilters: {...defaultFilterState},
+    needsReprojection: true,
     dependentVariable: defaultDependentVariableValue,
     independentVariable: defaultIndependentVariableValue,
     coarsePlotSplit: defaultCoarsePlotSplit,
@@ -72,17 +84,23 @@ export const initialNavigatorState: FilterSettings = {
 export const initialDatabase: NavigatorDatabase = {
     list: [],
     byId: {},
+    rowSelectionStatus: new BigInt64Array(0),
+    allIdSet: new Set<PKType>([]),
     categoricalIndexes: {
         [ CategoricalIndexedFields.NFP           ]: {},
         [ CategoricalIndexedFields.AXIS_HELICITY ]: {},
         [ CategoricalIndexedFields.DATABASE_FROM ]: {},
     },
-    allIdSet: new Set<PKType>([])
+    rangeIndexes: {} as any,
+    fullApproval: 0n,
+    masks: {} as any,
 }
 
 
+export const nonExtantRowId = -1
 export const nonExtantRecordId = '000000'
 export const defaultEmptyRecord: ArtemissRecord = {
+    rowid: nonExtantRowId,
     uuid: nonExtantRecordId,
     databaseFrom: '',
     groupName: '',

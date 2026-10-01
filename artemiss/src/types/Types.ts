@@ -1,18 +1,20 @@
 import { NavigatorStateAction } from "@snState/NavigatorReducer"
-import { CategoricalIndexedFields, DependentVariables, IndependentVariables, ToggleableVariables } from "@snTypes/DataDictionary"
+import { CategoricalIndexedFields, DependentVariables, IndependentVariables, KnownFields, RangeVariables, ToggleableVariables } from "@snTypes/DataDictionary"
 import { Dispatch } from "react"
 
 
-export type PKType = string
+export type PKType = number
 export const NullId = ''
 export const ConcatenationToken = '---'
 
+// TODO: retype number[] as [number, number]
 export type FilterControlState = {
     databaseFrom: boolean[]
     nfp: boolean[]
     stellsym: boolean[]
     enforceVacuum: boolean[]
     minorRadius: number[]
+    // minorRadius: [number, number]
     aspectRatio: number[]
     volume: number[]
     volAvgB: number[]
@@ -66,14 +68,16 @@ export type FilterSettings = {
     recordIds: Set<PKType>
     markedRecords: Set<PKType>
     markedRecordUrls: Set<string>
+    needsReprojection: boolean
 }
 
 // See also the further explanations/notes in DataDictionary.ts
 // TODO QUERY: Might want to combine the UUID (pk) into an object with the other 3 record-identifying properties
 // in light of the fact we need all of them to reconstruct the path
 export type ArtemissRecord = {
+    rowid: PKType,
     // PK
-    uuid: PKType,                    // UUID
+    uuid: string,                    // UUID
     // Identification fields
     databaseFrom: string,            // Closed set, should be an enum maybe?
     groupName: string,               // Closed set, maybe an enum? Used for distributing device records over directories NOT INDEXED
@@ -121,17 +125,28 @@ export type ArtemissRecord = {
     meanConfinementTimeS025: number, // range 0 - 0.1, ???
     meanConfinementTimeS050: number, // range 0 - 0.1, ???
 }
-export type RecordDict = Record<string, ArtemissRecord>
+export type RecordDict = Record<PKType, ArtemissRecord>
+
 
 export type NavigatorDatabase = {
     list: ArtemissRecord[]
     byId: RecordDict
-    allIdSet: Set<string>
+    rowSelectionStatus: BigInt64Array
+    allIdSet: Set<PKType>
     categoricalIndexes: CategoricalIndexSet
+    rangeIndexes: RangeIndexSet
+    fullApproval: bigint
+    masks: MaskSet
 }
 
-export type CategoricalIndex = Record<string, Set<string>>
-export type CategoricalIndexSet = {[key in CategoricalIndexedFields]: CategoricalIndex}
+export type Mask = { inmask: bigint, outmask: bigint }
+export type MaskSet = { [key in KnownFields]: Mask }
+
+export type RangeIndex = { val: Float64Array, rowid: Uint32Array }
+export type RangeIndexSet = { [key in RangeVariables]: RangeIndex }
+
+export type CategoricalIndex = Record<string, Set<PKType>>
+export type CategoricalIndexSet = { [key in CategoricalIndexedFields]: CategoricalIndex}
 
 export type NavigatorDispatch = Dispatch<NavigatorStateAction>
 
@@ -221,7 +236,7 @@ export type LossSeries = {
 
 
 export type Device = {
-    uuid: PKType,
+    uuid: string,
     databaseFrom: string,
     groupName: string,
     databaseFromId: string,
