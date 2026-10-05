@@ -18,7 +18,7 @@ const Home: FunctionComponent = () => {
 
     return (
         showOverview 
-            ? <Overview records={filterSettings.records} dispatch={filterSettingDispatch} filterSettings={filterSettings} />
+            ? <Overview dispatch={filterSettingDispatch} filterSettings={filterSettings} />
             : <About ready={ready} setShowOverview={setShowOverview} />
     )
 }

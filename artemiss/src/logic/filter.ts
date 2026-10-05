@@ -1,5 +1,5 @@
-import { CategoricalIndexedFields, Fields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
-import { ArtemissRecord, CategoricalIndexSet, FilterControlState, FilterSettings, NavigatorDatabase, PKType, RangeIndex } from "@snTypes/Types"
+import { CategoricalIndexedFields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
+import { ArtemissRecord, CategoricalIndexSet, FilterControlState, NavigatorDatabase, PKType, RangeIndex } from "@snTypes/Types"
 
 // TODO: IMPROVE FILTERING PERFORMANCE
 // we now have O(40) range filters (which are all basically the same)
@@ -7,11 +7,15 @@ import { ArtemissRecord, CategoricalIndexSet, FilterControlState, FilterSettings
 // of 40 times, this is probably BAD and is definitely causing
 // noticeable performance challenges
 
-export const projectRecords = (selection: Set<PKType>, database: NavigatorDatabase | undefined) => {
-    if (database === undefined) return []
-    const projection: ArtemissRecord[] = []
-    selection.forEach(s => projection.push(database.byId[s]))
-    return projection
+export const forceRecheck = (db: NavigatorDatabase) => {
+    const nowIncluded: number[] = []
+    // can't map over this b/c TypedArray.map returns another TypedArray of same type, not an arbitrary list
+    db.rowSelectionStatus.forEach((r, i) => {
+        if (r === db.fullApproval) {
+            nowIncluded.push(i)
+        }
+    })
+    return new Set(nowIncluded)
 }
 
 
@@ -25,15 +29,19 @@ const binSearch = (ary: Float64Array, target: number, mode: 'gte' | 'lte'): numb
     let upperIdx = ary.length - 1
     let guessIdx = -1
     let diff = upperIdx - lowerIdx
-    if (ary[lowerIdx] > target || ary[upperIdx] < target) return guessIdx
+    // // // console.log(`Seeking ${target}\nArray has ${ary.length} elements from ${lowerIdx} (${ary[lowerIdx]}) to ${upperIdx} (${ary[upperIdx]})`)
+    if (ary[lowerIdx] > target) return lowerIdx
+    if (ary[upperIdx] < target) return upperIdx
 
     while (diff > 1) {
         diff = Math.floor(diff / 2)
         guessIdx = lowerIdx + diff
         const guess = ary[guessIdx]
+        // // // console.log(`\t\tguess ${guess} at idx ${guessIdx}`)
         if (guess === target) return guessIdx
         lowerIdx = guess <= target ? guessIdx : lowerIdx
         upperIdx = guess > target ? guessIdx : upperIdx
+        // // // console.log(`\t\tUpdating search to range ${lowerIdx} (${ary[lowerIdx]}) - ${upperIdx} (${ary[upperIdx]})`)
     }
     // upperIdx always points to something greater than target,
     // lowerIdx always points to something lesser than target.
@@ -49,19 +57,24 @@ const binSearch = (ary: Float64Array, target: number, mode: 'gte' | 'lte'): numb
 const materializeRange = (idx: RangeIndex, newRange: number[]): Set<number> => {
     const lowerIdx = binSearch(idx.val, newRange[0], 'gte')
     const upperIdx = binSearch(idx.val, newRange[1], 'lte')
+    console.log(`\tBinsearch yielded indices ${lowerIdx} - ${upperIdx} slice has ${(new Set(idx.rowid.slice(lowerIdx, upperIdx + 1))).size} elements`)
     return new Set(idx.rowid.slice(lowerIdx, upperIdx + 1)) // slice is exclusive on the upper end
 }
 
 
 const expandedFilter = (database: NavigatorDatabase, filterKey: RangeVariables | ToggleableVariables, allNew: Set<number>): Set<number> => {
     const mask = database.masks[filterKey].inmask
-    const nowIncluded: number[] = []
-    allNew.forEach(rowid => {
+    const nowIncluded = allNew.values().map(rowid => {
         database.rowSelectionStatus[rowid] |= mask
-        if (database.rowSelectionStatus[rowid] === database.fullApproval) {
-            nowIncluded.push(rowid)
-        }
-    })
+        return database.rowSelectionStatus[rowid] === database.fullApproval ? rowid : undefined
+    }).filter(x => x !== undefined)
+    // const nowIncluded: number[] = []
+    // allNew.forEach(rowid => {
+    //     database.rowSelectionStatus[rowid] |= mask
+    //     if (database.rowSelectionStatus[rowid] === database.fullApproval) {
+    //         nowIncluded.push(rowid)
+    //     }
+    // })
 
     return new Set(nowIncluded)
 }
@@ -74,6 +87,7 @@ const contractFilter = (database: NavigatorDatabase, filterKey: RangeVariables |
 
 
 const rangeFilter = (database: NavigatorDatabase, f: RangeVariables, r: number[][]) => {
+    console.log(`Materializing range filter ${f} over range(s) ${r}`)
     return r.map(r => materializeRange(database.rangeIndexes[f], r)
             ).reduce((a, b) => a.union(b), new Set<number>())
 }
@@ -109,8 +123,7 @@ const boolFilter = (database: NavigatorDatabase, filterKey: ToggleableVariables,
     const idx = database.categoricalIndexes[filterKey as unknown as keyof CategoricalIndexSet] // TODO REMOVE FILTER ONCE ALL TOGGLEABLES ARE INDEXED
     const vals = getValuesFromBoolArray(filterKey, sel)
     const sets = vals.map(v => idx[v])
-    // const union = new Set(sets.reduce((curr: PKType[], newSet) => [...curr, ...(newSet || [])], []))
-    const union = sets.reduce((curr, newSet) => curr.union(newSet)) // TODO COULD THROW ERROR IF NO SETS
+    const union = sets.reduce((curr, newSet) => curr.union(newSet), new Set<number>())
 
     return union
 }
@@ -133,10 +146,16 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
 
     // TODO NOTE FIXME FORCIBLY CUTTING OUT THE STELLSYM AND ENFORCEVACUUM FIELDS
     // Update boolean filters
-    const boolDeltas = (Object.keys(CategoricalIndexedFields)).map((f) => {
+    // TODO: Make this more automatic
+    const boolsToCheck = [CategoricalIndexedFields.NFP, CategoricalIndexedFields.DATABASE_FROM, CategoricalIndexedFields.AXIS_HELICITY]
+    // const boolDeltas = (Object.keys(CategoricalIndexedFields)).map((f) => {
+    const boolDeltas = boolsToCheck.map((f) => {
         const _f = f as any as ToggleableVariables
-        const adds = newFilters[_f].map((e, i) => e && !oldFilters[_f][i])
-        const drops = newFilters[_f].map((e, i) => !e && oldFilters[_f][i])
+        // If every entry is off, that's considered the same as every entry on.
+        const correctedNew: boolean[] = newFilters[_f].every(x => !x) ? new Array(newFilters[_f].length).fill(true) : newFilters[_f]
+        const correctedOld: boolean[] = oldFilters[_f].every(x => !x) ? new Array(oldFilters[_f].length).fill(true) : oldFilters[_f]
+        const adds = correctedNew.map((e, i) => e && !correctedOld[i])
+        const drops = correctedNew.map((e, i) => !e && correctedOld[i])
         if (adds.every(x => !x) && drops.every(x => !x)) return undefined
         return { field: _f, adds, drops }
     }).filter(x => x !== undefined)
@@ -147,7 +166,7 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
     // but otherwise we only catch something the *first* time its status updates so that it gets filtered in.
     let addUnion = boolDeltas.map(v => expandBoolFilter(database, v.field, v.adds)).reduce((a, b) => a.union(b), new Set<number>())
 
-    const rangeDeltas = (Object.keys(RangeVariables)).map((f) => {
+    const rangeDeltas = (Object.values(RangeVariables)).map((f) => {
         const _f = f as RangeVariables
         const oldRange = oldFilters[_f]
         const newRange = newFilters[_f]
@@ -169,9 +188,19 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
         return { field: _f, addedRange, droppedRange }
     }).filter(x => x !== undefined)
 
-    // Update range filters
-    rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange)).reduce((a, b) => a.union(b), dropUnion)
-    rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange)).reduce((a, b) => a.union(b), addUnion)
+    console.log(`\tCreated range deltas as per ${JSON.stringify(rangeDeltas)}`)
+    // // // // Update range filters
+    // // // rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange)).reduce((a, b) => a.union(b), dropUnion)
+    // // // rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange)).reduce((a, b) => a.union(b), addUnion)
+    // TEMPORARILY SWITCHED
+    // // // const contractions = rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange))
+    // // // const expansions = rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange))
+    // // // console.log(`Contractions has ${contractions.length} elements`)
+    // // // console.log(`Expansions has ${expansions.length} elements`)
+
+    dropUnion = rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange)).reduce((a, b) => a.union(b), dropUnion)
+    addUnion = rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange)).reduce((a, b) => a.union(b), addUnion)
+
 
     // TODO: tripartite support
 
@@ -181,137 +210,12 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
     return { added: addUnion, dropped: dropUnion }
 }
 
-
-// TODO: DEBOUNCE?
-export const applyFiltersToSet = (filters: FilterSettings, database: NavigatorDatabase, set?: Set<PKType>): Set<PKType> => {
-    const boolSets = makeBooleanFilters(database).map(b => {
-        const { key, callback } = b
-        const choices = filters.activeFilters[key]
-        return callback(choices)
-    })
-    // const selectionSets = makeSelectionFilters(database).map(f => {
-    //     const { key, callback } = f
-    //     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    //     const val = filters[key as TripartiteVariables]
-    //     return callback(val)
-    // })
-    // const allSets = [set, ...boolSets, ...selectionSets].filter(s => s !== undefined) as Set<number>[]
-    const allSets = [set, ...boolSets].filter(s => s !== undefined) as Set<PKType>[]
-    const indexIntersectionSet = allSets.reduce((a, b) => a.intersection(b))
-    // Repeatedly projecting and re-set-ifying isn't ideal but
-    const materializedRows = projectRecords(indexIntersectionSet, database)
-    const rangeTests = rangeFilters.map(r => {
-        const { key, callback } = r
-        const valueRange = filters.activeFilters[key]
-        return callback(valueRange)
-    })
-    const finalSet = new Set(materializedRows.filter(r => rangeTests.every(test => test(r))).map(r => r.rowid))
-    return finalSet
-}
-
-
-// type BooleanAddDrops = { allAdds: boolean[][], allDrops: boolean[][] }
-// const getBooleanAddDrops = (newFilters: FilterControlState, oldFilters: FilterControlState): BooleanAddDrops => {
-//     let allAdds: boolean[][] = []
-//     let allDrops: boolean[][] = []
-
-//     booleanFields.forEach(f => {
-//         const adds = newFilters[f].map((e, i) => e && !oldFilters[f][i])
-//         const drops = newFilters[f].map((e, i) => !e && oldFilters[f][i])
-//         allAdds.push(adds)
-//         allDrops.push(drops)
-//     })
-//     return { allAdds, allDrops }
-// }
-
-
-// const getBooleanDifference = (addDrops: BooleanAddDrops, current: Set<PKType>, database: NavigatorDatabase): { added: Set<PKType>, kept: Set<PKType> } => {
-//     const boolFilters = makeBooleanFilters(database).filter(x => x !== undefined)
-//     let allAdds = new Set<PKType>()
-//     let allDrops = new Set<PKType>()
-
-//     boolFilters.forEach((b, i) => {
-//         const added = b.callback(addDrops.allAdds[i])
-//         const drops = b.callback(addDrops.allDrops[i])
-//         if (added !== undefined) {
-//             allAdds = allAdds.union(added)
-//         }
-//         if (drops !== undefined) {
-//             allDrops = allDrops.union(drops)
-//         }
-//     })
-//     return { added: allAdds, kept: current.difference(allDrops) }
-// }
-
-
-// const getRangeAddDrops = (newFilters: FilterControlState, oldFilters: FilterControlState) => {
-//     let adds = new Set<PKType>()
-//     let drops = new Set<PKType>()
-
-//     // const toCheck = 
-
-
-
-// }
-
-
-// export const applyUpdatedFilters = (newFilters: FilterControlState, oldFilters: FilterControlState, database: NavigatorDatabase): Set<PKType> => {
-//     const boolSets = makeBooleanFilters(database).map(b => {
-//         const { key, callback } = b
-//         const choices = newFilters[key]
-//         return callback(choices)
-//     })
-
-// }
-
+// TODO: THIS IS BROKEN
 
 export const restrictMarksToFilteredInIds = (currentMarks: Set<PKType>, filteredIn: Set<PKType>): Set<PKType> => {
     if (currentMarks.size === 0 || filteredIn.size === 0) return new Set()
-    // return intersect(currentMarks, filteredIn)
     return currentMarks.intersection(filteredIn)
 }
-
-
-// Filter setup
-const makeBooleanFilter = (key: ToggleableVariables, db: NavigatorDatabase) => {
-    const callback = (choices: boolean[]) => {
-        if (choices.every(c => c) || choices.every(c => !c)) {
-            return undefined
-        }
-        const vals = getValuesFromBoolArray(key, choices)
-        const idx = db.categoricalIndexes[key as unknown as keyof CategoricalIndexSet]
-        const sets = vals.map(v => idx[v])
-        const union = new Set(sets.reduce((curr: PKType[], newSet) => [...curr, ...(newSet || [])], []))
-        return union
-    }
-    return {key, callback}
-}
-// const booleanFields: ToggleableVariables[] = [ToggleableVariables.MEAN_IOTA, ToggleableVariables.NFP, ToggleableVariables.NC_PER_HP, ToggleableVariables.N_SURFACES]
-const booleanFields: ToggleableVariables[] = [ToggleableVariables.NFP, ToggleableVariables.DATABASE_FROM]
-const makeBooleanFilters = (database: NavigatorDatabase) => booleanFields.map(f => makeBooleanFilter(f, database))
-// NOTE: boolean filters can't be pre-populated, because we need to look up values from the categorical index sets,
-// which are not known at compile time--they have to be populated from the data.
-// We could maybe wrap this setup in an effect hook, but it's not worth the complication.
-
-
-const makeRangeFilter = (key: RangeVariables) => {
-    const callback = (range: number[]) => {
-        if (range.length === 0) {
-            return () => true
-        }
-        if (range.length !== 2) {
-            throw Error(`Attempt to apply range filter with ill-formed range ${JSON.stringify(range)}`)
-        }
-        const valRange = Fields[key].range
-        const noOp = range[0] <= valRange[0] && range[1] >= valRange[1]
-        if (noOp) return () => true
-        // need to filter-in the NaN values for keys
-        return (row: ArtemissRecord) => 
-            (row[key] >= range[0] && row[key] <= range[1]) || isNaN(row[key])
-    }
-    return {key, callback}
-}
-const rangeFilters = Object.values(RangeVariables).filter(rv => isNaN(Number(rv))).map(f => makeRangeFilter(f as RangeVariables))
 
 
 // We don't actually have any tripartite variables in the Artemiss dataset

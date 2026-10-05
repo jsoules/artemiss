@@ -68,7 +68,6 @@ export type FilterSettings = {
     recordIds: Set<PKType>
     markedRecords: Set<PKType>
     markedRecordUrls: Set<string>
-    needsReprojection: boolean
 }
 
 // See also the further explanations/notes in DataDictionary.ts

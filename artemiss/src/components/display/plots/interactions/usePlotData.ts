@@ -1,6 +1,6 @@
 import projectToPlotReadyData, { ProjectionCriteria } from "@snState/projection"
 import { ToggleableVariables, fieldIsCategorical } from "@snTypes/DataDictionary"
-import { ArtemissRecord, FilterSettings, PKType } from "@snTypes/Types"
+import { FilterSettings, PKType } from "@snTypes/Types"
 import { useMemo } from "react"
 import { PlotColorProps } from "./plotColors"
 
@@ -19,19 +19,19 @@ export type PlotDataSummary = {
 }
 
 type plotHookParams = PlotColorProps & {
-    records: ArtemissRecord[],
     filterSettings: FilterSettings
 }
 
 type plotHookType = (params: plotHookParams) => PlotDataSummary
 
 
-export const usePlotData: plotHookType = ({records, filterSettings, colorSplit}) => {
+export const usePlotData: plotHookType = ({filterSettings, colorSplit}) => {
     const fineSplit = filterSettings.finePlotSplit
     const coarseSplit = filterSettings.coarsePlotSplit
     const res = useMemo(() => {
+        console.log(`*****plot data summary rerender.`)
         const projectionCriteria: ProjectionCriteria = {
-            data: records,
+            data: filterSettings.records,
             yVar: filterSettings.dependentVariable,
             xVar: filterSettings.independentVariable,
             filterSettings,
@@ -44,7 +44,7 @@ export const usePlotData: plotHookType = ({records, filterSettings, colorSplit})
             ? []
             : filterSettings.activeFilters[colorSplit] as number[]
         return { data, radius, ids, urls, colorValues, fineSplitVals, coarseSplitVals, coarseSplitField: coarseSplit, fineSplitField: fineSplit, colorFieldRange }
-    }, [coarseSplit, colorSplit, filterSettings, fineSplit, records])
+    }, [coarseSplit, colorSplit, filterSettings, fineSplit, filterSettings.records])
 
     return res
 }

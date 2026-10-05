@@ -17,7 +17,7 @@ import useFilterCallbacks from "@snControlComponents/SelectionControlCallbacks"
 import SelectionControlPanel from "@snControlComponents/SelectionControlPanel"
 import { NavigatorStateAction } from "@snState/NavigatorReducer"
 import { DependentVariables, ToggleableVariables, fieldIsCategorical } from "@snTypes/DataDictionary"
-import { ArtemissRecord, FilterSettings } from "@snTypes/Types"
+import { FilterSettings } from "@snTypes/Types"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
 import { Dispatch, FunctionComponent, useMemo, useReducer, useState } from "react"
 import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
@@ -30,7 +30,7 @@ export const plotGridInternalMargin = 20
 
 
 type OverviewProps = {
-    records: ArtemissRecord[]
+    // records: ArtemissRecord[]
     dispatch: Dispatch<NavigatorStateAction>
     filterSettings: FilterSettings
 }
@@ -46,12 +46,13 @@ const usePerPlotDimensions = (width: number, height: number, colCount: number) =
 
 
 const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
-    const { records, filterSettings } = props
+    console.log(`***Overview screen rerender. Record count ${props.filterSettings.recordIds.size} manifest size ${props.filterSettings.records.length}`)
+    const { dispatch, filterSettings } = props
     const {width, height} = useWindowDimensions()
     const [plotColorProps, plotColorPropsDispatch] = useReducer(plotColorReducer, defaultPlotColorProps)
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [instructionsOpen, setInstructionsOpen] = useState(false)
-    const callbacks = useFilterCallbacks(props.dispatch)
+    const callbacks = useFilterCallbacks(dispatch)
 
     const effectiveWidth = useMemo(() => width - 40, [width])
     
@@ -130,7 +131,7 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
                 />
                 {legend}
                 <MarkedValueDesc dependentVariable={filterSettings.dependentVariable} />
-                <OverallHitCount hits={records.length} />
+                <OverallHitCount hits={filterSettings.records.length} />
                 <div className="buttonRow">
                     <ShowFiltersButton openState={drawerOpen} changeOpenState={setDrawerOpen} />
                     <InstructionButton open={instructionsOpen} changeOpenState={setInstructionsOpen} />
@@ -138,7 +139,7 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
 
                 <HrBar />
                 <SnTable
-                    records={records}
+                    records={filterSettings.records}
                     markedIds={filterSettings.markedRecords}
                     markedIdUrls={filterSettings.markedRecordUrls}
                     selectionHandler={callbacks.handleUpdateMarks}

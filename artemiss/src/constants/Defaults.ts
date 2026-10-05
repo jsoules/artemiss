@@ -50,6 +50,17 @@ const defaultFilterState: FilterControlState = {
 }
 
 
+// // const allOffFilterState: FilterControlState = Object.fromEntries(
+// //     Object.values(RangeVariables).map(r => [r, [0,0]])
+// // )
+// export const allOnFilterState: FilterControlState = {
+//     ...Object.fromEntries(Object.values(RangeVariables).map(r => [r, [0,0]])),
+//     databaseFrom: (new Array<boolean>(databaseFromValidValues.length).fill(false)),
+//     nfp: new Array<boolean>(nfpValidValues.length).fill(false), 
+//     axisHelicity: new Array<boolean>(axisHelicityValidValues.length).fill(false),
+//     stellsym: [false, false],
+//     enforceVacuum: [false, false],
+// } as any as FilterControlState
 export const allOnFilterState: FilterControlState = {
     ...defaultFilterState,
     databaseFrom: (new Array<boolean>(databaseFromValidValues.length).fill(true)),
@@ -57,7 +68,7 @@ export const allOnFilterState: FilterControlState = {
     axisHelicity: new Array<boolean>(axisHelicityValidValues.length).fill(true),
     stellsym: [true, true],
     enforceVacuum: [true, true],
-}
+} as any as FilterControlState
 
 
 export const initialNavigatorState: FilterSettings = {
@@ -66,7 +77,6 @@ export const initialNavigatorState: FilterSettings = {
     // ncPerHp: new Array<boolean>(ncPerHpValidValues.length).fill(false),
     activeFilters: {...defaultFilterState},
     priorFilters: {...defaultFilterState},
-    needsReprojection: true,
     dependentVariable: defaultDependentVariableValue,
     independentVariable: defaultIndependentVariableValue,
     coarsePlotSplit: defaultCoarsePlotSplit,

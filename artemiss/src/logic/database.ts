@@ -120,7 +120,7 @@ const makeRecordFromRowIndex = (data: RawData, i: number): ArtemissRecord => {
 // BUT doing that would mean that elsewhere we always have to assert that the keys are
 // actually present. So we should just do that here.
 const makeRangeIndices = (dataList: ArtemissRecord[]): RangeIndexSet => {
-    const rangeKeys = Object.keys(RangeVariables) as RangeVariables[]
+    const rangeKeys = Object.values(RangeVariables) as RangeVariables[]
     const presort = Object.fromEntries(
         rangeKeys.map((k) => [k, []]
     )) as any as { [key in RangeVariables]: { val: number, rowid: number }[] }
@@ -189,6 +189,8 @@ export const makeDatabase = (rawData: RawData) => {
         return [r.objectField, { inmask, outmask }]
     })) as any as MaskSet
 
+    // TODO: SWITCH STARTUP STATE TO FILTER-OUT
+    // const rowSelectionStatus = new BigInt64Array(dataList.length).fill(0n)
     const rowSelectionStatus = new BigInt64Array(dataList.length).fill(fullApproval)
     const categoricalFieldIndexes = makeCategoricalIndices(dataList)
     const rangeIndexSet = makeRangeIndices(dataList)

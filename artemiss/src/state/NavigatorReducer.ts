@@ -1,7 +1,7 @@
-import { projectRecords, restrictMarksToFilteredInIds, updateFilters } from "@snState/filter"
+import { forceRecheck, updateFilters } from "@snState/filter"
 import { DependentVariables, Fields, IndependentVariables, RangeVariables, ToggleableVariables, TripartiteVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
 import { allOnFilterState } from "@snTypes/Defaults"
-import { FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
+import { ArtemissRecord, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
 
 export type FacetSplitType = 'coarse' | 'fine'
 
@@ -50,33 +50,31 @@ export type NavigatorStateAction = {
 const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSettings => {
     switch (a.type) {
         case "initialize": {
+            if (a.database.list.length === 0) return s  // tests for this being the initialDatabase, b/c the real one hasn't loaded yet
             s.database = a.database
-            s.needsReprojection = true
             const newSettings = resolveUpdatedFilters(s, allOnFilterState, s.activeFilters)
-            return rematerialize(newSettings)
-            // const newSet = applyFiltersToSet(s, a.database) FIXME
-            // const newRecords = projectRecords(newSet, a.database)
-            // return { ...s, database: a.database, recordIds: newSet, records: newRecords }
+            newSettings.recordIds = forceRecheck(s.database)
+            return newSettings
         }
         case "updateRange": {
+            console.log(`activating range update field ${a.field} new range ${a.newRange}`)
             const newSettings = doRangesUpdate([a.field], [a.newRange], s)
-            return rematerialize(newSettings)
-            // return updateRange(a.field, a.newRange, s)  FIXME
+            return newSettings
         }
+        //// TODO: NANS! NANS ARE BREAKING THE RANGE FILTER
+        /// TODO ADD A STEP TO JUST FLIP THEIR BITS PERMANENTLY ON (actually that only matters once we default-off)
         case "updateRanges": {
             const newSettings = doRangesUpdate(a.fields, a.newRanges, s)
-            return rematerialize(newSettings)
-            // return updateRanges(a.fields, a.newRanges, s)   FIXME
+            return newSettings
         }
         case "resetRange": {
             const newRange = Fields[a.field]?.range ?? [-1, 1]
             const newSettings = doRangesUpdate([a.field], [newRange], s)
-            return rematerialize(newSettings)
-            // return resetRange(a.field, s)   FIXME
+            return newSettings
         }
         case "updateCheckField": {
             const newSettings = updateBooleanList(a.field, a.index, a.targetState, s)
-            return rematerialize(newSettings)
+            return newSettings
         }
         // case "updateTripartiteField": {
         //     return updateTripart(a.field, s, a.newValue)
@@ -104,19 +102,27 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
     }
 }
 
+// TODO: IMPROVE PERFORMANCE OF SNTABLE UPDATE
 
 /// TODO: WHAT CAN WE DO TO AVOID RE-PROJECTING EVERYTHING EVERY TIME? *****
-const rematerialize = (settings: FilterSettings): FilterSettings => {
-    if (settings.database !== undefined) {  // shouldn't happen
-        if (settings.needsReprojection) {
-            const newMarks = restrictMarksToFilteredInIds(settings.markedRecords, settings.recordIds)
-            const newMaterialized = projectRecords(settings.recordIds, settings.database)
-            const correctedFocus = rationalizeFocusedPlot(settings)
-            return { ...correctedFocus, records: newMaterialized, markedRecords: newMarks, needsReprojection: false }
-        }
-    }
+const rematerialize = (db: NavigatorDatabase, settings: FilterSettings): FilterSettings => {
+    const withNewMarks = restrictMarksToFilteredInIds(settings)
+    const correctedFocus = rationalizeFocusedPlot(withNewMarks)
+    const newMaterialized = projectRecords(db, correctedFocus)
+    correctedFocus.records = newMaterialized
+    return { ...correctedFocus }
+}
 
-    return settings
+
+const restrictMarksToFilteredInIds = (settings: FilterSettings): FilterSettings => {
+    return {...settings, markedRecords: settings.markedRecords.intersection(settings.recordIds) }
+}
+
+
+const projectRecords = (db: NavigatorDatabase, settings: FilterSettings): ArtemissRecord[] => {
+    const projection: ArtemissRecord[] = []
+    settings.recordIds.forEach(id => projection.push(db.byId[id]))
+    return projection
 }
 
 
@@ -124,19 +130,22 @@ const resolveUpdatedFilters = (settings: FilterSettings, active: FilterControlSt
     if (settings.database === undefined) return settings     // shouldn't happen; consider logging if it does
     
     const { added, dropped } = updateFilters(settings.database, active, newFilters)
+    const withFilters = { ...settings, activeFilters: newFilters }
 
     if (added.size != 0 || dropped.size != 0) {
-        settings.recordIds = settings.recordIds.union(added).difference(dropped)
-        settings.needsReprojection = true
+        const existingSetSize = withFilters.recordIds.size
+        withFilters.recordIds = withFilters.recordIds.union(added).difference(dropped)
+        // Need to reproject if we added anything, or if we dropped anything that was already in the set.
+        if (added.size > 0 || existingSetSize !== withFilters.recordIds.size) {
+            return rematerialize(settings.database, withFilters)
+        }
     }
-    settings.activeFilters = newFilters
 
-    return { ...settings }
+    return { ...withFilters }
 }
 
 
 const doRangesUpdate = (keys: RangeVariables[], newRanges: number[][], settings: FilterSettings): FilterSettings => {
-    // if (settings.database === undefined) return settings    // shouldn't happen; consider logging if it does
     const updateList = keys.map((k, i) => {
             const existingRange = settings.activeFilters[k]
             if (existingRange.length !== 2) {
@@ -154,15 +163,6 @@ const doRangesUpdate = (keys: RangeVariables[], newRanges: number[][], settings:
     const newFilters = { ...settings.activeFilters, ...toUpdate }
 
     return resolveUpdatedFilters(settings, settings.activeFilters, newFilters)
-    // const { added, dropped } = updateFilters(settings.database, settings.activeFilters, newFilters)
-
-    // if (added.size != 0 || dropped.size != 0) {
-    //     settings.recordIds = settings.recordIds.union(added).difference(dropped)
-    //     settings.needsReprojection = true
-    // }
-    // settings.activeFilters = newFilters
-
-    // return { ...settings }
 }
 
 
@@ -170,31 +170,20 @@ const updateBooleanList = (key: ToggleableVariables, index: number, newState: bo
     if (!(key in settings.activeFilters)) {
         throw Error(`Initialization error for boolean filter for ${key}.`)
     }
-    // if (settings.database === undefined) return settings    // shouldn't happen
-
     const rightLength = (Fields[key].values ?? []).length
     const current = settings.activeFilters[key]
     const reset = current.length !== rightLength    // handles initialization
     const newSelections: boolean[] = reset ? new Array<boolean>(rightLength).fill(false)
                                            : index === -1
                                                 ? new Array<boolean>(rightLength).fill(newState)
-                                                : current
+                                                : [...current]
     if (index >= 0) {
         newSelections[index] = newState
     }
-
     const newFilters = { ...settings.activeFilters }
     newFilters[key] = newSelections
 
     return resolveUpdatedFilters(settings, settings.activeFilters, newFilters)
-    // const { added, dropped } = updateFilters(settings.database, settings.activeFilters, newFilters)
-    // if (added.size != 0 || dropped.size != 0) {
-    //     settings.recordIds = settings.recordIds.union(added).difference(dropped)
-    //     settings.needsReprojection = true
-    // }
-    // settings.activeFilters = newFilters
-
-    // return { ...settings }
 }
 
 
@@ -235,84 +224,3 @@ const updatePlotSplits = (settings: FilterSettings, target: FacetSplitType, newS
 
 
 export default NavigatorReducer
-
-
-
-
-// const applyUpdatedFilters = (settings: FilterSettings, ignoreSizeCheck: boolean = false): FilterSettings => {
-//     // having updated a filter, we may need to update the selections.
-//     if (settings.database !== undefined) { // Shouldn't happen
-//         // TODO: Condition which input to use (the full database vs. the current set)
-//         // based on whether our selections got more or less restrictive
-//         // // // const newSet = applyFiltersToSet(settings, settings.database, settings.database.allIdSet)
-//         // Cheat: we're using the size of the selected record set as a proxy for set change,
-//         // since no single interaction allows you to select an entirely different set of the same size.
-//         const updateRecords = newSet.size !== settings.recordIds.size
-//         const newMarks = restrictMarksToFilteredInIds(settings.markedRecords, newSet)
-//         if (updateRecords || ignoreSizeCheck) {
-    //             const settingsWithCorrectedFocusPlot = rationalizeFocusedPlot(settings)
-    //             const newMaterializedRecords = projectRecords(newSet, settings.database)
-    //             return { ...settingsWithCorrectedFocusPlot, recordIds: newSet, records: newMaterializedRecords, markedRecords: newMarks }
-    //         }
-//     }
-
-//     return settings
-// }
-
-// const doSingleRangeUpdate = (key: RangeVariables, newRange: number[], settings: FilterSettings): FilterSettings => {
-//     const existingRange = settings.activeFilters[key]
-//     if (existingRange.length !== 2) {
-//         throw Error(`Error attempting to update non-extant/misconfigured range ${key} (currently ${existingRange[0]}, ${existingRange[1]})`)
-//     }
-//     if (newRange[0] === existingRange[0] && newRange[1] === existingRange[1]) {
-//         // no change, return reference equality. e.g. user clicks "reset" for already-default range.
-//         return settings
-//     }
-//     if (settings.database === undefined) return settings    // shouldn't happen, maybe should log about it if it does?
-
-//     const newFilters = { ...settings.activeFilters, key: [Math.min(...newRange), Math.max(...newRange)] }
-//     const { added, dropped } = updateFilters(settings.database, settings.activeFilters, newFilters)
-
-//     if (added.size != 0 || dropped.size != 0) {
-//         settings.recordIds = settings.recordIds.union(added).difference(dropped)
-//         settings.needsReprojection = true
-//     }
-//     settings.activeFilters[key] = [Math.min(...newRange), Math.max(...newRange)]
-
-//     return settings
-// }
-
-// const updateRange = (key: RangeVariables, newRange: number[], settings: FilterSettings) => {
-//     const newSettings = { ...doSingleRangeUpdate(key, newRange, settings) }
-//     return rematerialize(newSettings)
-// }
-
-
-// const updateRanges = (keys: RangeVariables[], newRanges: number[][], settings: FilterSettings) => {
-//     if (keys.length !== newRanges.length) throw Error("updateRanges called with different number of keys and ranges.")
-
-//     let newSettings = { ...settings }
-//     keys.forEach((k, i) => {
-//         newSettings = doSingleRangeUpdate(k, newRanges[i], newSettings)
-//     })
-
-//     return rematerialize(newSettings)
-// }
-
-
-// const resetRange = (key: RangeVariables, settings: FilterSettings) => {
-//     const newRange = Fields[key]?.range ?? [-1, 1]
-//     return updateRange(key, newRange, settings)
-// }
-
-
-// const updateTripart = (key: TripartiteVariables, settings: FilterSettings, newValue: number | undefined) => {
-//     const existingValue = settings[key]
-//     if (existingValue === newValue) return settings
-//     const newSettings = { ...settings }
-//     newSettings[key] = newValue
-
-//     // Note we CANNOT use size as a proxy here, because flipping one of these could conceivably actually
-//     // create two distinct sets of different size.
-//     return rematerialize(newSettings, true)
-// }
