@@ -53,7 +53,6 @@ export type FilterControlState = {
 
 export type FilterSettings = {
     activeFilters: FilterControlState
-    priorFilters: FilterControlState
     // TODO: add a third layer, the "cached" set, along with a third filter,
     // which tracks the filter state that populated the cache
     // system settings
@@ -63,6 +62,9 @@ export type FilterSettings = {
     finePlotSplit?: ToggleableVariables
     coarsePlotSelectedValue?: string
     finePlotSelectedValue?: string
+    selectionCategoricalIndices: CategoricalIndexSet
+    focusedRecordIds: Set<PKType>
+    focusedRecords: ArtemissRecord[]
     database: NavigatorDatabase | undefined
     records: ArtemissRecord[]
     recordIds: Set<PKType>

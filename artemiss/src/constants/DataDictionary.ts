@@ -962,9 +962,9 @@ export const fieldMarkedValueDesc = (fieldName?: string): string | undefined => 
 
 
 export enum CategoricalIndexedFields {
-    NFP = 'nfp',
-    AXIS_HELICITY = 'axisHelicity',
-    DATABASE_FROM = 'databaseFrom',
+    NFP = ToggleableVariables.NFP,
+    AXIS_HELICITY = ToggleableVariables.AXIS_HELICITY,
+    DATABASE_FROM = ToggleableVariables.DATABASE_FROM,
 }
 
 export enum KnownPathType {

@@ -1,7 +1,6 @@
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import { plotGridInternalMargin } from '@snComponents/Overview'
-import { filterTo } from '@snState/filter'
-import { Fields, KnownFields, ToggleableVariables } from '@snTypes/DataDictionary'
+import { Fields, KnownFields } from '@snTypes/DataDictionary'
 import { ArtemissRecord, PKType } from '@snTypes/Types'
 import { FunctionComponent } from 'react'
 import OpenSelectedButton from './OpenSelected'
@@ -11,8 +10,6 @@ type SnTableProps = {
     markedIds: Set<PKType>
     markedIdUrls: Set<string>
     selectionHandler: (model: GridRowSelectionModel) => void
-    filterCriteria: (ToggleableVariables | undefined)[]
-    filterValues: (string | undefined)[]
 }
 
 const variableColumnsDefaultWidth = 110
@@ -48,21 +45,10 @@ const varWidthCols: GridColDef[] = varWidthFields.map(f => {
 })
 
 
-const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
-    const { records, selectionHandler, markedIds, filterCriteria, filterValues } = props
-
-    const filters: {[key in ToggleableVariables]?: string | undefined} = {}
-    filterCriteria.forEach((f, i) => {
-        if (f !== undefined && filterValues[i] !== undefined) {
-            filters[f] = filterValues[i]
-        }
-    })
-    const filteredRecords = filterTo(records, filters)
-
-    const columns = [...fixedWidthCols, ...varWidthCols]
-    const rows = filteredRecords.map(r => {
+const projectSnTableRows = (rows: ArtemissRecord[]) => {
+    return rows.map(r => {
         return {
-            id: r.uuid,
+            id: r.rowid,
             uuid: r.uuid,
             databaseFrom: r.databaseFrom,
             nfp: r.nfp,
@@ -106,6 +92,15 @@ const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
             meanConfinementTimeS050: r.meanConfinementTimeS050,
         }
     })
+}
+
+
+// TODO memoize?
+const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
+    const { records, selectionHandler, markedIds } = props
+
+    const columns = [...fixedWidthCols, ...varWidthCols]
+    const rows = projectSnTableRows(records)
 
     return (
         <div style={{ marginLeft: plotGridInternalMargin, marginRight: plotGridInternalMargin }}>

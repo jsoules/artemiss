@@ -1,5 +1,5 @@
 import { CategoricalIndexedFields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
-import { ArtemissRecord, CategoricalIndexSet, FilterControlState, NavigatorDatabase, PKType, RangeIndex } from "@snTypes/Types"
+import { ArtemissRecord, CategoricalIndexSet, FilterControlState, NavigatorDatabase, RangeIndex } from "@snTypes/Types"
 
 // TODO: IMPROVE FILTERING PERFORMANCE
 // we now have O(40) range filters (which are all basically the same)
@@ -142,6 +142,12 @@ const contractBoolFilter = (database: NavigatorDatabase, filterKey: ToggleableVa
 }
 
 
+export const subsetSelections = (database: NavigatorDatabase, rawids: Set<number>, filters: ToggleableVariables[], vals: string[]): Set<number> => {
+    const fSets = filters.map((f, i) => database.categoricalIndexes[f as unknown as keyof CategoricalIndexSet][vals[i]])
+    return fSets.length === 0 ? rawids : fSets.reduce((curr, incoming) => curr.intersection(incoming), rawids)
+}
+
+
 export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterControlState, newFilters: FilterControlState) => {
 
     // TODO NOTE FIXME FORCIBLY CUTTING OUT THE STELLSYM AND ENFORCEVACUUM FIELDS
@@ -189,14 +195,6 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
     }).filter(x => x !== undefined)
 
     console.log(`\tCreated range deltas as per ${JSON.stringify(rangeDeltas)}`)
-    // // // // Update range filters
-    // // // rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange)).reduce((a, b) => a.union(b), dropUnion)
-    // // // rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange)).reduce((a, b) => a.union(b), addUnion)
-    // TEMPORARILY SWITCHED
-    // // // const contractions = rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange))
-    // // // const expansions = rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange))
-    // // // console.log(`Contractions has ${contractions.length} elements`)
-    // // // console.log(`Expansions has ${expansions.length} elements`)
 
     dropUnion = rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange)).reduce((a, b) => a.union(b), dropUnion)
     addUnion = rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange)).reduce((a, b) => a.union(b), addUnion)
@@ -208,13 +206,6 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
 
     // database state has been updated, return the new selection set
     return { added: addUnion, dropped: dropUnion }
-}
-
-// TODO: THIS IS BROKEN
-
-export const restrictMarksToFilteredInIds = (currentMarks: Set<PKType>, filteredIn: Set<PKType>): Set<PKType> => {
-    if (currentMarks.size === 0 || filteredIn.size === 0) return new Set()
-    return currentMarks.intersection(filteredIn)
 }
 
 

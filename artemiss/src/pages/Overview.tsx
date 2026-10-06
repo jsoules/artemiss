@@ -139,12 +139,10 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
 
                 <HrBar />
                 <SnTable
-                    records={filterSettings.records}
+                    records={filterSettings.focusedRecords}
                     markedIds={filterSettings.markedRecords}
                     markedIdUrls={filterSettings.markedRecordUrls}
                     selectionHandler={callbacks.handleUpdateMarks}
-                    filterCriteria={[filterSettings.coarsePlotSplit, filterSettings.finePlotSplit]}
-                    filterValues={[filterSettings.coarsePlotSelectedValue, filterSettings.finePlotSelectedValue]}
                 />
             </div>
         </div>
