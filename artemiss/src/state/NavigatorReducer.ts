@@ -1,7 +1,7 @@
 import { forceRecheck, updateFilters } from "@snState/filter"
 import { DependentVariables, Fields, IndependentVariables, RangeVariables, ToggleableVariables, TripartiteVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
 import { allOnFilterState } from "@snTypes/Defaults"
-import { ArtemissRecord, CategoricalIndexSet, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
+import { ArtemissRecord, CategoricalIndex, CategoricalIndexSet, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
 
 export type FacetSplitType = 'coarse' | 'fine'
 
@@ -54,10 +54,11 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             s.database = a.database
             const newSettings = resolveUpdatedFilters(s, allOnFilterState, s.activeFilters)
             newSettings.recordIds = forceRecheck(s.database)
-            return forceRebuildIndex(newSettings)
+            const withIndexes = refreshIndexes(newSettings)
+            return rematerialize(a.database, withIndexes)
         }
         case "updateRange": {
-            console.log(`activating range update field ${a.field} new range ${a.newRange}`)
+            // // // console.log(`activating range update field ${a.field} new range ${a.newRange}`)
             const newSettings = doRangesUpdate([a.field], [a.newRange], s)
             return newSettings
         }
@@ -74,7 +75,7 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
         }
         case "updateCheckField": {
             const newSettings = updateBooleanList(a.field, a.index, a.targetState, s)
-            console.log(`Settings-based focus set has ${newSettings.focusedRecordIds.size} records`)
+            // // // console.log(`Settings-based focus set has ${newSettings.focusedRecordIds.size} records`)
             return newSettings
         }
         // case "updateTripartiteField": {
@@ -87,7 +88,6 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             return { ...s, independentVariable: a.newValue }
         }
         case "updateMarkedRecords": {
-            // const newSelectionUrls = s.database.
             const newSelectionUrls = new Set<string>([...a.newSelections].map(newS => s.database?.byId[newS]?.canonicalPath ?? '') ?? [])
             return { ...s, markedRecords: a.newSelections, markedRecordUrls: newSelectionUrls }
         }
@@ -95,7 +95,11 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             return updatePlotSplits(s, a.target, a.newSplit)
         }
         case "updateFocusedPlotIndices": {
-            return updateFocusSet({ ...s, coarsePlotSelectedValue: a.newValues[0], finePlotSelectedValue: a.newValues[1] })
+            console.log(`Updating focused plot, old (${s.coarsePlotSelectedValue} ${s.finePlotSelectedValue}), new (${a.newValues[0]}, ${a.newValues[1]})`)
+            // No-op case
+            if (s.coarsePlotSelectedValue === a.newValues[0] && s.finePlotSelectedValue === a.newValues[1]) return s
+            if (s.database === undefined) return s
+            return updateFocusSet(s.database, { ...s, coarsePlotSelectedValue: a.newValues[0], finePlotSelectedValue: a.newValues[1] })
         }
         default: {
             throw Error(`Unknown reducer action ${JSON.stringify(a)}`)
@@ -103,23 +107,21 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
     }
 }
 
-// TODO: THE BETTER WAY TO DO THIS is not to do a full index of everything, but only index along the
-// actually-existing splits.
-// We create/update the split indices based on the existing coarse- and fine-grained splits.
-// That takes us back to the world where we can fast-delete when a binary value is dropped,
-// and reduces the bookkeeping for range changes,
-// at the expense of more costly updates when we change the facet variables.
-// Could even arrange the index as a coarseSplitVals -> fineSplitVals thing... like literally
-// keep an index according to the currently-visible columns.
-// Adds/deletes for a visible split are trivial (it all goes into the same outer index)
-// and range/non-visible changes are no slower than before, probably...
+
+const projectRecords = (db: NavigatorDatabase, recordIds: Set<number>): ArtemissRecord[] => {
+    const projection: ArtemissRecord[] = []
+    recordIds.forEach(id => projection.push(db.byId[id]))
+    return projection
+}
+
 
 // TODO: IMPROVE PERFORMANCE OF SNTABLE UPDATE
+// TODO: SET A HARD CEILING ON HOW MANY ROWS WE WILL RENDER FOR THE TABLE -- performance is fine up to 1k, but 35k is not fine
 
 /// TODO: WHAT CAN WE DO TO AVOID RE-PROJECTING EVERYTHING EVERY TIME? *****
 const rematerialize = (db: NavigatorDatabase, settings: FilterSettings): FilterSettings => {
     const withNewMarks = restrictMarksToFilteredInIds(settings)
-    const correctedFocus = rationalizeFocusedPlot(withNewMarks)
+    const correctedFocus = rationalizeFocusedPlot(db, withNewMarks)
     const newMaterialized = projectRecords(db, correctedFocus.recordIds)
     correctedFocus.records = newMaterialized
     return { ...correctedFocus }
@@ -131,64 +133,22 @@ const restrictMarksToFilteredInIds = (settings: FilterSettings): FilterSettings 
 }
 
 
-const projectRecords = (db: NavigatorDatabase, recordIds: Set<number>): ArtemissRecord[] => {
-    const projection: ArtemissRecord[] = []
-    recordIds.forEach(id => projection.push(db.byId[id]))
-    return projection
-}
-
-
 const resolveUpdatedFilters = (settings: FilterSettings, active: FilterControlState, newFilters: FilterControlState) => {
-    if (settings.database === undefined) return settings     // shouldn't happen; consider logging if it does
+    const db = settings.database
+    if (db === undefined) return settings     // shouldn't happen; consider logging if it does
     
-    const { added, dropped } = updateFilters(settings.database, active, newFilters)
+    const { added, dropped } = updateFilters(db, active, newFilters)
+    const _dropped = dropped.intersection(settings.recordIds)
+    const _added = added.difference(dropped)
     const withFilters = { ...settings, activeFilters: newFilters }
 
-    if (added.size != 0 || dropped.size != 0) {
-        const existingSetSize = withFilters.recordIds.size
-        withFilters.recordIds = withFilters.recordIds.union(added).difference(dropped)
-        // Need to reproject if we added anything, or if we dropped anything that was already in the set.
-        if (added.size > 0 || existingSetSize !== withFilters.recordIds.size) {
-            const withIndices = updateSelectionIndices(withFilters, added, dropped)
-            return rematerialize(settings.database, withIndices)
-        }
+    if (_added.size != 0 || _dropped.size != 0) {
+        withFilters.recordIds = withFilters.recordIds.union(_added).difference(_dropped)
+        const withIndices = updateIndexes(db, withFilters, _added, _dropped)
+        return rematerialize(db, withIndices)
     }
 
     return { ...withFilters }
-}
-
-
-const updateSelectionIndices = (settings: FilterSettings, added: Set<number>, dropped: Set<number>) => {
-    const db = settings.database
-    if (db === undefined) return settings
-
-    const keys = Object.keys(db.categoricalIndexes) as any as (keyof CategoricalIndexSet)[]
-    if (added.size > 0) {
-        const addedRows = projectRecords(db, added)
-        addedRows.forEach(row => {
-            keys.forEach(k => {
-                const v = row[k]
-                if (v && v !== '') {
-                    settings.selectionCategoricalIndices[k][v].add(row.rowid)
-                }
-            })
-        })
-    }
-    // In practice these branches are likely to be mutually exclusive
-    if (dropped.size > 0) {
-        keys.forEach(k => {
-            const idx = settings.selectionCategoricalIndices[k]
-            const vals = Object.keys(idx)
-            let fieldDrops = new Set(dropped)
-            vals.forEach(v => {
-                const inter = fieldDrops.intersection(idx[v])
-                idx[v] = idx[v].difference(inter)
-                fieldDrops = fieldDrops.difference(inter)
-            })
-        })
-    }
-
-    return { ...settings, selectionCategoricalIndices: { ...settings.selectionCategoricalIndices }}
 }
 
 
@@ -245,27 +205,19 @@ const selectedOrFirst = (field: ToggleableVariables, choices: boolean[], selecte
 }
 
 
-const updateFocusSet = (settings: FilterSettings, force: boolean = false): FilterSettings => {
-    const db = settings.database
-    if (db === undefined) return settings   // TODO make a higher-up boundary for this already
-    // TODO: Rationalize this, remove the distinction between ToggleableVariables and CategoricalIndexSet keys
-    const coarseSplit = settings.coarsePlotSplit as any as undefined | keyof CategoricalIndexSet
-    const fineSplit = settings.finePlotSplit as any as undefined | keyof CategoricalIndexSet
-
-    // TODO might be a neater way to write this
-    const coarseIdx = coarseSplit ? settings.selectionCategoricalIndices[coarseSplit][settings.coarsePlotSelectedValue ?? ''] : undefined
-    const fineIdx = fineSplit ? settings.selectionCategoricalIndices[fineSplit][settings.finePlotSelectedValue ?? ''] : undefined
-
-    const baseSet = coarseIdx ?? settings.recordIds
+const updateFocusSet = (db: NavigatorDatabase, settings: FilterSettings): FilterSettings => {
+    const baseSet = settings.coarsePlotIndex ? settings.coarsePlotIndex[settings.coarsePlotSelectedValue ?? 'undef'] : settings.recordIds
+    const fineIdx = settings.finePlotIndex ? settings.finePlotIndex[settings.finePlotSelectedValue ?? 'undef'] : undefined
     const finalSet = fineIdx ? baseSet.intersection(fineIdx) : baseSet
 
-    if (finalSet.size === settings.focusedRecordIds.size && !force) return settings
+    // TODO: DO NOT PROJECT ALL THE FOCUSED RECORDS
+    // LIMIT TO LIKE FIRST 1K OR SOMETHING
 
     return { ...settings, focusedRecordIds: finalSet, focusedRecords: projectRecords(db, finalSet) }
 }
 
 
-const rationalizeFocusedPlot = (settings: FilterSettings): FilterSettings => {
+const rationalizeFocusedPlot = (db: NavigatorDatabase, settings: FilterSettings): FilterSettings => {
     const newCoarse = settings.coarsePlotSplit === undefined
         ? settings.coarsePlotSelectedValue
         : selectedOrFirst(settings.coarsePlotSplit, settings.activeFilters[settings.coarsePlotSplit], settings.coarsePlotSelectedValue)
@@ -274,9 +226,9 @@ const rationalizeFocusedPlot = (settings: FilterSettings): FilterSettings => {
         : selectedOrFirst(settings.finePlotSplit, settings.activeFilters[settings.finePlotSplit], settings.finePlotSelectedValue)
     if (newCoarse !== settings.coarsePlotSelectedValue || newFine !== settings.finePlotSelectedValue) {
         const newFocus = { ...settings, coarsePlotSelectedValue: newCoarse, finePlotSelectedValue: newFine }
-        return updateFocusSet(newFocus, true)
+        return updateFocusSet(db, newFocus)
     }
-    return updateFocusSet(settings)
+    return updateFocusSet(db, settings)
 }
 
 
@@ -284,30 +236,127 @@ const updatePlotSplits = (settings: FilterSettings, target: FacetSplitType, newS
     // because of the dropdown select interface, this is sometimes passed a literal string value of "undefined" :(
     const splitUndefined = newSplit === undefined || ("undefined" === newSplit as string)
     const value = splitUndefined ? undefined : (Fields[newSplit]?.values ?? [])[settings.activeFilters[newSplit].findIndex(x => x)]
+    let newSettings = settings
     switch(target) {
         case 'coarse':
-            return { ...settings, coarsePlotSplit: newSplit, coarsePlotSelectedValue: value }
+            newSettings = { ...settings, coarsePlotSplit: newSplit, coarsePlotSelectedValue: value }
+            break
         case 'fine':
-            return { ...settings, finePlotSplit: newSplit, finePlotSelectedValue: value }
+            newSettings = { ...settings, finePlotSplit: newSplit, finePlotSelectedValue: value }
+            break
         default:
             throw Error('Unsupported update-plot-split target.')
+    }
+    return refreshIndexes(newSettings)
+}
+
+
+// PRECONDITION: adds set and drops set are non-overlapping.
+const updateIndexes = (db: NavigatorDatabase, settings: FilterSettings, adds: Set<number>, drops: Set<number>) => {
+    // NOTE: It might be faster to materialize the adds/drops to avoid repeated comparisons for
+    // the set operations, but I suspect it's close enough to not be worth the headache.
+    // REVISIT THIS if performance demands it.
+    if (drops.size > 0) { 
+        if (settings.coarsePlotSplit && settings.coarsePlotIndex) {
+            _dropFromIndex(settings.coarsePlotIndex, drops)
+        }
+        if (settings.finePlotSplit && settings.finePlotIndex) {
+            _dropFromIndex(settings.finePlotIndex, drops)
+        }
+    }
+    // NOTE: most likely these are mutually exclusive branches but we can't be sure
+    // It is assumed that the cost of looking up the rows is cheaper than the cost of doing full
+    // intersection of the selections on the main indices for every value.
+    if (adds.size > 0) {
+        const addRows = projectRecords(db, adds)
+        const coarseUpdate = _indexAdder(settings.coarsePlotSplit, settings.coarsePlotIndex)
+        const fineUpdate = _indexAdder(settings.finePlotSplit, settings.finePlotIndex)
+        addRows.forEach(row => {
+            coarseUpdate(row)
+            fineUpdate(row)
+        })
+    }
+
+    return { ...settings, coarsePlotIndex: { ...settings.coarsePlotIndex }, finePlotIndex: { ...settings.finePlotIndex } }
+}
+
+
+const _dropFromIndex = (idx: CategoricalIndex, drops: Set<number>) => {
+    let fieldDrops = new Set(drops)
+    Object.keys(idx).forEach(v => {
+        const inter = fieldDrops.intersection(idx[v])
+        idx[v] = idx[v].difference(inter)
+        fieldDrops = fieldDrops.difference(inter)
+    })
+}
+
+
+const _indexAdder = (field: ToggleableVariables | undefined, idx: CategoricalIndex | undefined) => {
+    if (field === undefined || idx === undefined) {
+        return () => {}
+    }
+    return (row: ArtemissRecord) => {
+        const v = row[field]
+        v && v !== '' && idx[v].add(row.rowid)
     }
 }
 
 
-const forceRebuildIndex = (settings: FilterSettings) => {
+// PRECONDITION: record ID set must actually be populated.
+const refreshIndexes = (settings: FilterSettings) => {
     const db = settings.database
     if (db === undefined) return settings
-    Object.keys(db.categoricalIndexes).forEach(k => {
-        const asKey = k as keyof CategoricalIndexSet
-        const idx = db.categoricalIndexes[asKey]
-        Object.keys(idx).forEach(v => {
-            settings.selectionCategoricalIndices[asKey][v] = settings.recordIds.intersection(idx[v])
-        })
+    const cidx = settings.coarsePlotSplit
+        ? remakeIndex(db, settings.coarsePlotSplit as any as keyof CategoricalIndexSet)
+        : undefined
+    const fidx = settings.finePlotSplit
+        ? remakeIndex(db, settings.finePlotSplit as any as keyof CategoricalIndexSet)
+        : undefined
+
+    const rows = projectRecords(db, settings.recordIds)
+    rows.forEach(r => {
+        if (settings.coarsePlotSplit !== undefined && cidx !== undefined) {
+            cidx[r[settings.coarsePlotSplit]].add(r.rowid)
+        }
+        if (settings.finePlotSplit !== undefined && fidx !== undefined) {
+            fidx[r[settings.finePlotSplit]].add(r.rowid)
+        }
     })
 
-    return { ...settings }
+    return { ...settings, coarsePlotIndex: cidx, finePlotIndex: fidx }
+}
+
+
+const remakeIndex = (db: NavigatorDatabase, idxKey: keyof CategoricalIndexSet): CategoricalIndex => {
+    const idx = db.categoricalIndexes[idxKey]
+    const newidx = Object.fromEntries([])
+    Object.keys(idx).forEach(v => newidx[v] = new Set<number>())
+    return newidx
 }
 
 
 export default NavigatorReducer
+
+
+// TODO: REVISIT: it may have an example of a way to remove the distinction b/w ToggleableVariables and CategoricalIndexSet keys
+// // // const updateFocusSet = (settings: FilterSettings, force: boolean = false): FilterSettings => {
+// // //     const db = settings.database
+// // //     if (db === undefined) return settings   // TODO make a higher-up boundary for this already
+// // //     // TODO: Rationalize this, remove the distinction between ToggleableVariables and CategoricalIndexSet keys
+// // //     const coarseSplit = settings.coarsePlotSplit as any as undefined | keyof CategoricalIndexSet
+// // //     const fineSplit = settings.finePlotSplit as any as undefined | keyof CategoricalIndexSet
+
+// // //     // TODO might be a neater way to write this
+// // //     const coarseIdx = coarseSplit ? settings.selectionCategoricalIndices[coarseSplit][settings.coarsePlotSelectedValue ?? ''] : undefined
+// // //     const fineIdx = fineSplit ? settings.selectionCategoricalIndices[fineSplit][settings.finePlotSelectedValue ?? ''] : undefined
+
+// // //     const baseSet = coarseIdx ?? settings.recordIds
+// // //     const finalSet = fineIdx ? baseSet.intersection(fineIdx) : baseSet
+
+// // //     console.log(`coarseIdx ${baseSet.size} fineIdx ${fineIdx && fineIdx.size} final ${finalSet.size}`)
+// // //     // TODO: I think this might be a possible source of errors if alternating between 2 equal-sized sets?
+// // //     if (finalSet.size === settings.focusedRecordIds.size && !force) return settings
+
+// // //     console.log(`Returning updated settings`)
+// // //     return { ...settings, focusedRecordIds: finalSet, focusedRecords: projectRecords(db, finalSet) }
+// // // }

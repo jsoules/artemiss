@@ -62,6 +62,8 @@ export type FilterSettings = {
     finePlotSplit?: ToggleableVariables
     coarsePlotSelectedValue?: string
     finePlotSelectedValue?: string
+    coarsePlotIndex?: CategoricalIndex
+    finePlotIndex?: CategoricalIndex
     selectionCategoricalIndices: CategoricalIndexSet
     focusedRecordIds: Set<PKType>
     focusedRecords: ArtemissRecord[]
