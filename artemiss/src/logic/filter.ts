@@ -1,4 +1,4 @@
-import { CategoricalIndexedFields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
+import { RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
 import { CategoricalIndexSet, FilterControlState, NavigatorDatabase, RangeIndex } from "@snTypes/Types"
 
 // TODO: IMPROVE FILTERING PERFORMANCE
@@ -136,10 +136,11 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
     // TODO NOTE FIXME FORCIBLY CUTTING OUT THE STELLSYM AND ENFORCEVACUUM FIELDS
     // Update boolean filters
     // TODO: Make this more automatic
-    const boolsToCheck = [CategoricalIndexedFields.NFP, CategoricalIndexedFields.DATABASE_FROM, CategoricalIndexedFields.AXIS_HELICITY]
-    // const boolDeltas = (Object.keys(CategoricalIndexedFields)).map((f) => {
-    const boolDeltas = boolsToCheck.map((f) => {
-        const _f = f as any as ToggleableVariables
+    // const boolsToCheck = [CategoricalIndexedFields.NFP, CategoricalIndexedFields.DATABASE_FROM, CategoricalIndexedFields.AXIS_HELICITY]
+    const boolDeltas = (Object.values(ToggleableVariables)).map((f) => {
+    // const boolDeltas = boolsToCheck.map((f) => {
+        // const _f = f as any as ToggleableVariables
+        const _f = f
         // If every entry is off, that's considered the same as every entry on.
         const correctedNew: boolean[] = newFilters[_f].every(x => !x) ? new Array(newFilters[_f].length).fill(true) : newFilters[_f]
         const correctedOld: boolean[] = oldFilters[_f].every(x => !x) ? new Array(oldFilters[_f].length).fill(true) : oldFilters[_f]

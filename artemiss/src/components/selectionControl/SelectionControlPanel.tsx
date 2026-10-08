@@ -34,7 +34,7 @@ type Props = {
 const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
     const { filterSettings, callbacks, colorChgDispatcher } = props
     const { dependentVariable, independentVariable, coarsePlotSplit, finePlotSplit } = filterSettings
-    const { databaseFrom, nfp, } = filterSettings.activeFilters
+    // const { databaseFrom, nfp, axisHelicity, stellsym, enforceVacuum } = filterSettings.activeFilters
     const { colorSplit, style } = props.colorProps
     const [ plotVarsClosed, setPlotVarsClosed ] = useState(true)
 
@@ -43,6 +43,13 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
 
     const sliders = Object.values(RangeVariables).filter(rv => isNaN(Number(rv)))
         .map(rv => (<RangeSlider key={rv} field={rv} value={filterSettings.activeFilters[rv]} onChange={callbacks.handleRangeChange} onReset={callbacks.handleRangeReset} />))
+
+    const checks = Object.values(ToggleableVariables).map(
+        tv => (
+            <ToggleableVariableCheckboxGroup key={tv} type={tv} selections={filterSettings.activeFilters[tv]} onChange={callbacks.handleCheckboxChange}
+                labels={(Fields[tv].values ?? [])}
+            />)
+    )
 
     const styleSelector = fieldIsCategorical(colorSplit)
         ? <VariableSelector value={style as SupportedColorPalette} onChange={colorSchemeCallback} type="ColorStyleDiscrete" />
@@ -65,8 +72,9 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
             </PlotVariableControlsDropdown>
             <HrBar />
             {sliders}
+            {checks}
             {/* TODO Unify the checkbox template thing by referencing values if it exists */}
-            <ToggleableVariableCheckboxGroup
+            {/* <ToggleableVariableCheckboxGroup
                 type={ToggleableVariables.NFP}
                 selections={nfp}
                 onChange={callbacks.handleCheckboxChange}
@@ -78,6 +86,24 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
                 onChange={callbacks.handleCheckboxChange}
                 labels={(Fields[ToggleableVariables.DATABASE_FROM].values ?? [])}
             />
+            <ToggleableVariableCheckboxGroup
+                type={ToggleableVariables.AXIS_HELICITY}
+                selections={axisHelicity}
+                onChange={callbacks.handleCheckboxChange}
+                labels={(Fields[ToggleableVariables.AXIS_HELICITY].values ?? [])}
+            />
+            <ToggleableVariableCheckboxGroup
+                type={ToggleableVariables.STELLSYM}
+                selections={stellsym}
+                onChange={callbacks.handleCheckboxChange}
+                labels={(Fields[ToggleableVariables.STELLSYM].values ?? [])}
+            />
+            <ToggleableVariableCheckboxGroup
+                type={ToggleableVariables.ENFORCE_VACUUM}
+                selections={enforceVacuum}
+                onChange={callbacks.handleCheckboxChange}
+                labels={(Fields[ToggleableVariables.ENFORCE_VACUUM].values ?? [])}
+            /> */}
         </div>
     )
 

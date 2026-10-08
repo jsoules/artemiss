@@ -1,5 +1,6 @@
+import { makeEmptyCategoricalIndices } from "@snState/database"
 import { ArtemissRecord, Device, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
-import { CategoricalIndexedFields, DependentVariables, Fields, IndependentVariables, ToggleableVariables, axisHelicityValidValues, databaseFromValidValues, nfpValidValues } from "./DataDictionary"
+import { DependentVariables, Fields, IndependentVariables, ToggleableVariables, axisHelicityValidValues, databaseFromValidValues, nfpValidValues } from "./DataDictionary"
 
 export const defaultFinePlotSplit = ToggleableVariables.NFP
 export const defaultCoarsePlotSplit = ToggleableVariables.DATABASE_FROM
@@ -71,21 +72,6 @@ export const allOnFilterState: FilterControlState = {
 } as any as FilterControlState
 
 
-// // // const makeCategoricalIndexBlanks = () => {
-// // //     // TODO: FIX THIS CAST
-// // //     const fields = Object.values(ToggleableVariables) as any as CategoricalIndexedFields[]
-// // //     const idx = Object.fromEntries(fields.map(k => {
-// // //         const vals = Fields[k].values
-// // //         if (vals === undefined) {
-// // //             throw Error(`Bad value in indexes-keys: ${k}`)
-// // //         }
-// // //         const thisIdx = Object.fromEntries(vals.map(v => [v, new Set<number>()]))
-// // //         return [k, thisIdx]
-// // //     })) as CategoricalIndexSet
-// // //     return idx
-// // // }
-
-
 export const initialNavigatorState: FilterSettings = {
     // When we actually have more values, we'll set up a default source or something
     // to limit getting slammed by the initial data.
@@ -112,11 +98,7 @@ export const initialDatabase: NavigatorDatabase = {
     byId: {},
     rowSelectionStatus: new BigInt64Array(0),
     allIdSet: new Set<PKType>([]),
-    categoricalIndexes: {
-        [ CategoricalIndexedFields.NFP           ]: {},
-        [ CategoricalIndexedFields.AXIS_HELICITY ]: {},
-        [ CategoricalIndexedFields.DATABASE_FROM ]: {},
-    },
+    categoricalIndexes: makeEmptyCategoricalIndices(),
     rangeIndexes: {} as any,
     fullApproval: 0n,
     masks: {} as any,

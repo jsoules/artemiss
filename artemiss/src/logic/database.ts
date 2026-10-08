@@ -64,6 +64,7 @@ const recordJig: jigRow[] = [
     // { rawField: "phiedge",                      objectField: KnownFields.PHIEDGE                   },
     { rawField: "stellsym",                     objectField: KnownFields.STELLSYM                  },
     { rawField: "minor_radius",                 objectField: KnownFields.MINOR_RADIUS              },
+    { rawField: "enforce_vacuum",               objectField: KnownFields.ENFORCE_VACUUM            },
     { rawField: "aspect_ratio",                 objectField: KnownFields.ASPECT_RATIO              },
     { rawField: "volume",                       objectField: KnownFields.VOLUME                    },
     { rawField: "volavgB",                      objectField: KnownFields.VOL_AVG_B                 },
@@ -102,14 +103,22 @@ const recordJig: jigRow[] = [
 ] as const
 
 
-const _numberizeBools = (field: fieldType | boolean): fieldType => {
+// const _numberizeBools = (field: fieldType | boolean): fieldType => {
+//     if (typeof field !== 'boolean') return field
+//     return field ? 1 : 0
+// }
+
+
+const _stringizeBools = (field: fieldType | boolean): fieldType => {
     if (typeof field !== 'boolean') return field
-    return field ? 1 : 0
+    return field ? "yes" : "no"
 }
+
 
 const makeRecordFromRowIndex = (data: RawData, i: number): ArtemissRecord => {
     const rec = {} as {[field in KnownFields]: fieldType }
-    recordJig.forEach(field => { rec[field.objectField] = _numberizeBools(data[field.rawField][i]) } )
+    // recordJig.forEach(field => { rec[field.objectField] = _numberizeBools(data[field.rawField][i]) } )
+    recordJig.forEach(field => { rec[field.objectField] = _stringizeBools(data[field.rawField][i]) } )
     rec['rowid'] = i
     rec['canonicalPath'] = makeUrl(rec as ArtemissRecord)
     return rec as ArtemissRecord
@@ -148,30 +157,35 @@ const makeRangeIndices = (dataList: ArtemissRecord[]): RangeIndexSet => {
 }
 
 
-const makeCategoricalIndices = (dataList: ArtemissRecord[]) => {
-    const categoricalFieldIndexes: CategoricalIndexSet = {
-        'nfp': {},
-        'axisHelicity': {},
-        'databaseFrom': {},
-        // 'nSurfaces': {},
-    }
-    const categoricalFields = Object.keys(categoricalFieldIndexes) as CategoricalIndexedFields[]
-
-    
-    categoricalFields.forEach(k => {
-        const vals = Fields[k].values
-        if (vals === undefined) {
-            throw Error(`Bad value in indexes-keys: ${k}`)
-        }
-        const key = k as keyof ArtemissRecord
-        const idx: CategoricalIndex = {}
-        vals.forEach(v => {
-            idx[v] = new Set(dataList.filter(row => `${row[key]}` === v).map(row => row.rowid))
+export const makeEmptyCategoricalIndices = () => {
+    const fields = Object.values(CategoricalIndexedFields)
+    const indexSet = Object.fromEntries(
+        fields.map(f => {
+            const vals = Fields[f].values
+            if (vals === undefined) {
+                throw Error(`Bad value in indexes-keys: ${f}`)
+            }
+            const idx: CategoricalIndex = Object.fromEntries(
+                vals.map(v => [v, new Set<number>()])
+            )
+            return [f, idx]
         })
-        categoricalFieldIndexes[k] = idx
+    ) as CategoricalIndexSet
+    return indexSet
+}
+
+
+const makeCategoricalIndices = (dataList: ArtemissRecord[]) => {
+    const fields = Object.values(CategoricalIndexedFields)
+    const indexSet = makeEmptyCategoricalIndices()
+
+    dataList.forEach(rec => {
+        fields.forEach(f => {
+            indexSet[f][rec[f]].add(rec.rowid)
+        })
     })
 
-    return categoricalFieldIndexes
+    return indexSet
 }
 
 

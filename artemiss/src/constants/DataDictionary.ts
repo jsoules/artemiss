@@ -365,6 +365,7 @@ export const getValuesFromBoolArray = (field: string, choices: boolean[]) => {
 // the full data set in the per-record payload file. That's to be handled separately.
 
 // TODO: Consider adding "as const" to each entry
+// TODO: Figure out how to key this off the KnownFields enum already
 
 const METER_UNIT = "M"
 export const Fields: FieldRecords = {
@@ -453,7 +454,7 @@ export const Fields: FieldRecords = {
         fullLabel: "Number of Field Periods (NFP)",
         description: "Count of field periods",
         unit: undefined,
-        range: [1, 8],
+        range: [1, 12],
         values: nfpValidValues,
         // valueLabels: nfpValidValues.map(i => `${i}`),
         isLog: false,
@@ -965,6 +966,8 @@ export enum CategoricalIndexedFields {
     NFP = ToggleableVariables.NFP,
     AXIS_HELICITY = ToggleableVariables.AXIS_HELICITY,
     DATABASE_FROM = ToggleableVariables.DATABASE_FROM,
+    STELLSYM = ToggleableVariables.STELLSYM,
+    ENFORCE_VACUUM = ToggleableVariables.ENFORCE_VACUUM
 }
 
 export enum KnownPathType {
