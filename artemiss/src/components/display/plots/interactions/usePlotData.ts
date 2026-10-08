@@ -29,7 +29,6 @@ export const usePlotData: plotHookType = ({filterSettings, colorSplit}) => {
     const fineSplit = filterSettings.finePlotSplit
     const coarseSplit = filterSettings.coarsePlotSplit
     const res = useMemo(() => {
-        console.log(`*****plot data summary rerender.`)
         const projectionCriteria: ProjectionCriteria = {
             data: filterSettings.records,
             yVar: filterSettings.dependentVariable,

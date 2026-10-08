@@ -46,7 +46,6 @@ const usePerPlotDimensions = (width: number, height: number, colCount: number) =
 
 
 const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
-    console.log(`***Overview screen rerender. Record count ${props.filterSettings.recordIds.size} manifest size ${props.filterSettings.records.length}`)
     const { dispatch, filterSettings } = props
     const {width, height} = useWindowDimensions()
     const [plotColorProps, plotColorPropsDispatch] = useReducer(plotColorReducer, defaultPlotColorProps)
@@ -140,6 +139,7 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
                 <HrBar />
                 <SnTable
                     records={filterSettings.focusedRecords}
+                    truncated={filterSettings.focusedRecordIds.size > filterSettings.focusedRecords.length}
                     markedIds={filterSettings.markedRecords}
                     markedIdUrls={filterSettings.markedRecordUrls}
                     selectionHandler={callbacks.handleUpdateMarks}

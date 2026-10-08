@@ -1,5 +1,5 @@
 import { CategoricalIndexedFields, RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
-import { ArtemissRecord, CategoricalIndexSet, FilterControlState, NavigatorDatabase, RangeIndex } from "@snTypes/Types"
+import { CategoricalIndexSet, FilterControlState, NavigatorDatabase, RangeIndex } from "@snTypes/Types"
 
 // TODO: IMPROVE FILTERING PERFORMANCE
 // we now have O(40) range filters (which are all basically the same)
@@ -29,7 +29,6 @@ const binSearch = (ary: Float64Array, target: number, mode: 'gte' | 'lte'): numb
     let upperIdx = ary.length - 1
     let guessIdx = -1
     let diff = upperIdx - lowerIdx
-    // // // console.log(`Seeking ${target}\nArray has ${ary.length} elements from ${lowerIdx} (${ary[lowerIdx]}) to ${upperIdx} (${ary[upperIdx]})`)
     if (ary[lowerIdx] > target) return lowerIdx
     if (ary[upperIdx] < target) return upperIdx
 
@@ -37,11 +36,9 @@ const binSearch = (ary: Float64Array, target: number, mode: 'gte' | 'lte'): numb
         diff = Math.floor(diff / 2)
         guessIdx = lowerIdx + diff
         const guess = ary[guessIdx]
-        // // // console.log(`\t\tguess ${guess} at idx ${guessIdx}`)
         if (guess === target) return guessIdx
         lowerIdx = guess <= target ? guessIdx : lowerIdx
         upperIdx = guess > target ? guessIdx : upperIdx
-        // // // console.log(`\t\tUpdating search to range ${lowerIdx} (${ary[lowerIdx]}) - ${upperIdx} (${ary[upperIdx]})`)
     }
     // upperIdx always points to something greater than target,
     // lowerIdx always points to something lesser than target.
@@ -57,7 +54,6 @@ const binSearch = (ary: Float64Array, target: number, mode: 'gte' | 'lte'): numb
 const materializeRange = (idx: RangeIndex, newRange: number[]): Set<number> => {
     const lowerIdx = binSearch(idx.val, newRange[0], 'gte')
     const upperIdx = binSearch(idx.val, newRange[1], 'lte')
-    console.log(`\tBinsearch yielded indices ${lowerIdx} - ${upperIdx} slice has ${(new Set(idx.rowid.slice(lowerIdx, upperIdx + 1))).size} elements`)
     return new Set(idx.rowid.slice(lowerIdx, upperIdx + 1)) // slice is exclusive on the upper end
 }
 
@@ -68,13 +64,6 @@ const expandedFilter = (database: NavigatorDatabase, filterKey: RangeVariables |
         database.rowSelectionStatus[rowid] |= mask
         return database.rowSelectionStatus[rowid] === database.fullApproval ? rowid : undefined
     }).filter(x => x !== undefined)
-    // const nowIncluded: number[] = []
-    // allNew.forEach(rowid => {
-    //     database.rowSelectionStatus[rowid] |= mask
-    //     if (database.rowSelectionStatus[rowid] === database.fullApproval) {
-    //         nowIncluded.push(rowid)
-    //     }
-    // })
 
     return new Set(nowIncluded)
 }
@@ -87,7 +76,6 @@ const contractFilter = (database: NavigatorDatabase, filterKey: RangeVariables |
 
 
 const rangeFilter = (database: NavigatorDatabase, f: RangeVariables, r: number[][]) => {
-    console.log(`Materializing range filter ${f} over range(s) ${r}`)
     return r.map(r => materializeRange(database.rangeIndexes[f], r)
             ).reduce((a, b) => a.union(b), new Set<number>())
 }
@@ -102,17 +90,12 @@ const expandRangeFilter = (database: NavigatorDatabase, filterKey: RangeVariable
 
     // Identify newly added elements
     const allNew = rangeFilter(database, filterKey, newRange)
-    // const newLower = materializeRange(database.rangeIndexes[filterKey], newRange[0])
-    // const allNew = newRange.length === 1
-    //     ? newLower
-    //     : newLower.union(materializeRange(database.rangeIndexes[filterKey], newRange[1]))
 
     return expandedFilter(database, filterKey, allNew)
 }
 
 
 const contractRangeFilter = (database: NavigatorDatabase, filterKey: RangeVariables, newRange: number[][]) => {
-    // const allDrop = newRange.map(r => materializeRange(database.rangeIndexes[filterKey], r)).reduce((a, b) => a.union(b), new Set<number>())
     const allDrop = rangeFilter(database, filterKey, newRange)
     contractFilter(database, filterKey, allDrop)
     return allDrop
@@ -194,8 +177,6 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
         return { field: _f, addedRange, droppedRange }
     }).filter(x => x !== undefined)
 
-    console.log(`\tCreated range deltas as per ${JSON.stringify(rangeDeltas)}`)
-
     dropUnion = rangeDeltas.map(v => contractRangeFilter(database, v.field, v.droppedRange)).reduce((a, b) => a.union(b), dropUnion)
     addUnion = rangeDeltas.map(v => expandRangeFilter(database, v.field, v.addedRange)).reduce((a, b) => a.union(b), addUnion)
 
@@ -224,15 +205,3 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
 // const makeSelectionFilters = (database: NavigatorDatabase) => Object.values(
 //     TripartiteVariables).filter(v => isNaN(Number(v))
 // ).map(f => makeSelectionFilter(f as TripartiteVariables, database))
-
-
-// This is used in the overview screen to filter the table to only the selected plot.
-export const filterTo = (records: ArtemissRecord[], filters: { [key in ToggleableVariables]?: string }) => {
-    let result = records
-    Object.keys(filters).forEach(k => {
-        if (filters[k as ToggleableVariables] !== undefined) {
-            result = result.filter(r => `${r[k as ToggleableVariables]}` === filters[k as ToggleableVariables])
-        }
-    })
-    return result
-}

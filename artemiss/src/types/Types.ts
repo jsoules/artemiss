@@ -64,7 +64,6 @@ export type FilterSettings = {
     finePlotSelectedValue?: string
     coarsePlotIndex?: CategoricalIndex
     finePlotIndex?: CategoricalIndex
-    selectionCategoricalIndices: CategoricalIndexSet
     focusedRecordIds: Set<PKType>
     focusedRecords: ArtemissRecord[]
     database: NavigatorDatabase | undefined

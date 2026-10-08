@@ -7,6 +7,7 @@ import OpenSelectedButton from './OpenSelected'
 
 type SnTableProps = {
     records: ArtemissRecord[]
+    truncated: boolean
     markedIds: Set<PKType>
     markedIdUrls: Set<string>
     selectionHandler: (model: GridRowSelectionModel) => void
@@ -97,13 +98,14 @@ const projectSnTableRows = (rows: ArtemissRecord[]) => {
 
 // TODO memoize?
 const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
-    const { records, selectionHandler, markedIds } = props
+    const { records, truncated, selectionHandler, markedIds } = props
 
     const columns = [...fixedWidthCols, ...varWidthCols]
     const rows = projectSnTableRows(records)
 
     return (
         <div style={{ marginLeft: plotGridInternalMargin, marginRight: plotGridInternalMargin }}>
+            { truncated && <div>Note: Selected record count exceeds the limit; only the first 1000 are displayed.</div> }
             <div className="overviewTable">
                 <DataGrid
                     disableRowSelectionExcludeModel

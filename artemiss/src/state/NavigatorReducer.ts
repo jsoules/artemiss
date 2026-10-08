@@ -3,6 +3,8 @@ import { DependentVariables, Fields, IndependentVariables, RangeVariables, Toggl
 import { allOnFilterState } from "@snTypes/Defaults"
 import { ArtemissRecord, CategoricalIndex, CategoricalIndexSet, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
 
+export const MAX_TABLE_RECORD_COUNT = 1000
+
 export type FacetSplitType = 'coarse' | 'fine'
 
 export type NavigatorStateAction = {
@@ -58,7 +60,6 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             return rematerialize(a.database, withIndexes)
         }
         case "updateRange": {
-            // // // console.log(`activating range update field ${a.field} new range ${a.newRange}`)
             const newSettings = doRangesUpdate([a.field], [a.newRange], s)
             return newSettings
         }
@@ -95,7 +96,6 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             return updatePlotSplits(s, a.target, a.newSplit)
         }
         case "updateFocusedPlotIndices": {
-            console.log(`Updating focused plot, old (${s.coarsePlotSelectedValue} ${s.finePlotSelectedValue}), new (${a.newValues[0]}, ${a.newValues[1]})`)
             // No-op case
             if (s.coarsePlotSelectedValue === a.newValues[0] && s.finePlotSelectedValue === a.newValues[1]) return s
             if (s.database === undefined) return s
@@ -210,10 +210,16 @@ const updateFocusSet = (db: NavigatorDatabase, settings: FilterSettings): Filter
     const fineIdx = settings.finePlotIndex ? settings.finePlotIndex[settings.finePlotSelectedValue ?? 'undef'] : undefined
     const finalSet = fineIdx ? baseSet.intersection(fineIdx) : baseSet
 
+    const focusedIterator = finalSet[Symbol.iterator]()
+    const setToMaterialize = finalSet.size > MAX_TABLE_RECORD_COUNT
+        ? new Set(Iterator.from(focusedIterator).take(MAX_TABLE_RECORD_COUNT))
+        : finalSet
+
+    const focusedRecords = projectRecords(db, setToMaterialize)
     // TODO: DO NOT PROJECT ALL THE FOCUSED RECORDS
     // LIMIT TO LIKE FIRST 1K OR SOMETHING
 
-    return { ...settings, focusedRecordIds: finalSet, focusedRecords: projectRecords(db, finalSet) }
+    return { ...settings, focusedRecordIds: finalSet, focusedRecords }
 }
 
 
@@ -353,10 +359,8 @@ export default NavigatorReducer
 // // //     const baseSet = coarseIdx ?? settings.recordIds
 // // //     const finalSet = fineIdx ? baseSet.intersection(fineIdx) : baseSet
 
-// // //     console.log(`coarseIdx ${baseSet.size} fineIdx ${fineIdx && fineIdx.size} final ${finalSet.size}`)
 // // //     // TODO: I think this might be a possible source of errors if alternating between 2 equal-sized sets?
 // // //     if (finalSet.size === settings.focusedRecordIds.size && !force) return settings
 
-// // //     console.log(`Returning updated settings`)
 // // //     return { ...settings, focusedRecordIds: finalSet, focusedRecords: projectRecords(db, finalSet) }
 // // // }

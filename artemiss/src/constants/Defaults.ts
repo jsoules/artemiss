@@ -1,4 +1,4 @@
-import { ArtemissRecord, CategoricalIndexSet, Device, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
+import { ArtemissRecord, Device, FilterControlState, FilterSettings, NavigatorDatabase, PKType } from "@snTypes/Types"
 import { CategoricalIndexedFields, DependentVariables, Fields, IndependentVariables, ToggleableVariables, axisHelicityValidValues, databaseFromValidValues, nfpValidValues } from "./DataDictionary"
 
 export const defaultFinePlotSplit = ToggleableVariables.NFP
@@ -71,19 +71,19 @@ export const allOnFilterState: FilterControlState = {
 } as any as FilterControlState
 
 
-const makeCategoricalIndexBlanks = () => {
-    // TODO: FIX THIS CAST
-    const fields = Object.values(ToggleableVariables) as any as CategoricalIndexedFields[]
-    const idx = Object.fromEntries(fields.map(k => {
-        const vals = Fields[k].values
-        if (vals === undefined) {
-            throw Error(`Bad value in indexes-keys: ${k}`)
-        }
-        const thisIdx = Object.fromEntries(vals.map(v => [v, new Set<number>()]))
-        return [k, thisIdx]
-    })) as CategoricalIndexSet
-    return idx
-}
+// // // const makeCategoricalIndexBlanks = () => {
+// // //     // TODO: FIX THIS CAST
+// // //     const fields = Object.values(ToggleableVariables) as any as CategoricalIndexedFields[]
+// // //     const idx = Object.fromEntries(fields.map(k => {
+// // //         const vals = Fields[k].values
+// // //         if (vals === undefined) {
+// // //             throw Error(`Bad value in indexes-keys: ${k}`)
+// // //         }
+// // //         const thisIdx = Object.fromEntries(vals.map(v => [v, new Set<number>()]))
+// // //         return [k, thisIdx]
+// // //     })) as CategoricalIndexSet
+// // //     return idx
+// // // }
 
 
 export const initialNavigatorState: FilterSettings = {
@@ -97,7 +97,6 @@ export const initialNavigatorState: FilterSettings = {
     // coarsePlotSelectedValue: 'kappel_2024',
     finePlotSplit: defaultFinePlotSplit,
     finePlotSelectedValue: '1',
-    selectionCategoricalIndices: makeCategoricalIndexBlanks(),
     focusedRecordIds: new Set<PKType>(),
     focusedRecords: [] as ArtemissRecord[],
     database: undefined,
