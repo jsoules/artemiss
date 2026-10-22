@@ -73,37 +73,6 @@ const SelectionControlPanel: FunctionComponent<Props> = (props: Props) => {
             <HrBar />
             {sliders}
             {checks}
-            {/* TODO Unify the checkbox template thing by referencing values if it exists */}
-            {/* <ToggleableVariableCheckboxGroup
-                type={ToggleableVariables.NFP}
-                selections={nfp}
-                onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.NFP].values ?? [])}
-            />
-            <ToggleableVariableCheckboxGroup
-                type={ToggleableVariables.DATABASE_FROM}
-                selections={databaseFrom}
-                onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.DATABASE_FROM].values ?? [])}
-            />
-            <ToggleableVariableCheckboxGroup
-                type={ToggleableVariables.AXIS_HELICITY}
-                selections={axisHelicity}
-                onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.AXIS_HELICITY].values ?? [])}
-            />
-            <ToggleableVariableCheckboxGroup
-                type={ToggleableVariables.STELLSYM}
-                selections={stellsym}
-                onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.STELLSYM].values ?? [])}
-            />
-            <ToggleableVariableCheckboxGroup
-                type={ToggleableVariables.ENFORCE_VACUUM}
-                selections={enforceVacuum}
-                onChange={callbacks.handleCheckboxChange}
-                labels={(Fields[ToggleableVariables.ENFORCE_VACUUM].values ?? [])}
-            /> */}
         </div>
     )
 

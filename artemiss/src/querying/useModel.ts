@@ -1,6 +1,6 @@
 import { applySurfaceSymmetries } from "@snComponents/display/visualizer/symmetries"
 import { defaultEmptyDevice } from "@snTypes/Defaults"
-import { Device, Device3dModel } from "@snTypes/Types"
+import { Device, Device3dModel, ScalarField } from "@snTypes/Types"
 import { useMemo } from 'react'
 
 // Need to fetch (in parallel) the coils, currents, surfaces, and modB
@@ -15,6 +15,16 @@ import { useMemo } from 'react'
 
 // Save the querying stuff as we'll handle it elsewhere.
 
+
+const normalizeModB = (vals: ScalarField[]): ScalarField[] => {
+    const flattened = vals.flat(3)
+    const max = Math.max.apply(null, flattened)
+    const min = Math.min.apply(null, flattened)
+    const scale = (max - min)
+    const convert = (input: number) => (input - min) * scale
+
+    return vals.map(surface => surface.map(strip => strip.map(point => convert(point))))
+}
 
 
 const useDevice3dModel = (dev: Device): Device3dModel => {

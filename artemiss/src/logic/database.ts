@@ -2,8 +2,6 @@ import { CategoricalIndexedFields, Fields, KnownFields, RangeVariables } from "@
 import { ArtemissRecord, CategoricalIndex, CategoricalIndexSet, MaskSet, NavigatorDatabase, RangeIndex, RangeIndexSet, RecordDict } from "@snTypes/Types"
 import { makeUrl } from "@snUtil/makeResourcePath"
 
-// NOTE: TODO: purge comments/outdated stuff
-
 export type fieldType = number | string | string[] | number[]
 
 
@@ -195,8 +193,6 @@ export const makeDatabase = (rawData: RawData) => {
     const fullApproval = (2n ** BigInt(recordJig.length + 1)) - 1n   // should give appropriate bitfield
 
     // e.g. if we have 4 fields, 2^5 is 32 = 0b10000, subtract 1 for 0b01111 yielding 4 flags
-    // // // filterInMask: 2n ** BigInt(i),
-    // // // filterOutMask: fullApproval ^ (2n ** BigInt(i))
     const maskSet = Object.fromEntries(recordJig.map((r, i) => {
         const inmask = 2n ** BigInt(i)
         const outmask = fullApproval ^ inmask
@@ -204,6 +200,8 @@ export const makeDatabase = (rawData: RawData) => {
     })) as any as MaskSet
 
     // TODO: SWITCH STARTUP STATE TO FILTER-OUT
+    // If that is done, we will need to address NANs in fields, since they need to be filtered-in
+    // at all times.
     // const rowSelectionStatus = new BigInt64Array(dataList.length).fill(0n)
     const rowSelectionStatus = new BigInt64Array(dataList.length).fill(fullApproval)
     const categoricalFieldIndexes = makeCategoricalIndices(dataList)

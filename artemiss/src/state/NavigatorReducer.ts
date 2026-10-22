@@ -63,8 +63,6 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
             const newSettings = doRangesUpdate([a.field], [a.newRange], s)
             return newSettings
         }
-        //// TODO: NANS! NANS ARE BREAKING THE RANGE FILTER
-        /// TODO ADD A STEP TO JUST FLIP THEIR BITS PERMANENTLY ON (actually that only matters once we default-off)
         case "updateRanges": {
             const newSettings = doRangesUpdate(a.fields, a.newRanges, s)
             return newSettings
@@ -76,7 +74,6 @@ const NavigatorReducer = (s: FilterSettings, a: NavigatorStateAction): FilterSet
         }
         case "updateCheckField": {
             const newSettings = updateBooleanList(a.field, a.index, a.targetState, s)
-            // // // console.log(`Settings-based focus set has ${newSettings.focusedRecordIds.size} records`)
             return newSettings
         }
         // case "updateTripartiteField": {
@@ -115,10 +112,6 @@ const projectRecords = (db: NavigatorDatabase, recordIds: Set<number>): Artemiss
 }
 
 
-// TODO: IMPROVE PERFORMANCE OF SNTABLE UPDATE
-// TODO: SET A HARD CEILING ON HOW MANY ROWS WE WILL RENDER FOR THE TABLE -- performance is fine up to 1k, but 35k is not fine
-
-/// TODO: WHAT CAN WE DO TO AVOID RE-PROJECTING EVERYTHING EVERY TIME? *****
 const rematerialize = (db: NavigatorDatabase, settings: FilterSettings): FilterSettings => {
     const withNewMarks = restrictMarksToFilteredInIds(settings)
     const correctedFocus = rationalizeFocusedPlot(db, withNewMarks)
@@ -216,8 +209,6 @@ const updateFocusSet = (db: NavigatorDatabase, settings: FilterSettings): Filter
         : finalSet
 
     const focusedRecords = projectRecords(db, setToMaterialize)
-    // TODO: DO NOT PROJECT ALL THE FOCUSED RECORDS
-    // LIMIT TO LIKE FIRST 1K OR SOMETHING
 
     return { ...settings, focusedRecordIds: finalSet, focusedRecords }
 }

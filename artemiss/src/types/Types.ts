@@ -53,9 +53,6 @@ export type FilterControlState = {
 
 export type FilterSettings = {
     activeFilters: FilterControlState
-    // TODO: add a third layer, the "cached" set, along with a third filter,
-    // which tracks the filter state that populated the cache
-    // system settings
     dependentVariable: DependentVariables
     independentVariable: IndependentVariables
     coarsePlotSplit?: ToggleableVariables
@@ -88,8 +85,8 @@ export type ArtemissRecord = {
     // Categorical fields
     nfp: number,                     // field period count. 1, 2, 3, 4, 5, 6, or 12.
     axisHelicity: number,            // range -4 - 4
-    stellsym: number,                // TODO note storing a properly-boolean value as 0, 1 for convenience in filtering/projection
-    enforceVacuum: number,           // TODO
+    stellsym: number,                // storing a properly-boolean value as 0, 1 for convenience in filtering/projection
+    enforceVacuum: number,           // ditto
     // Globally unique(ish)/continuous fields
     // phiEdge: number,                 // range 15.0 - 150.0? (unit?) Total toroidal magnetic flux in the device
     minorRadius: number,             // range 0.4+ - 2.5+ (M). Minor radius of outermost surface ("minor radius")

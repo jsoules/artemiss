@@ -129,6 +129,7 @@ const makeDeviceFromRawDevice = (dev: RawDevice): Device => {
     record["lossTracings"] = makeTimeSeriesFromRawDevice(dev)
     record["lossCharacteristics"] = makeLossSeriesFromRawDevice(dev)
     record["modbBoozer"] = normalizeMagneticFlux(dev)
+    console.log(`Range of modBBoozer ${Math.min.apply(null, (record["modbBoozer"].flat(4)))} - ${Math.max.apply(null, record["modbBoozer"].flat(4))}`)
 
     return record as Device
 }

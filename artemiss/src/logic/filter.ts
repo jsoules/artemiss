@@ -1,11 +1,6 @@
 import { RangeVariables, ToggleableVariables, getValuesFromBoolArray } from "@snTypes/DataDictionary"
 import { CategoricalIndexSet, FilterControlState, NavigatorDatabase, RangeIndex } from "@snTypes/Types"
 
-// TODO: IMPROVE FILTERING PERFORMANCE
-// we now have O(40) range filters (which are all basically the same)
-// meaning we may be iterating over the ENTIRE 170k DATABASE upwards
-// of 40 times, this is probably BAD and is definitely causing
-// noticeable performance challenges
 
 export const forceRecheck = (db: NavigatorDatabase) => {
     const nowIncluded: number[] = []
@@ -50,7 +45,6 @@ const binSearch = (ary: Float64Array, target: number, mode: 'gte' | 'lte'): numb
 }
 
 
-// TODO: PKType? But we really can't do this with string types.
 const materializeRange = (idx: RangeIndex, newRange: number[]): Set<number> => {
     const lowerIdx = binSearch(idx.val, newRange[0], 'gte')
     const upperIdx = binSearch(idx.val, newRange[1], 'lte')
@@ -81,8 +75,6 @@ const rangeFilter = (database: NavigatorDatabase, f: RangeVariables, r: number[]
 }
 
 
-// TODO combine the expand/contract fns?
-
 const expandRangeFilter = (database: NavigatorDatabase, filterKey: RangeVariables, newRange: number[][]) => {
     // NOTE: newRange will go ONLY [new: old] and [old: new]
     // i.e. it will NOT include anything that was included-in by the existing filter settings
@@ -103,7 +95,7 @@ const contractRangeFilter = (database: NavigatorDatabase, filterKey: RangeVariab
 
 
 const boolFilter = (database: NavigatorDatabase, filterKey: ToggleableVariables, sel: boolean[]) => {
-    const idx = database.categoricalIndexes[filterKey as unknown as keyof CategoricalIndexSet] // TODO REMOVE FILTER ONCE ALL TOGGLEABLES ARE INDEXED
+    const idx = database.categoricalIndexes[filterKey]
     const vals = getValuesFromBoolArray(filterKey, sel)
     const sets = vals.map(v => idx[v])
     const union = sets.reduce((curr, newSet) => curr.union(newSet), new Set<number>())
@@ -133,13 +125,8 @@ export const subsetSelections = (database: NavigatorDatabase, rawids: Set<number
 
 export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterControlState, newFilters: FilterControlState) => {
 
-    // TODO NOTE FIXME FORCIBLY CUTTING OUT THE STELLSYM AND ENFORCEVACUUM FIELDS
     // Update boolean filters
-    // TODO: Make this more automatic
-    // const boolsToCheck = [CategoricalIndexedFields.NFP, CategoricalIndexedFields.DATABASE_FROM, CategoricalIndexedFields.AXIS_HELICITY]
     const boolDeltas = (Object.values(ToggleableVariables)).map((f) => {
-    // const boolDeltas = boolsToCheck.map((f) => {
-        // const _f = f as any as ToggleableVariables
         const _f = f
         // If every entry is off, that's considered the same as every entry on.
         const correctedNew: boolean[] = newFilters[_f].every(x => !x) ? new Array(newFilters[_f].length).fill(true) : newFilters[_f]
@@ -183,8 +170,6 @@ export const updateFilters = (database: NavigatorDatabase, oldFilters: FilterCon
 
 
     // TODO: tripartite support
-
-    // TODO: HANDLING OF NON-INDEXED BOOLEAN FIELDS IE STELLSYM, ENFORCEVACUUM
 
     // database state has been updated, return the new selection set
     return { added: addUnion, dropped: dropUnion }

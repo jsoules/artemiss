@@ -3,7 +3,7 @@ import { ScalarField, Vec3, Vec3Field } from "@snTypes/Types"
 import { useMemo } from "react"
 import * as THREE from "three"
 
-export const SURFACE_SIDE_RESOLUTION = 21
+export const SURFACE_SIDE_RESOLUTION = 41
 
 export const makeTubes = (coils: Vec3[][]): THREE.TubeGeometry[] => {
     if (coils.length === 0) return []

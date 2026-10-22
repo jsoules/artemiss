@@ -63,11 +63,6 @@ const makeLookups = (
     const coarseKeys: Record<string, number> = {}
     const colorKeys:  Record<string, number> = {}
 
-    // Actually this isn't a good idea, as it's likely to occur as a transition state when changing values or axes
-    // if (fineSplit !== undefined && (fineSplit === coarseSplit)) {
-    //     throw Error(`Data partition criteria must be distinct, but fine-split and coarse-split criterion match (${fineSplit}, ${coarseSplit})`)
-    // }
-
     const fineVals   = makeDefaultedList({ baseList: fineSplitVals })
     const coarseVals = makeDefaultedList({ baseList: coarseSplitVals })
     const colorFieldIsCategorical = fieldIsCategorical(colorField)

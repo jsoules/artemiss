@@ -24,25 +24,33 @@ const deviceManifest: FunctionComponent<deviceProps> = (props: deviceProps) => {
     // This is a bit hacky, but we have some fields that can be expected to consist only of a list of nulls,
     // so it's better to filter them out somehow
     const justCommas = /^,*$/
+    const manifestData = metaRows.map(key => {
+        let _data = `${device[key as deviceField]}`
+        _data = _data.match(justCommas) ? 'N/A' : _data
+        const dataList = _data.split(",")
+        // data = dataList.join("<br />")
+        const data = dataList.map((d, i) => <div key={`item-${i}`} className="manifestListItem">{d}</div>)
+        return { label: DeviceFields[key as deviceField].label, data }
+    })
 
     return (
         <div className="metadataManifest" style={{ maxWidth: maxWidth, marginLeft: margin }}>
             <div key="title">
                 Device Metadata
             </div>
-            <div key="id">
+            <div key="id" className="manifestRow">
                 <div className="manifestLabel">UUID:</div>
                 <div className="manifestContent">{device.uuid}</div>
             </div>
-            <div key="srcId">
+            <div key="srcId" className="manifestRow">
                 <div className="manifestLabel">Source:</div>
                 <div className="manifestContent">{`${device.databaseFrom} (${device.databaseFromId})`}</div>
             </div>
-            {metaRows.map((k) => (
-                <div key={k}>
-                    <div className="manifestLabel">{DeviceFields[k as deviceField].label}</div>
+            {manifestData.map((record, i) => (
+                <div key={i} className="manifestRow">
+                    <div className="manifestLabel">{record.label}</div>
                     <div className="manifestContent">
-                        {`${device[k as deviceField]}`.match(justCommas) ? "N/A" : `${device[k as deviceField]}`}
+                        {record.data}
                     </div>
                 </div>
             ))}

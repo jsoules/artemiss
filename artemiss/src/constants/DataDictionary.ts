@@ -10,7 +10,7 @@ export const getEnumVals = (x: object): string[] => {
 export enum KnownFields {
     ROWID = 'rowid',
     ID = 'uuid',
-    DATABASE_FROM = 'databaseFrom', // TODO: NEED A LIST OF THE VALID VALUES
+    DATABASE_FROM = 'databaseFrom',
     GROUP_NAME = 'groupName',
     DATABASE_FROM_ID = 'databaseFromId',
     CANONICAL_PATH = 'canonicalPath',
@@ -359,11 +359,11 @@ export const getValuesFromBoolArray = (field: string, choices: boolean[]) => {
     return vals.filter((_, idx) => choices[idx])
 }
 
-// TODO: add sorting order field for table
 
 // NOTE: This describes the fields in the *overview database*. It does NOT describe
 // the full data set in the per-record payload file. That's to be handled separately.
 
+// TODO: add sorting order field for table
 // TODO: Consider adding "as const" to each entry
 // TODO: Figure out how to key this off the KnownFields enum already
 
@@ -1061,7 +1061,7 @@ export const DeviceFields: DeviceFieldRecords = {
     },
     surfaceDistances: {
         label: "Surface distances",
-        desc: "Surface distances",
+        desc: "Normalized toroidal flux (s)",
         order: 60,
         displayInTable: false,
         unit: undefined,
@@ -1149,7 +1149,7 @@ export const DeviceFields: DeviceFieldRecords = {
     pressure: {
         label: "Plasma pressure",
         desc: "Plasma pressure profile",
-        order: 130,
+        order: 300,
         displayInTable: true,
         unit: undefined,
         isLog: false,
@@ -1265,7 +1265,7 @@ export const DeviceFields: DeviceFieldRecords = {
     qiError: {
         label: "Goodman QI error",
         desc: "Goodman QI error",
-        order: 250,
+        order: 350,
         displayInTable: true,
         unit: undefined,
         isLog: false,

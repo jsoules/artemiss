@@ -342,6 +342,11 @@ div.ForceLightMode {
     margin-top: -3px;
 }
 
+.manifestRow {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .manifestLabel {
     padding-top: 0px;
     padding-left: 20px;
@@ -351,6 +356,11 @@ div.ForceLightMode {
 
 .manifestContent {
     float: right;
+    text-align: left;
+}
+
+.manifestListItem {
+    text-align: right;
 }
 
 .codeSnippetWrapper {
