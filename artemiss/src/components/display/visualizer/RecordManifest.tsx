@@ -54,6 +54,12 @@ const deviceManifest: FunctionComponent<deviceProps> = (props: deviceProps) => {
                     </div>
                 </div>
             ))}
+            <div key="meanConfine" className="manifestRow">
+                <div className="manifestLabel">Mean confinement time s0.25</div>
+                <div className="manifestContent">
+                    {`${device.lossTracings.meanConfinementTimeS0_25.toFixed(4)}`}
+                </div>
+            </div>
 {/* TODO: include translations & handling of log values */}
         </div>
     )

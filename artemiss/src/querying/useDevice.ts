@@ -1,4 +1,4 @@
-import { KnownPathType } from "@snTypes/DataDictionary"
+import { DeviceFields, KnownPathType } from "@snTypes/DataDictionary"
 import { defaultEmptyDevice } from '@snTypes/Defaults'
 import { Device, DeviceTimeSeries, LossSeries, ScalarField } from "@snTypes/Types"
 import makeResourcePath from "@snUtil/makeResourcePath"
@@ -133,7 +133,13 @@ const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
 
 const makeDeviceFromRawDevice = (dev: RawDevice): Device => {
     const record = {} as {[field in keyof Device]: FieldType | DeviceTimeSeries | LossSeries }
-    deviceJig.forEach(field => { record[field.dev] = dev[field.raw] })
+    deviceJig.forEach(field => { 
+        const devVal = dev[field.raw]
+        const trunc = DeviceFields[field.dev].truncateTo
+        const needsTrunc = trunc && typeof(devVal) === 'number'
+        record[field.dev] = needsTrunc ? devVal.toFixed(trunc) : devVal
+        // record[field.dev] = typeof(devVal) === 'number' ? devVal.toFixed(4) : devVal
+    })
     record["nSurfaces"] = 1//(dev['surf_xyz'] as any as number[]).length  // just hard-code 1 since we only have 1 right now TODO
     // NOTE: When the surface count, surface selection are updated, we will also need to update the colorization code!
     record["lossTracings"] = makeTimeSeriesFromRawDevice(dev)

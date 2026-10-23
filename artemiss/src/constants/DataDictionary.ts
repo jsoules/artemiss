@@ -594,6 +594,7 @@ export type DeviceManifestEntry = {
     order: number,
     displayInTable: boolean
     unit?: string,
+    truncateTo?: number,
     isLog: boolean,
     valueLabels?: { [key: string | number]: string},
 }
@@ -685,6 +686,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 70,
         displayInTable: true,
         unit: undefined,
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -694,6 +696,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 80,
         displayInTable: true,
         unit: METER_UNIT,
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -703,6 +706,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 90,
         displayInTable: true,
         unit: `${METER_UNIT}^3`,
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -712,6 +716,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 100,
         displayInTable: true,
         unit: `T/${METER_UNIT}`,
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -721,6 +726,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 110,
         displayInTable: true,
         unit: undefined,
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -729,6 +735,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 120,
         displayInTable: true,
         unit: METER_UNIT,
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -754,7 +761,7 @@ export const DeviceFields: DeviceFieldRecords = {
         label: "Plasma pressure",
         desc: "Plasma pressure profile",
         order: 300,
-        displayInTable: true,
+        displayInTable: false,
         unit: undefined,
         isLog: false,
         valueLabels: undefined
@@ -765,6 +772,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 140,
         displayInTable: true,
         unit: "TODO",
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -801,6 +809,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 190,
         displayInTable: true,
         unit: "TODO",
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
@@ -827,6 +836,7 @@ export const DeviceFields: DeviceFieldRecords = {
         order: 210,
         displayInTable: true,
         unit: "TODO",
+        truncateTo: 4,
         isLog: false,
         valueLabels: undefined
     },
