@@ -63,12 +63,15 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
     const mySurfs = useMemo(() => {
         totalTicks.current = 0
         const surf = showFullRing ? device?.fullSurfaces : device?.baseSurfaces
-        const colors = showFullRing ? device?.fullModBboozer : device?.baseModBboozer
+        const colors = showFullRing ? device?.fullModB : device?.baseModB
         // TODO: If we want to support painting more colors on the surface, come up with
         // UI controls to pick which data set we display
+        // TODO: NOTE: Because we have full surface-color data but are hard-locked to a single
+        // actual surface right now, we aren't matching up correctly; restrict the available
+        // surface colors to only the *last* set of data values (which is the outermost surface).
         return surf === undefined
             ? { surfacePoints: [], pointValues: [], incomplete: true } as SurfaceObject
-            : { surfacePoints: surf, pointValues: colors, incomplete: false }
+            : { surfacePoints: surf, pointValues: [colors[colors.length - 1]], incomplete: false }
     }, [device?.baseSurfaces[0]?.length, showFullRing])
 
     // const tubes = useMemo(() => {

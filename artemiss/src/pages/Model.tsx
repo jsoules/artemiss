@@ -56,6 +56,7 @@ const Model: FunctionComponent = () => {
         setSurfaceChecks(Array<boolean>(device.nSurfaces).fill(true))
     }, [device.nSurfaces])
 
+    // TODO
     const FIXME_STRINGID = { 'id': 'foo' }
     const downloadLinks = <DownloadLinks id={FIXME_STRINGID.id} />
     // const poincarePlot = <PoincarePlot id={stringId.id}/>
@@ -137,7 +138,7 @@ const Model: FunctionComponent = () => {
                 {makeLinePlot(device, "surfaceDistances", "pressure", rw)}
             </div>
             <div className="flexWrapper">
-                {makeLinePlot(device, "surfaceDistances", "boozerI", rw)}
+                {/* {makeLinePlot(device, "surfaceDistances", "boozerI", rw)} */}
                 {makeLinePlot(device, "surfaceDistances", "mercierCriterion", rw)}
                 {/* {makeLinePlot(device, "surfaceDistances", "pressure", rw)} */}
             </div>

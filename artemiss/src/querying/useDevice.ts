@@ -23,11 +23,11 @@ enum RawDeviceFields {
     VOL_AVG_B                    = "volavgB",
     MIRROR_RATIO                 = "mirror_ratio",
     MIN_L_GRAD_B                 = "min_L_grad_B",
+    MODB                         = "modB",
     MODB_BOOZER                  = "modB_boozer",
     PRESSURE                     = "pressure",
     PLASMA_BETA                  = "plasma_beta",
-    BOOZER_I                     = "boozer_I",
-    BOOZER_G                     = "boozer_G",
+    TOROIDAL_CURRENT             = "toroidal_current",
     J_DOT_B_VMEC                 = "jdotb_vmec",
     IOTA                         = "iota",
     VACUUM_WELL                  = "vacuum_well",
@@ -36,13 +36,11 @@ enum RawDeviceFields {
     INTEGRATED_AXIS_TORSION      = "integrated_axis_torsion",
     AXIS_HELICITY                = "axis_helicity",
     SQRT_BOOZER_QS_ERROR         = "sqrt_boozer_qs_error",
-    EPSILON_EFF                  = "epsilon_eff",
-    QI_ERROR                     = "qi_error",
     TIME                         = "time",
-    LOSS_FRACTION_S_0_01         = "loss_fraction_s_0_01",
-    LOSS_FRACTION_S_0_25         = "loss_fraction_s_0_25",
-    LOSS_FRACTION_S_0_50         = "loss_fraction_s_0_50",
-    MEAN_CONFINEMENT_TIME_S_0_01 = "mean_confinement_time_s_0_01",
+    LOSS_FRACTION_S_0_01         = "loss_fraction_s_0_10_curve",
+    LOSS_FRACTION_S_0_25         = "loss_fraction_s_0_25_curve",
+    LOSS_FRACTION_S_0_50         = "loss_fraction_s_0_50_curve",
+    MEAN_CONFINEMENT_TIME_S_0_10 = "mean_confinement_time_s_0_10",
     MEAN_CONFINEMENT_TIME_S_0_25 = "mean_confinement_time_s_0_25",
     MEAN_CONFINEMENT_TIME_S_0_50 = "mean_confinement_time_s_0_50",
     THETA_LOST_S_0_25            = "theta_lost_s_0_25",
@@ -67,11 +65,11 @@ const deviceJig: { raw: RawDeviceFields, dev: keyof Device }[] = [
     { raw: RawDeviceFields.VOL_AVG_B,               dev: "volAvgB"               },
     { raw: RawDeviceFields.MIRROR_RATIO,            dev: "mirrorRatio"           },
     { raw: RawDeviceFields.MIN_L_GRAD_B,            dev: "minLgradB"             },
+    { raw: RawDeviceFields.MODB,                    dev: "modb"                  },
     { raw: RawDeviceFields.MODB_BOOZER,             dev: "modbBoozer"            },
     { raw: RawDeviceFields.PRESSURE,                dev: "pressure"              },
     { raw: RawDeviceFields.PLASMA_BETA,             dev: "plasmaBeta"            },
-    { raw: RawDeviceFields.BOOZER_I,                dev: "boozerI"               },
-    { raw: RawDeviceFields.BOOZER_G,                dev: "boozerG"               },
+    { raw: RawDeviceFields.TOROIDAL_CURRENT,        dev: "toroidalCurrent"       },
     { raw: RawDeviceFields.J_DOT_B_VMEC,            dev: "jdotbVmec"             },
     { raw: RawDeviceFields.IOTA,                    dev: "iota"                  },
     { raw: RawDeviceFields.VACUUM_WELL,             dev: "vacuumWell"            },
@@ -80,18 +78,16 @@ const deviceJig: { raw: RawDeviceFields, dev: keyof Device }[] = [
     { raw: RawDeviceFields.INTEGRATED_AXIS_TORSION, dev: "integratedAxisTorsion" },
     { raw: RawDeviceFields.AXIS_HELICITY,           dev: "axisHelicity"          },
     { raw: RawDeviceFields.SQRT_BOOZER_QS_ERROR,    dev: "sqrtBoozerQsError"     },
-    { raw: RawDeviceFields.EPSILON_EFF,             dev: "epsilonEff"            },
-    { raw: RawDeviceFields.QI_ERROR,                dev: "qiError"               },
 ]
 
 
 const makeTimeSeriesFromRawDevice = (dev: RawDevice): DeviceTimeSeries => {
     const rec = {} as DeviceTimeSeries
     rec["time"] = dev[RawDeviceFields.TIME] as number[]
-    rec["lossFracS0_01"] = dev[RawDeviceFields.LOSS_FRACTION_S_0_01] as number
-    rec["lossFracS0_25"] = dev[RawDeviceFields.LOSS_FRACTION_S_0_25] as number
-    rec["lossFracS0_50"] = dev[RawDeviceFields.LOSS_FRACTION_S_0_50] as number
-    rec["meanConfinementTimeS0_01"] = dev[RawDeviceFields.MEAN_CONFINEMENT_TIME_S_0_01] as number
+    rec["lossFracS0_10"] = dev[RawDeviceFields.LOSS_FRACTION_S_0_01] as number[]
+    rec["lossFracS0_25"] = dev[RawDeviceFields.LOSS_FRACTION_S_0_25] as number[]
+    rec["lossFracS0_50"] = dev[RawDeviceFields.LOSS_FRACTION_S_0_50] as number[]
+    rec["meanConfinementTimeS0_10"] = dev[RawDeviceFields.MEAN_CONFINEMENT_TIME_S_0_10] as number
     rec["meanConfinementTimeS0_25"] = dev[RawDeviceFields.MEAN_CONFINEMENT_TIME_S_0_25] as number
     rec["meanConfinementTimeS0_50"] = dev[RawDeviceFields.MEAN_CONFINEMENT_TIME_S_0_50] as number
 
@@ -109,27 +105,41 @@ const makeLossSeriesFromRawDevice = (dev: RawDevice): LossSeries => {
 }
 
 
-const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
-    const vAvgB = dev[RawDeviceFields.VOL_AVG_B] as any as number
-    const rangeMin = vAvgB / 3
-    const rangeDelta = (8 * rangeMin)   // ((3 * vAvgB) - (1/3 * vAvgB)) = 9/3 - 1/3 = 8/3
-    const modb = dev[RawDeviceFields.MODB_BOOZER] as ScalarField[]
+// In QUASR, we normalize to a range based on vol_avg_b. This is to avoid
+// hiding differences in levels of variation between devices.
+// const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
+//     const vAvgB = dev[RawDeviceFields.VOL_AVG_B] as any as number
+//     const rangeMin = vAvgB / 3
+//     const rangeDelta = (8 * rangeMin)   // ((3 * vAvgB) - (1/3 * vAvgB)) = 9/3 - 1/3 = 8/3
+//     const modb = dev[RawDeviceFields.MODB] as ScalarField[]
 
-    return modb.map(shell => shell.map(row => row.map(pt => ((pt - rangeMin) / rangeDelta))))
+//     return modb.map(shell => shell.map(row => row.map(pt => ((pt - rangeMin) / rangeDelta))))
+// }
+// For Artemiss we'll want to normalize everything over [0, 1] regardless of level of variation--
+// we can't really compare meaningfully across devices anyway w/ such a heterogeneous data set.
+
+
+const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
+    const vals = dev[RawDeviceFields.MODB] as ScalarField[]
+    const flattened = vals.flat(3)
+    const max = Math.max.apply(null, flattened)
+    const min = Math.min.apply(null, flattened)
+    const scale = (max - min)
+    const convert = (input: number) => (input - min) / scale
+
+    return vals.map(surface => surface.map(strip => strip.map(point => convert(point))))
 }
 
 
 const makeDeviceFromRawDevice = (dev: RawDevice): Device => {
-    // not sure if the direct conversion of surf_xyz, magneticAxis are gonna work
-    // we'll see!
-    // compare more with the useModel model
     const record = {} as {[field in keyof Device]: FieldType | DeviceTimeSeries | LossSeries }
     deviceJig.forEach(field => { record[field.dev] = dev[field.raw] })
     record["nSurfaces"] = 1//(dev['surf_xyz'] as any as number[]).length  // just hard-code 1 since we only have 1 right now TODO
+    // NOTE: When the surface count, surface selection are updated, we will also need to update the colorization code!
     record["lossTracings"] = makeTimeSeriesFromRawDevice(dev)
     record["lossCharacteristics"] = makeLossSeriesFromRawDevice(dev)
-    record["modbBoozer"] = normalizeMagneticFlux(dev)
-    console.log(`Range of modBBoozer ${Math.min.apply(null, (record["modbBoozer"].flat(4)))} - ${Math.max.apply(null, record["modbBoozer"].flat(4))}`)
+    record["modb"] = normalizeMagneticFlux(dev)
+    // console.log(`Range of modB ${Math.min.apply(null, (record["modb"].flat(4)))} - ${Math.max.apply(null, record["modb"].flat(4))}`)
 
     return record as Device
 }

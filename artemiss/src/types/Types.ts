@@ -172,14 +172,13 @@ export type MagneticAxisObject = {
 
 export type DeviceTimeSeries = {
     time: number[], // time codes for particle confinement/tracing simulations. Used for plotting.
-    lossFracS0_01: number,  // doc says should be nt but example is scalar. TODO
-                            // frac of particles born on s=0.01 (i.e. very close to axis)
-                            // which are lost after time step t
-    lossFracS0_25: number,  // scalar or nt? Fraction particles born on s=0.25 lost after t
-    lossFracS0_50: number,  // ditto. Born at s=0.50 lost after time t
-    meanConfinementTimeS0_01: number,   // scalar or nt? As above
-    meanConfinementTimeS0_25: number,   // scalar or nt? As above
-    meanConfinementTimeS0_50: number,   // scalar or nt? As above
+    lossFracS0_10: number[],  // frac of particles born on s=0.01 (i.e. very close to axis)
+                              // which are lost after time step t
+    lossFracS0_25: number[],  // Fraction particles born on s=0.25 lost after t
+    lossFracS0_50: number[],  // ditto. Born at s=0.50 lost after time t
+    meanConfinementTimeS0_10: number,
+    meanConfinementTimeS0_25: number,
+    meanConfinementTimeS0_50: number,
 }
 
 
@@ -200,7 +199,6 @@ export type Device = {
     stellsym: boolean,
     enforceVacuum: boolean,
     surfaceDistances: number[], // s1d
-    // TODO: theta1d? phi1d?
     surface: Vec3Field, // SINGLE complete period of OUTERMOST surface.
                         // to be painted with other values in the object (user-selectable)
                         // TODO: Make this an actual list again...
@@ -211,12 +209,11 @@ export type Device = {
     volAvgB: number,
     mirrorRatio: number,    // B_max / B_min
     minLgradB: number,
-    // TODO: modB no boozer?
-    modbBoozer: ScalarField[],  // currently has ALL surfaces
+    modb: ScalarField[],        // currently has ALL surfaces
+    modbBoozer: ScalarField[],  // currently has ALL surfaces, not used
     pressure: number[], // same dimensionality as n surfaces
     plasmaBeta: number, // volume-averaged plasma beta (pressure / mag pressure)
-    boozerI: number[],  // ns. normalized toroidal current
-    boozerG: number[],  // ns. normalized poloidal current
+    toroidalCurrent: number[], // enclosed toroidal current profile on s1d, in amperes
     jdotbVmec: number[],    // ns. bootstrap current from vmec
     iota: number[],     // ns. Rotational transform profile (twist of field lines)
     vacuumWell: number, // magnetic well, stability criterion
@@ -225,8 +222,6 @@ export type Device = {
     integratedAxisTorsion: number,  // integrated torsion along magnetic axis
     axisHelicity: number,   // helicity of magnetic axis
     sqrtBoozerQsError: number[],    // ns. root of Boozer quasi-symmetry error
-    epsilonEff: number[],   // ns. effective ripple per-surface
-    qiError: number[],  // ns. quasi-isodynamic error measure, per surface.
     lossTracings: DeviceTimeSeries,
     lossCharacteristics: LossSeries
 }
@@ -236,6 +231,6 @@ export type Device3dModel = {
     surfaceCount: number,
     baseSurfaces: Vec3Field[],
     fullSurfaces: Vec3Field[],
-    baseModBboozer: ScalarField[],
-    fullModBboozer: ScalarField[]
+    baseModB: ScalarField[],
+    fullModB: ScalarField[]
 }

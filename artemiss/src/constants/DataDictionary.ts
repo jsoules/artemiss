@@ -732,6 +732,15 @@ export const DeviceFields: DeviceFieldRecords = {
         isLog: false,
         valueLabels: undefined
     },
+    modb: {
+        label: "Mod B",
+        desc: "magnitude of B fields at surface",
+        order: 0,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
     modbBoozer: {
         label: "Mod-B Boozer",
         desc: "magitude of B fields at surface",
@@ -755,25 +764,16 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "Volume-averaged plasma beta",
         order: 140,
         displayInTable: true,
-        unit: "FIXME",
+        unit: "TODO",
         isLog: false,
         valueLabels: undefined
     },
-    boozerI: {
-        label: "Boozer I",
-        desc: "Normalized toroidal current",
-        order: 150,
-        displayInTable: false,
-        unit: undefined,
-        isLog: false,
-        valueLabels: undefined
-    },
-    boozerG: {
-        label: "Boozer G",
-        desc: "Normalized poloidal current",
-        order: 160,
-        displayInTable: false,
-        unit: undefined,
+    toroidalCurrent: {
+        label: "Toroidal current",
+        desc: "Enclosed toroidal current profile on the surfaces",
+        order: 155,
+        displayInTable: true,
+        unit: "Amperes",
         isLog: false,
         valueLabels: undefined
     },
@@ -800,7 +800,7 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "vacuum well",
         order: 190,
         displayInTable: true,
-        unit: "FIXME",
+        unit: "TODO",
         isLog: false,
         valueLabels: undefined
     },
@@ -809,7 +809,7 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "Mercier criterion",
         order: 200,
         displayInTable: false,  // TODO: use graph??
-        unit: "FIXME",
+        unit: "TODO",
         isLog: false,
         valueLabels: undefined
     },
@@ -826,7 +826,7 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "Integrated torsion on magnetic axis",
         order: 210,
         displayInTable: true,
-        unit: "FIXME",
+        unit: "TODO",
         isLog: false,
         valueLabels: undefined
     },
@@ -844,24 +844,6 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "Root of Boozer QS error",
         order: 230,
         displayInTable: false,  // TODO: use graph??
-        unit: undefined,
-        isLog: false,
-        valueLabels: undefined
-    },
-    epsilonEff: {
-        label: "Epsilon",
-        desc: "effective ripple",
-        order: 240,
-        displayInTable: false,  // TODO: use graph??
-        unit: undefined,
-        isLog: false,
-        valueLabels: undefined
-    },
-    qiError: {
-        label: "Goodman QI error",
-        desc: "Goodman QI error",
-        order: 350,
-        displayInTable: true,
         unit: undefined,
         isLog: false,
         valueLabels: undefined

@@ -1,6 +1,6 @@
 import { applySurfaceSymmetries } from "@snComponents/display/visualizer/symmetries"
 import { defaultEmptyDevice } from "@snTypes/Defaults"
-import { Device, Device3dModel, ScalarField } from "@snTypes/Types"
+import { Device, Device3dModel } from "@snTypes/Types"
 import { useMemo } from 'react'
 
 // Need to fetch (in parallel) the coils, currents, surfaces, and modB
@@ -16,20 +16,9 @@ import { useMemo } from 'react'
 // Save the querying stuff as we'll handle it elsewhere.
 
 
-const normalizeModB = (vals: ScalarField[]): ScalarField[] => {
-    const flattened = vals.flat(3)
-    const max = Math.max.apply(null, flattened)
-    const min = Math.min.apply(null, flattened)
-    const scale = (max - min)
-    const convert = (input: number) => (input - min) * scale
-
-    return vals.map(surface => surface.map(strip => strip.map(point => convert(point))))
-}
-
-
 const useDevice3dModel = (dev: Device): Device3dModel => {
     const baseSurf = useMemo(() => [dev.surface], [dev.uuid])
-    const baseModB = useMemo(() => dev.modbBoozer, [dev.uuid])
+    const baseModB = useMemo(() => dev.modb, [dev.uuid])
     const {fullSurf, fullModB} = useMemo(() => {
         return dev.uuid === defaultEmptyDevice.uuid
             ? { fullSurf: [], fullModB: [] }
@@ -40,8 +29,8 @@ const useDevice3dModel = (dev: Device): Device3dModel => {
         surfaceCount: 1,
         baseSurfaces: baseSurf,
         fullSurfaces: fullSurf,
-        baseModBboozer: baseModB,
-        fullModBboozer: fullModB
+        baseModB: baseModB,
+        fullModB: fullModB
     } as Device3dModel
 }
 
