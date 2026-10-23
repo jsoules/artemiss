@@ -22,33 +22,12 @@ export type FilterControlState = {
     minLgradB: number[]
     plasmaBeta: number[]
     vacuumWell: number[]
-    intAxisTorsion: number[]
     axisHelicity: boolean[]
-    iotaAxis: number[]
     iotaMean: number[]
-    iotaMax: number[]
-    iotaEdge: number[]
-    jdotbVmecMean: number[]
-    jdotbVmecMax: number[]
-    jdotbVmecEdge: number[]
-    mercierCriterionMean: number[]
     mercierCriterionMax: number[]
-    mercierCriterionEdge: number[]
-    epsilonEffMean: number[]
-    epsilonEffMax: number[]
-    epsilonEffEdge: number[]
-    qiErrorMean: number[]
-    qiErrorMax: number[]
-    qiErrorEdge: number[]
     sqrtBoozerQsErrMean: number[]
-    sqrtBoozerQsErrMax: number[]
-    sqrtBoozerQsErrEdge: number[]
-    lossFractionS010: number[]
     lossFractionS025: number[]
-    lossFractionS050: number[]
-    meanConfinementTimeS010: number[]
     meanConfinementTimeS025: number[]
-    meanConfinementTimeS050: number[]
 }
 
 export type FilterSettings = {
@@ -88,7 +67,6 @@ export type ArtemissRecord = {
     stellsym: number,                // storing a properly-boolean value as 0, 1 for convenience in filtering/projection
     enforceVacuum: number,           // ditto
     // Globally unique(ish)/continuous fields
-    // phiEdge: number,                 // range 15.0 - 150.0? (unit?) Total toroidal magnetic flux in the device
     minorRadius: number,             // range 0.4+ - 2.5+ (M). Minor radius of outermost surface ("minor radius")
     aspectRatio: number,             // range 1.245 - 25.142 (no unit)
     volume: number,                  // range -3077 - 3672, signed, Volume enclosed by outermost toroidal surface over which QS was optimized. (m^3)
@@ -97,32 +75,11 @@ export type ArtemissRecord = {
     minLgradB: number,               // range 0.00005 - 20.7, predicts required coil separation length to maintain containment
     plasmaBeta: number,              // range 0 - 0.0565, volume-averaged plasma beta. MISSING FROM LATEST PULL
     vacuumWell: number,              // range -4.24 - 0.64. Metric for plasma equilibrium stability
-    intAxisTorsion: number,          // range -55740 - 46100 -- TODO
-    iotaAxis: number,                // range -3.68 - 2.92, iota profile???
     iotaMean: number,                // range -3.7 - 2.86  TODO
-    iotaMax: number,                 // range -3.62 - 2.92 TODO
-    iotaEdge: number,                // range -3.62 - 2.91 TODO
-    jdotbVmecMean: number,           // range -16M - 22.2M, bootstrap current
-    jdotbVmecMax: number,            // range -11M - 28M    TODO
-    jdotbVmecEdge: number,           // range -23M - 28M    TODO
-    mercierCriterionMean: number,    // range -2392 - 0.5204, Mercier criterion, negative is good
     mercierCriterionMax: number,     // NO CONCRETE VALUES IN LATEST DATA
-    mercierCriterionEdge: number,    // NO CONCRETE VALUES IN LATEST DATA
-    epsilonEffMean: number,          // range 0 - 2.78e12, effective ripple/epsilon
-    epsilonEffMax: number,           // range 0 - 4.17e13, ???
-    epsilonEffEdge: number,          // range -1.5 - 4.17e13    ???
-    qiErrorMean: number,             // range 0 - 0.395, Goodman QI error
-    qiErrorMax: number,              // range 0 - 0.456, ???
-    qiErrorEdge: number,             // range 0 - 0.451, ???
     sqrtBoozerQsErrMean: number,     // range 0.003 - 1.03, root of Boozer QS error
-    sqrtBoozerQsErrMax: number,      // range 0.004 - 1.28, ???
-    sqrtBoozerQsErrEdge: number,     // range 0.004 - 1.28, ???
-    lossFractionS010: number,        // Fraction (0 - 1.01). Fraction of particles born on s=0.10 that escape plasma w/in 0.1 sec
     lossFractionS025: number,        // Fraction (0 - 1.01). Fraction of particles born on s=0.25 that escape plasma w/in 0.1 sec
-    lossFractionS050: number,        // Fraction (0 - 1.01). Fraction of particles born on s=0.50 that escape plasma w/in 0.1 sec
-    meanConfinementTimeS010: number, // range 0 - 0.1, ???
     meanConfinementTimeS025: number, // range 0 - 0.1, ???
-    meanConfinementTimeS050: number, // range 0 - 0.1, ???
 }
 export type RecordDict = Record<PKType, ArtemissRecord>
 

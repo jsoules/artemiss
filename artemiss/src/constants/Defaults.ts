@@ -8,12 +8,17 @@ export const defaultDependentVariableValue = DependentVariables.VOL_AVG_B
 export const defaultIndependentVariableValue = IndependentVariables.MINOR_RADIUS
 export const defaultPlotColorSplit = ToggleableVariables.DATABASE_FROM
 
+const initialOnDatabases = ['bindel_2023', 'kappel_2024', 'model_improvement_2026']
+const initialOnNfps = [ '1', '4' ]
+const initialDbFromFilter = databaseFromValidValues.map(v => initialOnDatabases.includes(v))
+const initialNfpFilter = nfpValidValues.map(v => initialOnNfps.includes(v))
+
 const defaultFilterState: FilterControlState = {
-    databaseFrom: [ true, ...(new Array<boolean>(databaseFromValidValues.length - 2).fill(false)), true ],
-    nfp: [ true, true, ...(new Array<boolean>(nfpValidValues.length - 2).fill(false)) ], //new Array<boolean>(nfpValidValues.length).fill(true),
+    databaseFrom: initialDbFromFilter,
+    nfp: initialNfpFilter,
     axisHelicity: new Array<boolean>(axisHelicityValidValues.length).fill(false),
-    stellsym: [false, true],
-    enforceVacuum: [false, true],
+    stellsym: [true, false],
+    enforceVacuum: [true, false],
     minorRadius: (Fields.minorRadius.range),
     aspectRatio: (Fields.aspectRatio.range),
     volume: (Fields.volume.range),
@@ -22,32 +27,11 @@ const defaultFilterState: FilterControlState = {
     minLgradB: (Fields.minLgradB.range),
     plasmaBeta: (Fields.plasmaBeta.range),
     vacuumWell: (Fields.vacuumWell.range),
-    intAxisTorsion: (Fields.intAxisTorsion.range),
-    iotaAxis: (Fields.iotaAxis.range),
     iotaMean: (Fields.iotaMean.range),
-    iotaMax: (Fields.iotaMax.range),
-    iotaEdge: (Fields.iotaEdge.range),
-    jdotbVmecMean: (Fields.jdotbVmecMean.range),
-    jdotbVmecMax: (Fields.jdotbVmecMax.range),
-    jdotbVmecEdge: (Fields.jdotbVmecEdge.range),
-    mercierCriterionMean: (Fields.mercierCriterionMean.range),
     mercierCriterionMax: (Fields.mercierCriterionMax.range),
-    mercierCriterionEdge: (Fields.mercierCriterionEdge.range),
-    epsilonEffMean: (Fields.epsilonEffMean.range),
-    epsilonEffMax: (Fields.epsilonEffMax.range),
-    epsilonEffEdge: (Fields.epsilonEffEdge.range),
-    qiErrorMean: (Fields.qiErrorMean.range),
-    qiErrorMax: (Fields.qiErrorMax.range),
-    qiErrorEdge: (Fields.qiErrorEdge.range),
     sqrtBoozerQsErrMean: (Fields.sqrtBoozerQsErrMean.range),
-    sqrtBoozerQsErrMax: (Fields.sqrtBoozerQsErrMax.range),
-    sqrtBoozerQsErrEdge: (Fields.sqrtBoozerQsErrEdge.range),
-    lossFractionS010: (Fields.lossFractionS010.range),
     lossFractionS025: (Fields.lossFractionS025.range),
-    lossFractionS050: (Fields.lossFractionS050.range),
-    meanConfinementTimeS010: (Fields.meanConfinementTimeS010.range),
     meanConfinementTimeS025: (Fields.meanConfinementTimeS025.range),
-    meanConfinementTimeS050: (Fields.meanConfinementTimeS050.range),
 }
 
 
@@ -126,32 +110,11 @@ export const defaultEmptyRecord: ArtemissRecord = {
     minLgradB: 0.,
     plasmaBeta: 0.,
     vacuumWell: 0.,
-    intAxisTorsion: 0.,
-    iotaAxis: 0.,
     iotaMean: 0.,
-    iotaMax: 0.,
-    iotaEdge: 0.,
-    jdotbVmecMean: 0.,
-    jdotbVmecMax: 0.,
-    jdotbVmecEdge: 0.,
-    mercierCriterionMean: 0.,
     mercierCriterionMax: 0.,
-    mercierCriterionEdge: 0.,
-    epsilonEffMean: 0.,
-    epsilonEffMax: 0.,
-    epsilonEffEdge: 0.,
-    qiErrorMean: 0.,
-    qiErrorMax: 0.,
-    qiErrorEdge: 0.,
     sqrtBoozerQsErrMean: 0.,
-    sqrtBoozerQsErrMax: 0.,
-    sqrtBoozerQsErrEdge: 0.,
-    lossFractionS010: 0.,
     lossFractionS025: 0.,
-    lossFractionS050: 0.,
-    meanConfinementTimeS010: 0.,
     meanConfinementTimeS025: 0.,
-    meanConfinementTimeS050: 0.,
 }
 
 export const defaultEmptyDevice: Device = {
