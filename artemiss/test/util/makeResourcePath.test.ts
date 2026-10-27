@@ -10,8 +10,8 @@ describe.concurrent("snUtil makeResourcePath", () => {
 
     const expected: { t: KnownPathType, path: string }[] = [
         { t: KnownPathType.RECORD,   path: "records/0001/0001234.json" },
-        { t: KnownPathType.NML_VMEC, path: "nml/0001/input.0001234" },
-        { t: KnownPathType.SIMSOPT,  path: "simsopt_serials/0001/serial0001234.json" },
+        { t: KnownPathType.VMEC_IN, path: "nml/0001/input.0001234" },
+        { t: KnownPathType.VMEC_OUT,  path: "simsopt_serials/0001/serial0001234.json" },
         { t: KnownPathType.POINCARE, path: "graphics/poincare_png/0001/poincare0001234.png" },
         { t: KnownPathType.COILS,    path: "graphics/curves/0001/curves0001234.json" },
         { t: KnownPathType.CURRENTS, path: "graphics/currents/0001/currents0001234.json" },

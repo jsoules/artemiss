@@ -195,6 +195,7 @@ export type Device = {
     databaseFrom: string,
     groupName: string,
     databaseFromId: string,
+    canonicalPath: string,
     nfp: number,
     stellsym: boolean,
     enforceVacuum: boolean,

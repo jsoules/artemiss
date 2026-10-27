@@ -36,25 +36,25 @@ export const makeUrl = (dev: ArtemissRecord | Device): string => {
 }
 
 
-export const decodeUrlToPath = (urlFragment: string): string => {
-    if (urlFragment === '') return ''
+export const decodeUrlToPath = (urlFragment: string): { path: string, uuid: string } => {
+    if (urlFragment === '') return { path: '', uuid: '' }
     const [dbFromAbbrev, groupName, srcIdAbbrev, uuid] = decodeURIComponent(urlFragment).split(ConcatenationToken)
     const dbFrom = SrcDbAbbrevMap.get(dbFromAbbrev)?.full ?? dbFromAbbrev
     const srcId = DbFromIdAbbrevMap.get(srcIdAbbrev)?.full ?? srcIdAbbrev
-    return [dbFrom, groupName, srcId, uuid].join('/')
+    return { path: [dbFrom, groupName, srcId, uuid].join('/'), uuid }
 }
 
 
 const makeResourcePath = (urlFragment: string, type: KnownPathType): string => {
-    const resourcePath = decodeUrlToPath(urlFragment)
+    const { path: resourcePath, uuid } = decodeUrlToPath(urlFragment)
 
     switch (type) {
-        case KnownPathType.SIMSOPT:
-            throw Error("Not Implemented")
-        case KnownPathType.NML_VMEC:
-            throw Error("Not Implemented")
+        case KnownPathType.VMEC_OUT:
+            return `${basePath}${resourcePath}/preprocess/wout_${uuid}.nc`
+        case KnownPathType.VMEC_IN:
+            return `${basePath}${resourcePath}/preprocess/input.${uuid}`
         case KnownPathType.WEB:
-            return `${basePath}/${resourcePath}/web/device_data.json`
+            return `${basePath}${resourcePath}/web/device_data.json`
         case KnownPathType.DATABASE:
             return `${basePath}database_summary.json`   // add .gz
         default:

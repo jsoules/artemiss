@@ -1,32 +1,33 @@
 import { Button, Tooltip } from '@mui/material'
-// import { KnownPathType } from '@snTypes/DataDictionary'
-// import makeResourcePath, { getStringId } from "@snUtil/makeResourcePath"
+import { KnownPathType } from '@snTypes/DataDictionary'
+import makeResourcePath from "@snUtil/makeResourcePath"
 import { FunctionComponent } from "react"
 import { Light as SyntaxHighlighter } from "react-syntax-highlighter"
 import python from "react-syntax-highlighter/dist/esm/languages/hljs/python"
 import { a11yLight } from "react-syntax-highlighter/dist/esm/styles/hljs"
 
 type Props = {
-    id: string
+    canonicalPath: string
 }
 
 SyntaxHighlighter.registerLanguage('python', python)
 
 
 const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
-    const { id } = props
+    const { canonicalPath } = props
     
-    // const vmecPath = makeResourcePath(getStringId(id), KnownPathType.NML_VMEC)
-    // const simsoptPath = makeResourcePath(getStringId(id), KnownPathType.SIMSOPT)
+    const vmecInPath = makeResourcePath(canonicalPath, KnownPathType.VMEC_IN)
+    const vmecOutPath = makeResourcePath(canonicalPath, KnownPathType.VMEC_OUT)
     
     // We have to do some fussy path-munging in order to construct the forced-download link correctly--otherwise
     // the browser will suggest saving the file according to its full path, not just its file name.
-    // const vmecPathParts = vmecPath.split("/")
-    // const vmecFile = vmecPathParts.pop() ?? ""
-    // const vmecPathFinal = vmecPathParts.join("/")
-    // const simsoptPathParts = simsoptPath.split("/")
-    // const simsoptFile = simsoptPathParts.pop() ?? ""
-    // const simsoptPathFinal = simsoptPathParts.join("/")
+    const vmecInPathParts = vmecInPath.split("/")
+    const vmecInFile = vmecInPathParts.pop() ?? ""
+    const vmecPathFinal = vmecInPathParts.join("/")
+    const vmecOutPathParts = vmecOutPath.split("/")
+    const vmecOutFile = vmecOutPathParts.pop() ?? ""
+    const vmecOutPathFinal = vmecOutPathParts.join("/")
+    console.log(`vmec in path has ${vmecInPathParts} -- ${vmecInFile} -- ${vmecPathFinal}`)
 
     const codeSnippet =
 `from simsopt._core import load
@@ -41,25 +42,25 @@ const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
                         variant="contained"
                         size="small"
                         style={{margin: 20}}
-                        onClick={() => document.getElementById("vmec_download")?.click()}
+                        onClick={() => document.getElementById("vmec_in_download")?.click()}
                     >
-                        Download VMEC
+                        Download VMEC Input
                     </Button>
                 </Tooltip>
-                {/* <a id="vmec_download" href={`${vmecPathFinal}/${vmecFile}`} download={vmecFile} style={{display: "none"}} /> */}
+                <a id="vmec_in_download" href={`${vmecPathFinal}/${vmecInFile}`} download={vmecInFile} style={{display: "none"}} />
                 <Tooltip
-                    title="Download SIMSOPT coils, magnetic axis, and surface serializations"
+                    title="Download VMEC wout file"
                 >
                     <Button
                         variant="contained"
                         size="small"
                         style={{margin: 20}}
-                        onClick={() => document.getElementById("simsopt_download")?.click()}
+                        onClick={() => document.getElementById("vemc_wout_download")?.click()}
                     >
-                        Download SIMSOPT
+                        Download VMEC Wout
                     </Button>
                 </Tooltip>
-                {/* <a id="simsopt_download" href={`${simsoptPathFinal}/${simsoptFile}`} download={simsoptFile} style={{display: "none"}} /> */}
+                <a id="vemc_wout_download" href={`${vmecOutPathFinal}/${vmecOutFile}`} download={vmecOutFile} style={{display: "none"}} />
                 <div>
                     <span>To load downloaded SIMSOPT data, execute the following Python script:</span>
                     <div style={{border: "1px solid #7f7f7f", margin: 10}}>

@@ -88,9 +88,7 @@ const Model: FunctionComponent = () => {
         setSurfaceChecks(Array<boolean>(device.nSurfaces).fill(true))
     }, [device.nSurfaces])
 
-    // TODO
-    const FIXME_STRINGID = { 'id': 'foo' }
-    const downloadLinks = <DownloadLinks id={FIXME_STRINGID.id} />
+    const downloadLinks = <DownloadLinks canonicalPath={device.canonicalPath} />
     // const poincarePlot = <PoincarePlot id={stringId.id}/>
 
     const { width } = useWindowDimensions()

@@ -570,13 +570,13 @@ export enum CategoricalIndexedFields {
 
 export enum KnownPathType {
     WEB = "web",
+    VMEC_IN = "nml",
+    VMEC_OUT = "simsopt_serials",
+    DATABASE = "database",
     // SURFACES = "surfaces",
     // MODB = "modB",
-    NML_VMEC = "nml",
-    SIMSOPT = "simsopt_serials",
     // CURRENTS = "currents",
     // POINCARE = "poincare",
-    DATABASE = "database",
     // RECORD = "record"
 }
 
@@ -632,6 +632,15 @@ export const DeviceFields: DeviceFieldRecords = {
         label: "Source-ID",
         desc: "ID in source database",
         order: 4,
+        displayInTable: false,
+        unit: undefined,
+        isLog: false,
+        valueLabels: undefined
+    },
+    canonicalPath: {
+        label: "Canonical-url",
+        desc: "Canonical url for record download",
+        order: -1,
         displayInTable: false,
         unit: undefined,
         isLog: false,

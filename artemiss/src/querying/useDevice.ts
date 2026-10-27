@@ -1,7 +1,7 @@
 import { DeviceFields, KnownPathType } from "@snTypes/DataDictionary"
 import { defaultEmptyDevice } from '@snTypes/Defaults'
 import { Device, DeviceTimeSeries, LossSeries, ScalarField } from "@snTypes/Types"
-import makeResourcePath from "@snUtil/makeResourcePath"
+import makeResourcePath, { makeUrl } from "@snUtil/makeResourcePath"
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import queryFn from "./queryFn"
@@ -105,20 +105,6 @@ const makeLossSeriesFromRawDevice = (dev: RawDevice): LossSeries => {
 }
 
 
-// In QUASR, we normalize to a range based on vol_avg_b. This is to avoid
-// hiding differences in levels of variation between devices.
-// const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
-//     const vAvgB = dev[RawDeviceFields.VOL_AVG_B] as any as number
-//     const rangeMin = vAvgB / 3
-//     const rangeDelta = (8 * rangeMin)   // ((3 * vAvgB) - (1/3 * vAvgB)) = 9/3 - 1/3 = 8/3
-//     const modb = dev[RawDeviceFields.MODB] as ScalarField[]
-
-//     return modb.map(shell => shell.map(row => row.map(pt => ((pt - rangeMin) / rangeDelta))))
-// }
-// For Artemiss we'll want to normalize everything over [0, 1] regardless of level of variation--
-// we can't really compare meaningfully across devices anyway w/ such a heterogeneous data set.
-
-
 const normalizeMagneticFlux = (dev: RawDevice): ScalarField[] => {
     const vals = dev[RawDeviceFields.MODB] as ScalarField[]
     const flattened = vals.flat(3)
@@ -138,14 +124,12 @@ const makeDeviceFromRawDevice = (dev: RawDevice): Device => {
         const trunc = DeviceFields[field.dev].truncateTo
         const needsTrunc = trunc && typeof(devVal) === 'number'
         record[field.dev] = needsTrunc ? devVal.toFixed(trunc) : devVal
-        // record[field.dev] = typeof(devVal) === 'number' ? devVal.toFixed(4) : devVal
     })
     record["nSurfaces"] = 1//(dev['surf_xyz'] as any as number[]).length  // just hard-code 1 since we only have 1 right now TODO
     // NOTE: When the surface count, surface selection are updated, we will also need to update the colorization code!
     record["lossTracings"] = makeTimeSeriesFromRawDevice(dev)
     record["lossCharacteristics"] = makeLossSeriesFromRawDevice(dev)
     record["modb"] = normalizeMagneticFlux(dev)
-    // console.log(`Range of modB ${Math.min.apply(null, (record["modb"].flat(4)))} - ${Math.max.apply(null, record["modb"].flat(4))}`)
 
     return record as Device
 }
@@ -173,7 +157,9 @@ const useDevice = (urlChunk: string) => {
 
     const device = useMemo(() => {
         if (!rawDevice) return defaultEmptyDevice
-        return makeDeviceFromRawDevice(rawDevice)
+        const dev = makeDeviceFromRawDevice(rawDevice)
+        dev.canonicalPath = makeUrl(dev)
+        return dev
     }, [rawDevice])
     // ^-- references data structure so it updates when async query finishes
 

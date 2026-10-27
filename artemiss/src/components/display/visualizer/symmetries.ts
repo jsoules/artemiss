@@ -132,8 +132,6 @@ export const applySurfaceSymmetries = (baseSurf: Vec3Field[], baseModB: ScalarFi
         return new Array(nfp).fill(0).map(() => fullPeriodSurfacePoints).flat() as ScalarField
     })
     const completedPoints = pointFields
-    console.log(`Length of full surface: ${completedSurfaces[0].length} length of full points: ${completedPoints[14].length}`)
-    console.log(`Second dim: surfs ${completedSurfaces[0][0].length} vals ${completedPoints[14][0].length}`)
     
     return { fullSurf: completedSurfaces, fullModB: completedPoints }
 }
