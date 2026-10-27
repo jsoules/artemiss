@@ -81,6 +81,7 @@ const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
 
     const columns = [...fixedWidthCols, ...varWidthCols]
     const rows = projectSnTableRows(records)
+    const markedIdUrls = new Set(markedIds.values().map(v => records.filter(rec => rec.rowid === v)[0].canonicalPath))
 
     return (
         <div style={{ marginLeft: plotGridInternalMargin, marginRight: plotGridInternalMargin }}>
@@ -96,7 +97,7 @@ const SnTable: FunctionComponent<SnTableProps> = (props: SnTableProps) => {
                 />
             </div>
             <div className="padded">
-                <OpenSelectedButton markedIds={markedIds} />
+                <OpenSelectedButton markedIdUrls={markedIdUrls} />
             </div>
         </div>
     )

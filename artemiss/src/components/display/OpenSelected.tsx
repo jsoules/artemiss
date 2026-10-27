@@ -1,11 +1,10 @@
 import { Button, Tooltip } from '@mui/material'
-import { PKType } from '@snTypes/Types'
 import { FunctionComponent } from 'react'
 import { onOpenSelected } from './plots/interactions/dotInteractions'
 
 
 type OpenSelectedProps = {
-    markedIds?: Set<PKType>
+    markedIdUrls?: Set<string>
 }
 
 
@@ -13,7 +12,7 @@ type OpenSelectedProps = {
 // to compute the URL from the id.
 // Fix is to remap in the SnTable where OpenSelectedButton is created.
 const OpenSelectedButton: FunctionComponent<OpenSelectedProps> = (props: OpenSelectedProps) => {
-    const { markedIds } = props
+    const { markedIdUrls } = props
 
     return (
         <Tooltip
@@ -23,7 +22,7 @@ const OpenSelectedButton: FunctionComponent<OpenSelectedProps> = (props: OpenSel
             <Button
                 variant="contained"
                 size="small"
-                onClick={() => { onOpenSelected(markedIds) }}
+                onClick={() => { onOpenSelected(markedIdUrls) }}
             >
                 Open selected
             </Button>
