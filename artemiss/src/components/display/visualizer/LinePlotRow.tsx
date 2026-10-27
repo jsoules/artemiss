@@ -1,6 +1,6 @@
 import { FunctionComponent, useMemo } from "react"
 
-import { LinePlot, LinePlotProps } from "@snVisualizer/index"
+import { LinePlot, LinePlotProps } from "@snComponents/display/visualizer"
 
 
 // TODO:

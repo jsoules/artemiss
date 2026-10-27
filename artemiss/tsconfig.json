@@ -41,21 +41,6 @@
             "./src/components/*",
             "./src/pages/*"
         ],
-        "@snGeneralComponents/*": [
-            "./src/components/general/*",
-        ],
-        "@snDisplayComponents/*": [
-            "./src/components/display/*"
-        ],
-        "@snControlComponents/*": [
-            "./src/components/selectionControl/*"
-        ],
-        "@snVisualizer/*": [
-            "./src/components/display/visualizer/*"
-        ],
-        "@snPlots/*": [
-            "./src/components/display/plots/*"
-        ],
         "@snState/*": [
             "./src/logic/*",
             "./src/state/*"

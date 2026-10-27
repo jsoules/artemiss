@@ -1,4 +1,4 @@
-import { SupportedColorMap, valueToRgbTriplet } from "@snDisplayComponents/Colormaps"
+import { SupportedColorMap, valueToRgbTriplet } from "@snComponents/display/Colormaps"
 import { ScalarField, Vec3, Vec3Field } from "@snTypes/Types"
 import { useMemo } from "react"
 import * as THREE from "three"

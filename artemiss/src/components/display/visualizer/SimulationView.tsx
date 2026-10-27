@@ -1,4 +1,4 @@
-import { SupportedColorMap } from '@snDisplayComponents/Colormaps'
+import { SupportedColorMap } from '@snComponents/display/Colormaps'
 import { Device3dModel, SurfaceObject } from '@snTypes/Types'
 import { FunctionComponent, RefObject, useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'

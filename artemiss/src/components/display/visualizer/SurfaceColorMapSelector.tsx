@@ -1,6 +1,6 @@
 
 import { FormControl, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material"
-import { DefaultColorMap, MapsConfig, SupportedColorMap } from "@snDisplayComponents/Colormaps"
+import { DefaultColorMap, MapsConfig, SupportedColorMap } from "@snComponents/display/Colormaps"
 import { Fragment, FunctionComponent } from "react"
 
 

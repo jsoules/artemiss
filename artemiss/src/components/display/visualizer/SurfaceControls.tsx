@@ -2,7 +2,7 @@ import { SelectChangeEvent } from "@mui/material"
 import SnCheckboxGroup from "@snComponents/SnCheckboxGroup"
 import SnSwitch from "@snComponents/SnSwitch"
 import { SupportedColorMap } from "@snComponents/display/Colormaps"
-import SurfaceColorMapSelector from "@snVisualizer/SurfaceColorMapSelector"
+import { SurfaceColorMapSelector } from "@snComponents/display/visualizer"
 import { Dispatch, FunctionComponent, SetStateAction, useCallback } from "react"
 
 type SurfaceControlsProps = {
