@@ -2,7 +2,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { IconButton } from '@mui/material'
 import Drawer from '@mui/material/Drawer'
 import { FunctionComponent, PropsWithChildren } from 'react'
-import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
+import imgLogo from 'src/assets/BoSS_Logo.svg'
 
 type DrawerProps = {
     open: boolean

@@ -1,8 +1,6 @@
 import { SupportedColorMap, SupportedColorPalette } from "@snComponents/display/Colormaps"
 import SnTable from "@snComponents/display/SnTable"
-import usePlotMouseHandlers from "@snComponents/display/plots/interactions/mouseInteractions"
-import { defaultPlotColorProps, plotColorReducer } from "@snComponents/display/plots/interactions/plotColors"
-import { usePlotData } from "@snComponents/display/plots/interactions/usePlotData"
+import { defaultPlotColorProps, plotColorReducer, usePlotData, usePlotMouseHandlers } from "@snComponents/display/plots"
 import { computePerPlotDimensions, useDataGeometry } from "@snComponents/display/plots/layout/PlotScaling"
 import ColorBar from "@snComponents/display/plots/legends/colorBar"
 import PlotLegend from "@snComponents/display/plots/legends/plotLegend"
@@ -20,7 +18,7 @@ import { DependentVariables, ToggleableVariables, fieldIsCategorical } from "@sn
 import { FilterSettings } from "@snTypes/Types"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
 import { Dispatch, FunctionComponent, useMemo, useReducer, useState } from "react"
-import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
+import imgLogo from 'src/assets/BoSS_Logo.svg'
 import PlotGrid from "./PlotGrid"
 
 

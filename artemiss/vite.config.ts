@@ -39,7 +39,7 @@ export default defineConfig({
     },
     plugins: [react()],
     // base: "/~jsoules/QUASR",
-    // base: "/~jsoules/test",
+    // base: "/~jsoules/testboss",
     server: {
         watch: {
             ignored: ['**/public/**', '**/publicX/**']

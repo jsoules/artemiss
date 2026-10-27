@@ -27,11 +27,10 @@ const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
     const vmecOutPathParts = vmecOutPath.split("/")
     const vmecOutFile = vmecOutPathParts.pop() ?? ""
     const vmecOutPathFinal = vmecOutPathParts.join("/")
-    console.log(`vmec in path has ${vmecInPathParts} -- ${vmecInFile} -- ${vmecPathFinal}`)
 
     const codeSnippet =
-`from simsopt._core import load
-[surfaces, coils] = load('foo')`
+`from simsopt.mhd import Vmec
+vs = Vmec(FILENAME)`
 // // // [surfaces, coils] = load('${simsoptFile}')`
 
     return  (<div className="indent">
@@ -62,7 +61,7 @@ const DownloadLinks: FunctionComponent<Props> = (props: Props) => {
                 </Tooltip>
                 <a id="vemc_wout_download" href={`${vmecOutPathFinal}/${vmecOutFile}`} download={vmecOutFile} style={{display: "none"}} />
                 <div>
-                    <span>To load downloaded SIMSOPT data, execute the following Python script:</span>
+                    <span>To load downloaded VMEC data, execute the following Python script:</span>
                     <div style={{border: "1px solid #7f7f7f", margin: 10}}>
                         <SyntaxHighlighter language="python" style={a11yLight}>
                             {codeSnippet} 
