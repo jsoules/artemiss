@@ -89,6 +89,9 @@ const computeTicks = (props: TicksData): TickDescriptor[] => {
     const baseTicks = getBaseTicks(props)
     const fixedDigits = isLog ? 1 : getFixedDigits(props, baseTicks.length)
     const ticksToLabel = isLog ? computeTicksToLabel(baseTicks) : []
+    const abbrevToK = fixedDigits > 4 && baseTicks.every(v => v % 1000 === 0)
+    // doubt this'll come up...
+    const abbrevToM = fixedDigits > 4 && baseTicks.every(v => v % 1000000 === 0)
 
     return baseTicks.map((value, i) => ({
         value,
@@ -99,7 +102,12 @@ const computeTicks = (props: TicksData): TickDescriptor[] => {
                 : ''
             : fixedDigits > 4  // bit of a hack, here
                 ? value.toExponential(1)
-                : value.toFixed(fixedDigits),
+                // : value.toFixed(fixedDigits),
+                : abbrevToM
+                    ? (value/1000000).toFixed(fixedDigits) + 'M'
+                    : abbrevToK
+                        ? (value/1000).toFixed(fixedDigits) + 'K'
+                        : value.toFixed(fixedDigits),
         majorTick: !isLog || ticksToLabel.includes(i)
     }))
 }

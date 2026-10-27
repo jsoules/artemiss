@@ -334,10 +334,10 @@ export const Fields: FieldRecords = {
         displayInTable: true
     },
     'stellsym': {
-        shortLabel: "TODO 1",
-        plotLabel: "TODO 1",
-        fullLabel: "TODO 1",
-        description: "TODO 1",
+        shortLabel: "Stell. sym.",
+        plotLabel: "Stellarator symmetry",
+        fullLabel: "Stellarator symmetry",
+        description: "Device has stellarator symmetry",
         unit: undefined,
         range: [-1, 1],
         values: trueFalseValidValues,
@@ -346,10 +346,11 @@ export const Fields: FieldRecords = {
         displayInTable: true
     },
     'enforceVacuum': {
-        shortLabel: "TODO 2",
-        plotLabel: "TODO 2",
-        fullLabel: "TODO 2",
-        description: "TODO 2",
+        // Key is that True means the devices being shown have no pressure.
+        shortLabel: "Enforce vacuum",
+        plotLabel: "Enforce vacuum",
+        fullLabel: "Device is pressure-free",
+        description: "True for devices which have no pressure",
         unit: undefined,
         range: [-1, 1],
         values: trueFalseValidValues,
@@ -395,7 +396,7 @@ export const Fields: FieldRecords = {
         plotLabel: "Volume avg B",
         fullLabel: "Volume-averaged B",
         description: "Magnetic field strength averaged over the plasma volume",
-        unit: `T/${METER_UNIT}^3`,   // TODO: FIXME
+        unit: `T`,
         range: [3.97, 10.96],
         // values: totalCoilLengthValidValues,
         isLog: false,
@@ -449,7 +450,8 @@ export const Fields: FieldRecords = {
         plotLabel: "V well",
         fullLabel: "Vacuum Magnetic Well",
         description: "Metric for plasma equilibrium stability",
-        unit: undefined,    // TODO
+        // unit: `${METER_UNIT}^3`,
+        unit: undefined,
         range: [-4.25, 0.636],
         // values: ncPerHpValidValues,
         isLog: false,
@@ -476,7 +478,7 @@ export const Fields: FieldRecords = {
         shortLabel: "iota mean",
         plotLabel: "Iota Mean",
         fullLabel: "Iota Mean",
-        description: "Iota Mean TODO",
+        description: "Mean value of rotational transform",
         range: [-3.7, 2.86],
         isLog: false,
         isCategorical: false,
@@ -488,8 +490,9 @@ export const Fields: FieldRecords = {
         shortLabel: "mercierMax",
         plotLabel: "Mercier (max value)",
         fullLabel: "Mercier Criterion max value",
-        description: "FIXME TODO",
-        unit: undefined,    // TODO
+        description: "Max value of Mercier stability criterion (positive values stable)",
+        // TODO: Should match vacuum well, once we decide what that is
+        unit: undefined,
         range: [-2392, 0.521],
         isLog: false,
         isCategorical: false,
@@ -771,7 +774,7 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "Volume-averaged plasma beta",
         order: 140,
         displayInTable: true,
-        unit: "TODO",
+        unit: undefined,
         truncateTo: 4,
         isLog: false,
         valueLabels: undefined
@@ -780,7 +783,7 @@ export const DeviceFields: DeviceFieldRecords = {
         label: "Toroidal current",
         desc: "Enclosed toroidal current profile on the surfaces",
         order: 155,
-        displayInTable: true,
+        displayInTable: false,
         unit: "Amperes",
         isLog: false,
         valueLabels: undefined
@@ -808,7 +811,7 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "vacuum well",
         order: 190,
         displayInTable: true,
-        unit: "TODO",
+        unit: undefined,    // TODO: SEE ABOVE
         truncateTo: 4,
         isLog: false,
         valueLabels: undefined
@@ -817,8 +820,8 @@ export const DeviceFields: DeviceFieldRecords = {
         label: "Mercier criterion",
         desc: "Mercier criterion",
         order: 200,
-        displayInTable: false,  // TODO: use graph??
-        unit: "TODO",
+        displayInTable: false,
+        unit: undefined, //"TODO -- see above
         isLog: false,
         valueLabels: undefined
     },
@@ -835,7 +838,7 @@ export const DeviceFields: DeviceFieldRecords = {
         desc: "Integrated torsion on magnetic axis",
         order: 210,
         displayInTable: true,
-        unit: "TODO",
+        unit: undefined,
         truncateTo: 4,
         isLog: false,
         valueLabels: undefined
@@ -853,7 +856,7 @@ export const DeviceFields: DeviceFieldRecords = {
         label: "Sqrt Boozer QS",
         desc: "Root of Boozer QS error",
         order: 230,
-        displayInTable: false,  // TODO: use graph??
+        displayInTable: false,
         unit: undefined,
         isLog: false,
         valueLabels: undefined

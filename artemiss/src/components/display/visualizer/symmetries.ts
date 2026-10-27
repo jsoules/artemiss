@@ -87,14 +87,14 @@ angleFractionsPerNfp.map((v, i) => {
 /**
  * Hook to expand a device's surfaces across the full stellarator ring.
  * 
- * @param baseSurf The base surfaces as a list of (currently) 21 x 21 3-vector points.
+ * @param baseSurf The base surfaces as a list of (currently) 41 x 41 3-vector points.
  * Indexed as [n_surface x n_phi x n_theta], where theta is the rotation around the
  * magnetic axis in a cross-sectional slice with the magnetic axis at the center, and
  * phi is the angle of rotation for a coronal view with the device's central axis;
  * basically, theta is N increments covering [0, 2pi) while phi is N increments covering
  * the start of the period to the end of the period (if NFP = 4, phi will span [0, pi/2)).
- * surfaces are represented as a 30 x 30 field of 3-vector points, and scalar values are
- * represented as 30 x 30 scalar values.
+ * surfaces are represented as a 41 x 41 field of 3-vector points, and scalar values are
+ * represented as 41 x 41 scalar values.
  * @param baseModB The scalar values of the magnetic flux used to color the surfaces described
  * in baseSurf, indexed/arranged the same way, except they're scalars not vectors.
  * @param nfp Number of field periods, aka number of rotational symmetries.
@@ -102,7 +102,7 @@ angleFractionsPerNfp.map((v, i) => {
  * so that they cover the entire stellarator ring.
  */
 export const applySurfaceSymmetries = (baseSurf: Vec3Field[], baseModB: ScalarField[], nfp: number): {fullSurf: Vec3Field[], fullModB: ScalarField[]} => {
-    // Step 1: convert the fields--a 21x21 grid of 3-vector points--to matrices & flatten to 441
+    // Step 1: convert the fields--a 41x41 grid of 3-vector points--to matrices & flatten to 1681
 
 
     // const {surfacePoints, pointValues} = baseSurf
@@ -125,13 +125,15 @@ export const applySurfaceSymmetries = (baseSurf: Vec3Field[], baseModB: ScalarFi
         const reversed = reshape(matrix([...baseSurf].flat().reverse()),
                                  [SURFACE_SIDE_RESOLUTION, SURFACE_SIDE_RESOLUTION]
                                 ).valueOf() as ScalarField
-        return [...reversed, ...baseSurf]
+        return [...reversed]//, ...baseSurf]
     })
     // This may be unnecessary
     const pointFields = fullPeriodPointFields.map(fullPeriodSurfacePoints => {
         return new Array(nfp).fill(0).map(() => fullPeriodSurfacePoints).flat() as ScalarField
     })
     const completedPoints = pointFields
+    console.log(`Length of full surface: ${completedSurfaces[0].length} length of full points: ${completedPoints[14].length}`)
+    console.log(`Second dim: surfs ${completedSurfaces[0][0].length} vals ${completedPoints[14][0].length}`)
     
     return { fullSurf: completedSurfaces, fullModB: completedPoints }
 }

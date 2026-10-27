@@ -369,7 +369,24 @@ div.ForceLightMode {
     padding-left: 20px;
 }
 
-.iotaProfileWrapper {
+.linePlotRow {
+    display: flex;
+    flex-direction: column;
+}
+
+.linePlotRowLabel {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.linePlotSet {
+    display: flex;
+    flex-direction: row;
+}
+
+.linePlotWrapper {
     margin: 20px 20px 20px 10px;
 }
 

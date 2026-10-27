@@ -1,9 +1,10 @@
 import { useMemo } from "react"
 
 
-const useBestFitLine = (data: number[][]) => {
+const useBestFitLine = (data: number[][], withFit: boolean) => {
     return useMemo(() => {
         if (data.length === 1) return {}
+        if (!withFit) return {}
         const sum = (data.reduce((previous, current) => [previous[0] + current[0], previous[1] + current[1]], [0, 0]))
         const xMean = sum[0]/data.length
         const yMean = sum[1]/data.length

@@ -1,4 +1,6 @@
 export { default as LinePlot } from "@snComponents/display/visualizer/LinePlot"
+export type { LinePlotProps } from "@snComponents/display/visualizer/LinePlot"
+export { default as LinePlotRow } from "@snComponents/display/visualizer/LinePlotRow"
 export { default as DownloadLinks } from "@snVisualizer/DownloadLinks"
 // export { default as PoincarePlot } from "@snVisualizer/PoincarePlot"
 export { default as RecordManifest } from "@snVisualizer/RecordManifest"

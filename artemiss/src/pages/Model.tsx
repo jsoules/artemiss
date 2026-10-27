@@ -5,9 +5,9 @@ import { HrBar, Spinner } from "@snGeneralComponents/index"
 import { useDevice, useDevice3dModel } from "@snQuerying/index"
 import { DeviceFields } from "@snTypes/DataDictionary"
 import { defaultEmptyDevice } from "@snTypes/Defaults"
-import { Device } from "@snTypes/Types"
+import { Device, DeviceTimeSeries } from "@snTypes/Types"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
-import { DownloadLinks, LinePlot, RecordManifest, SimulationView, SurfaceControls } from "@snVisualizer/index"
+import { DownloadLinks, LinePlotProps, LinePlotRow, RecordManifest, SimulationView, SurfaceControls } from "@snVisualizer/index"
 import { FunctionComponent, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router"
 import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
@@ -20,18 +20,50 @@ const _mean: (series: number[]) => number = (series: number[]) => {
 }
 
 // TODO: Switch mean calculation to use sumPrecise --> requries upgrading target math library version
-const makeLinePlot = (device: Device, xField: keyof Device, yField: keyof Device, edgeLength: number) => {
-    return <LinePlot
-        xLabel={DeviceFields[xField].label}
-        yLabel={DeviceFields[yField].label}
-        xDesc={DeviceFields[xField].desc ?? DeviceFields[xField].label}
-        yDesc={DeviceFields[yField].desc ?? DeviceFields[yField].label}
-        xSeries={device[xField] as any as number[]}
-        ySeries={device[yField] as any as number[]}
-        meanY={_mean(device[yField] as any as number[])}
-        width={edgeLength}
-        height={edgeLength}
-    />
+const makeLinePlotProps = (device: Device, xField: keyof Device, yField: keyof Device, edgeLength: number): LinePlotProps => {
+    // this is a real ugly hack
+    const xSeries = device[xField] as any as number[]
+    const ySeries = device[yField] as any as number[]
+    const _xSeries = yField === "mercierCriterion" ? xSeries.slice(1) : xSeries
+    const _ySeries = yField === "mercierCriterion" ? ySeries.slice(1) : ySeries
+    return {
+        xLabel: DeviceFields[xField].label,
+        yLabel: DeviceFields[yField].label,
+        xDesc: DeviceFields[xField].desc ?? DeviceFields[xField].label,
+        yDesc: DeviceFields[yField].desc ?? DeviceFields[yField].label,
+        xSeries: _xSeries,
+        ySeries: _ySeries,
+        meanY: _mean(_ySeries),
+        width: edgeLength,
+        height: edgeLength,
+        withFit: false,
+        customLabel: DeviceFields[yField].label
+    }
+}
+
+// TODO: These two functions could probably be combined with use of generics, but we aren't quite there
+const makeLinePlotPropsForTime = (series: DeviceTimeSeries, frac: "10" | "25" | "50", edgeLength: number): LinePlotProps => {
+    const yLabel = `s=0.${frac}`
+    const yDesc = `Loss fraction (${frac})`
+    const ySeries = frac === '10' ? series.lossFracS0_10 : frac === '25' ? series.lossFracS0_25 : series.lossFracS0_50
+    const xSeries = series.time.map(x => Math.log10(x))
+
+    /// Actually take the log for the time series!
+    // Remove the mean for this one too
+
+    return {
+        xLabel: "t",
+        yLabel,
+        xDesc: "Log_10 of time (s)",
+        yDesc,
+        xSeries: xSeries,
+        ySeries: ySeries,
+        meanY: undefined,
+        width: edgeLength,
+        height: edgeLength,
+        withFit: false,
+        customLabel: `Loss fraction for particles born on ${yLabel}`
+    }
 }
 
 
@@ -96,6 +128,33 @@ const Model: FunctionComponent = () => {
     // }, [lw, showFullRing, surfaceChecks, colorMap, device.nfp, showCurrents, autorotate])
     }, [lw, showFullRing, surfaceChecks, colorMap, device.nfp, autorotate])
 
+    const profilePlotProps = useMemo(() => {
+        return device === defaultEmptyDevice
+            ? []
+            : [
+                makeLinePlotProps(device, "surfaceDistances", "pressure", rw),
+                makeLinePlotProps(device, "surfaceDistances", "toroidalCurrent", rw),
+                makeLinePlotProps(device, "surfaceDistances", "iota", rw),
+            ]
+    }, [device])
+    const mhdPlotProps = useMemo(() => {
+        return device === defaultEmptyDevice
+            ? []
+            : [
+                makeLinePlotProps(device, "surfaceDistances", "sqrtBoozerQsError", rw),
+                makeLinePlotProps(device, "surfaceDistances", "mercierCriterion", rw)
+            ]
+    }, [device])
+    const timePlotProps = useMemo(() => {
+        return device === defaultEmptyDevice
+            ? []
+            : [
+                makeLinePlotPropsForTime(device.lossTracings, "10", rw),
+                makeLinePlotPropsForTime(device.lossTracings, "25", rw),
+                makeLinePlotPropsForTime(device.lossTracings, "50", rw),
+            ]
+    }, [device])
+
     return device === defaultEmptyDevice
         ? <div></div>
         : (<div className="simulationViewParent ForceLightMode">
@@ -122,26 +181,17 @@ const Model: FunctionComponent = () => {
                     <canvas
                         ref={canvasRef}
                         className="deviceModel"
-                        // style={{marginLeft: `${leftMargin}px`}}
                         title="Click and drag to rotate the camera; right-click, shift-click, or ctrl-click and drag to pan."
                     />
                     {viewer}
                 </div>
                 <div style={{width: Math.floor(rw) }}>
-                    {/* <HrBar /> */}
                     <RecordManifest device={device} colWidth={Math.floor(rw)} />
                 </div>
             </div>
-            <div className="flexWrapper">
-                {makeLinePlot(device, "surfaceDistances", "sqrtBoozerQsError", rw)}
-                {makeLinePlot(device, "surfaceDistances", "iota", rw)}
-                {makeLinePlot(device, "surfaceDistances", "pressure", rw)}
-            </div>
-            <div className="flexWrapper">
-                {/* {makeLinePlot(device, "surfaceDistances", "boozerI", rw)} */}
-                {makeLinePlot(device, "surfaceDistances", "mercierCriterion", rw)}
-                {/* {makeLinePlot(device, "surfaceDistances", "pressure", rw)} */}
-            </div>
+            <LinePlotRow pageWidth={width} plots={profilePlotProps} label={"Profiles"} />
+            <LinePlotRow pageWidth={width} plots={mhdPlotProps} label={"Ideal MHD"} />
+            <LinePlotRow pageWidth={width} plots={timePlotProps} label={"Guiding center"} />
             <HrBar />
             {/* {poincarePlot}
             <HrBar /> */}
