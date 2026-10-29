@@ -10,7 +10,7 @@ const useDatabase = () => {
     const databasePath = makeResourcePath('', KnownPathType.DATABASE)
     const { data: rawDatabase, error } = useQuery({
         queryKey: ['database'],
-        queryFn: () => queryFn<RawData>(databasePath, !import.meta.env.DEV),
+        queryFn: () => queryFn<RawData>(databasePath, false)// !import.meta.env.DEV),
     })
     // TODO: Replace this with more sophisticated error--should bubble to routing
     if (error) {

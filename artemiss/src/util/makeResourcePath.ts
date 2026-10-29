@@ -5,9 +5,9 @@ import { ArtemissRecord, ConcatenationToken, Device, PKType } from "@snTypes/Typ
 const BASENAME = import.meta.env.BASE_URL
 const basePath = BASENAME === '/'
                     ? import.meta.env.DEV
-                        ? 'http://localhost:5173/'
+                        ? 'http://localhost:5173/artemiss/'
                         : 'https://artemiss.flatironinstitute.org/artemiss'
-                    : `https://users.flatironinstitute.org${BASENAME}/artemiss/`
+                    : `https://users.flatironinstitute.org/~mpadidar/artemiss/`
 
 
 const SrcDbAbbrevMap: Map<string, Translation> = new Map(
@@ -41,7 +41,7 @@ export const decodeUrlToPath = (urlFragment: string): { path: string, uuid: stri
     const [dbFromAbbrev, groupName, srcIdAbbrev, uuid] = decodeURIComponent(urlFragment).split(ConcatenationToken)
     const dbFrom = SrcDbAbbrevMap.get(dbFromAbbrev)?.full ?? dbFromAbbrev
     const srcId = DbFromIdAbbrevMap.get(srcIdAbbrev)?.full ?? srcIdAbbrev
-    return { path: ['artemiss', dbFrom, groupName, srcId, uuid].join('/'), uuid }
+    return { path: [dbFrom, groupName, srcId, uuid].join('/'), uuid }
 }
 
 

@@ -8,7 +8,7 @@ import { Device, DeviceTimeSeries } from "@snTypes/Types"
 import useWindowDimensions from "@snUtil/useWindowDimensions"
 import { FunctionComponent, useEffect, useMemo, useRef, useState } from "react"
 import { useParams } from "react-router"
-import imgLogo from 'src/assets/Quasr_Logo_RGB_Full.svg'
+import imgLogo from 'src/assets/BoSS_Logo.svg'
 
 const _mean: (series: number[]) => number = (series: number[]) => {
     if (series.length === 0) {

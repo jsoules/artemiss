@@ -194,6 +194,7 @@ export const databaseFromValidValues = [
     "kappel_2024",
     "model_improvement_2026",
     "model_improvement_bo_2026",
+    "padidar_2026",
     "omnigenity",
     "random_ellipse",
     "random_ellipse_perturbed",

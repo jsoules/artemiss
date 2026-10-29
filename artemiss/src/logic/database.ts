@@ -136,6 +136,10 @@ const makeCategoricalIndices = (dataList: ArtemissRecord[]) => {
 
     dataList.forEach(rec => {
         fields.forEach(f => {
+            const target = indexSet[f][rec[f]]
+            if (!target) {
+                throw new Error(`Attempt to add value to unrecognized categorical index field: ${f} ${rec.uuid} ${rec[f]}`)
+            }
             indexSet[f][rec[f]].add(rec.rowid)
         })
     })

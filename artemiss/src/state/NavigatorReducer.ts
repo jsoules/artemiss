@@ -313,10 +313,18 @@ const refreshIndexes = (settings: FilterSettings) => {
     const rows = projectRecords(db, settings.recordIds)
     rows.forEach(r => {
         if (settings.coarsePlotSplit !== undefined && cidx !== undefined) {
-            cidx[r[settings.coarsePlotSplit]].add(r.rowid)
+            const cidxr = cidx[r[settings.coarsePlotSplit]]
+            if (!cidxr) {
+                throw new Error(`Got empty index record in index refresh: ${settings.coarsePlotSplit} ${r.uuid}`)
+            }
+            cidxr.add(r.rowid)
         }
         if (settings.finePlotSplit !== undefined && fidx !== undefined) {
-            fidx[r[settings.finePlotSplit]].add(r.rowid)
+            const fidxr = fidx[r[settings.finePlotSplit]]
+            if (!fidxr) {
+                throw new Error(`Got empty index record in fine index refresh: ${settings.finePlotSplit} ${r.uuid}`)
+            }
+            fidxr.add(r.rowid)
         }
     })
 
