@@ -109,6 +109,7 @@ const Model: FunctionComponent = () => {
                     surfaceChecks={surfaceChecks}
                     colorScheme={colorMap}
                     displayedPeriods={showFullRing ? device.nfp : 1}
+                    singlePeriodDevice={(device?.nfp ?? 1) === 1}
                     // showCurrents={showCurrents}
                     autorotate={autorotate}
                 />

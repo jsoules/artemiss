@@ -21,6 +21,7 @@ type Props = {
     // coils?: CoilRecord[]
     // surfs?: SurfaceObject
     displayedPeriods?: number
+    singlePeriodDevice: boolean
     // showCurrents?: boolean
     autorotate?: boolean
 }
@@ -48,7 +49,7 @@ const spinObjects = (obj: THREE.Mesh<THREE.BufferGeometry, THREE.Material>[], ti
 
 
 const SimulationView: FunctionComponent<Props> = (props: Props) => {
-    const { width, height, canvasRef, device, showFullRing, surfaceChecks, colorScheme, displayedPeriods, autorotate } = props
+    const { width, height, canvasRef, device, showFullRing, surfaceChecks, colorScheme, displayedPeriods, singlePeriodDevice, autorotate } = props
     const frameRequest = useRef<number | undefined>(undefined)
     const totalTicks = useRef<number>(0)
     const canvas = canvasRef.current
@@ -62,8 +63,8 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
 
     const mySurfs = useMemo(() => {
         totalTicks.current = 0
-        const surf = showFullRing ? device?.fullSurfaces : device?.baseSurfaces
-        const colors = showFullRing ? device?.fullModB : device?.baseModB
+        const surf = (showFullRing && !singlePeriodDevice) ? device?.fullSurfaces : device?.baseSurfaces
+        const colors = (showFullRing && !singlePeriodDevice) ? device?.fullModB : device?.baseModB
         // TODO: If we want to support painting more colors on the surface, come up with
         // UI controls to pick which data set we display
         // TODO: NOTE: Because we have full surface-color data but are hard-locked to a single
@@ -72,7 +73,7 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
         return surf === undefined
             ? { surfacePoints: [], pointValues: [], incomplete: true } as SurfaceObject
             : { surfacePoints: surf, pointValues: [colors[colors.length - 1]], incomplete: false }
-    }, [device?.baseSurfaces[0]?.length, showFullRing])
+    }, [device?.baseSurfaces[0]?.length, singlePeriodDevice, showFullRing])
 
     // const tubes = useMemo(() => {
     //     // NOTE: Could memoize these out individually but it's probably not terribly expensive
@@ -85,7 +86,10 @@ const SimulationView: FunctionComponent<Props> = (props: Props) => {
     //     return coilMeshes
     // }, [myCoils, showCurrents])
 
-    const baseSurfaces = useMemo(() => makeSurfaces(mySurfs.surfacePoints, displayedPeriods), [displayedPeriods, mySurfs.surfacePoints])
+    // NOTE: Addition of force-torus-closure for the surfaces in the even tthat there is only a single period in the device.
+    // This is necessary because Artemiss, unlike QUASR, uses full periods; when there's only one full period, that is the full
+    // device torus, and it looks very strange to omit the join at the end of the loop in that case.
+    const baseSurfaces = useMemo(() => makeSurfaces(mySurfs.surfacePoints, displayedPeriods, singlePeriodDevice), [displayedPeriods, mySurfs.surfacePoints])
     const coloredSurfs = useMemo(() => colorizeSurfaces(baseSurfaces, mySurfs.pointValues, colorScheme), [baseSurfaces, colorScheme, mySurfs.pointValues])
     // NOTE: changing the color scheme/recoloring the surfaces does not change the coloredSurfs reference, which is modified in-place.
     // To ensure that changing the color actually updates the meshes, we need to make the following hook also depend on colorScheme

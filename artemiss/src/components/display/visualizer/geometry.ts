@@ -30,11 +30,11 @@ const triangulateField = (width: number, height: number, closed: boolean = false
 }
 
 
-export const makeSurfaces = (surfacePoints: Vec3Field[], periods: number = 1) => {
+export const makeSurfaces = (surfacePoints: Vec3Field[], periods: number = 1, overrideFull: boolean = false) => {
     if (surfacePoints.length === 0) return []
 
     // For each surface, create a BufferGeometry and add the
-    // 30 x 30 x [x, y, z] data to that geometry as "known vertices".
+    // SIDE_LENGTH x SIDE_LENGTH x [x, y, z] data to that geometry as "known vertices".
     // Then map those points into surfaces by using two triangles per 4-point neighborhood,
     // to create a mapping that says point (x, y) is adjacent to points (x, y+1) and
     // (x + 1, y) (see the triangulateField function).
@@ -42,7 +42,7 @@ export const makeSurfaces = (surfacePoints: Vec3Field[], periods: number = 1) =>
     const surfaces = surfacePoints.map((field) => {
         const surfaceGeometry = new THREE.BufferGeometry()
         const vertices = new Float32Array(field.flat(2))
-        const indices = triangulateField(SURFACE_SIDE_RESOLUTION, SURFACE_SIDE_RESOLUTION * periods, periods > 1)
+        const indices = triangulateField(SURFACE_SIDE_RESOLUTION, SURFACE_SIDE_RESOLUTION * periods, overrideFull || periods > 1)
 
         surfaceGeometry.setIndex(indices)
         surfaceGeometry.setAttribute('position', new THREE.BufferAttribute( vertices, 3 ))
