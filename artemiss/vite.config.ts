@@ -38,7 +38,7 @@ export default defineConfig({
         exclude: [...configDefaults.exclude],
     },
     plugins: [react()],
-    // base: "/~jsoules/QUASR",
+    // base: "/~jsoules/boss",
     // base: "/~jsoules/testboss",
     server: {
         watch: {

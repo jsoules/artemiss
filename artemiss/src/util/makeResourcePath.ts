@@ -6,7 +6,7 @@ const BASENAME = import.meta.env.BASE_URL
 const basePath = BASENAME === '/'
                     ? import.meta.env.DEV
                         ? 'http://localhost:5173/artemiss/'
-                        : 'https://artemiss.flatironinstitute.org/artemiss'
+                        : 'https://users.flatironinstitute.org/~mpadidar/artemiss/'
                     : `https://users.flatironinstitute.org/~mpadidar/artemiss/`
 
 
@@ -56,7 +56,7 @@ const makeResourcePath = (urlFragment: string, type: KnownPathType): string => {
         case KnownPathType.WEB:
             return `${basePath}${resourcePath}/web/device_data.json`
         case KnownPathType.DATABASE:
-            return `${basePath}/web/database_summary.json`   // add .gz
+            return `${basePath}web/database_summary.json`   // add .gz
         default:
             throw Error("Not Implemented")
     }
