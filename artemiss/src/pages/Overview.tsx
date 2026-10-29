@@ -37,7 +37,7 @@ const Overview: FunctionComponent<OverviewProps> = (props: OverviewProps) => {
     const { dispatch, filterSettings } = props
     const {width, height} = useWindowDimensions()
     const [plotColorProps, plotColorPropsDispatch] = useReducer(plotColorReducer, defaultPlotColorProps)
-    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [drawerOpen, setDrawerOpen] = useState(true)
     const [instructionsOpen, setInstructionsOpen] = useState(false)
     const callbacks = useFilterCallbacks(dispatch)
 

@@ -8,8 +8,8 @@ export const defaultDependentVariableValue = DependentVariables.VOL_AVG_B
 export const defaultIndependentVariableValue = IndependentVariables.MINOR_RADIUS
 export const defaultPlotColorSplit = ToggleableVariables.DATABASE_FROM
 
-const initialOnDatabases = ['bindel_2023', 'kappel_2024', 'model_improvement_2026']
-const initialOnNfps = [ '1', '4' ]
+const initialOnDatabases = ['kappel_2024', 'model_improvement_bo_2026', 'padidar_2026']
+const initialOnNfps = [ '1', '2', '4' ]
 const initialDbFromFilter = databaseFromValidValues.map(v => initialOnDatabases.includes(v))
 const initialNfpFilter = nfpValidValues.map(v => initialOnNfps.includes(v))
 
